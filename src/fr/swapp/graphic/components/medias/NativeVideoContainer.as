@@ -1,18 +1,7 @@
 package fr.swapp.graphic.components.medias 
 {
-	import flash.display.Shape;
-	import flash.events.ErrorEvent;
 	import flash.events.Event;
-	import flash.events.LocationChangeEvent;
-	import flash.geom.Point;
-	import flash.geom.Rectangle;
-	import flash.media.StageWebView;
-	import fr.swapp.core.log.Log;
-	import fr.swapp.graphic.components.base.ResizableComponent;
 	import fr.swapp.graphic.components.webview.WebViewContainer;
-	import fr.swapp.graphic.errors.GraphicalError;
-	import fr.swapp.utils.ScreenUtils;
-	import org.osflash.signals.Signal;
 	
 	/**
 	 * Player video natif via un StageWebView.

@@ -12,7 +12,7 @@ package fr.swapp.graphic.components.medias
 	import flash.media.StageWebView;
 	import fr.swapp.core.log.Log;
 	import fr.swapp.core.roles.IReadyable;
-	import fr.swapp.graphic.components.base.ResizableComponent;
+	import fr.swapp.graphic.base.ResizableComponent;
 	import fr.swapp.utils.ScreenUtils;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
@@ -85,34 +85,50 @@ package fr.swapp.graphic.components.medias
 			<part2><![CDATA[
 							</style>
 							<script type="text/javascript">
+								// Le body
 								var body;
 								
+								/**
+								 * Bloquer les mouvements
+								 */
 								function preventMove (event)
 								{
 									event.preventDefault();
 								}
 								
+								/**
+								 * Construire la base de la vue HTML
+								 */
 								function construct ()
 								{
+									// Cibler le body
 									body = document.getElementsByTagName("body")[0];
 									
+									// Bloquer les mouvements sur le body
 									body.addEventListener("touchstart", preventMove);
 									body.addEventListener("touchmove", preventMove);
 									
+									// Initialiser
 									if ("init" in window)
 										init();
 								}
 								
+								/**
+								 * Envoyer un message à la WebView
+								 * @param	pMessageName : Le nom du message (String)
+								 * @param	pMessageParams : Les paramètres du message (Array)
+								 */
 								function sendMessage (pMessageName, pMessageParams)
 								{
+									// Construire l'URL avec les paramètres
 									var params = "";
-									
 									var totalParams = pMessageParams.length;
 									for (var i = 0; i < totalParams; i++ )
 									{
 										params += typeof(pMessageParams[i]) + "," + encodeURIComponent(encodeURIComponent(pMessageParams[i])) + "//";
 									}
 									
+									// Changer l'URL avec un prefix particulier pour que la webview puisse l'intercepter
 									window.location = "http://webviewmessage//" + encodeURIComponent(pMessageName) + "//" + params;
 								}
 				]]></part2>
@@ -155,7 +171,12 @@ package fr.swapp.graphic.components.medias
 		/**
 		 * Utiliser l'HTML interne
 		 */
-		protected var _useInternalStructure		:Boolean;
+		protected var _useInternalStructure		:Boolean				= true;
+		
+		/**
+		 * Bloquer les drag and drop sur l'HTML de la structure
+		 */
+		protected var _preventMoveOnStructure	:Boolean				= true;
 		
 		
 		/**
@@ -279,6 +300,17 @@ package fr.swapp.graphic.components.medias
 		 */
 		public function get useInternalStructure():Boolean { return _useInternalStructure; }
 		
+		/**
+		 * Bloquer les drag and drop sur l'HTML de la structure
+		 */
+		public function get preventMoveOnStructure ():Boolean { return _preventMoveOnStructure; }
+		public function set preventMoveOnStructure (value:Boolean):void
+		{
+			_preventMoveOnStructure = value;
+			
+			// TODO: Le preventMoveOnStructure n'a pas d'effet sur l'HTML
+		}
+		
 		
 		/**
 		 * Le constructeur
@@ -288,6 +320,7 @@ package fr.swapp.graphic.components.medias
 		{
 			_useInternalStructure = pUseInternalStructure;
 		}
+		
 		
 		/**
 		 * Initialisation
@@ -442,6 +475,15 @@ package fr.swapp.graphic.components.medias
 			
 			// Appeler la fonction sur le player
 			_stageWebView.loadURL(functionCall);
+		}
+		
+		/**
+		 * Le composant est replacé
+		 */
+		override protected function replaced ():void
+		{
+			// Replacer la webview
+			needReplace();
 		}
 		
 		/**
@@ -666,9 +708,7 @@ package fr.swapp.graphic.components.medias
 				_stageWebView.removeEventListener(FocusEvent.FOCUS_IN, stageWebViewHandler);
 				_stageWebView.removeEventListener(FocusEvent.FOCUS_OUT, stageWebViewHandler);
 				
-				
 				_stageWebView.stage.removeEventListener(Event.RESIZE, stageResizedHandler);
-				
 				
 				// On le supprime
 				_stageWebView.viewPort = null;
@@ -680,6 +720,9 @@ package fr.swapp.graphic.components.medias
 			_messageHandlers = null;
 			
 			removeEventListener(MouseEvent.MOUSE_DOWN, clickHandler);
+			
+			// Relayer
+			super.dispose();
 		}
 	}
 }

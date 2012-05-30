@@ -477,6 +477,7 @@ package fr.swapp.graphic.base
 		/**
 		 * Position horizontale
 		 */
+		/*
 		override public function get x ():Number { return super.x - _leftMargin - _horizontalOffset; }
 		override public function set x (value:Number):void
 		{
@@ -492,11 +493,12 @@ package fr.swapp.graphic.base
 				// Dispatcher
 				_onReplaced.dispatch();
 			}
-		}
+		}*/
 		
 		/**
 		 * Position verticale
 		 */
+		/*
 		override public function get y ():Number { return super.y - _topMargin - _verticalOffset; }
 		override public function set y (value:Number):void
 		{
@@ -513,6 +515,7 @@ package fr.swapp.graphic.base
 				_onReplaced.dispatch();
 			}
 		}
+		*/
 		
 		/**
 		 * Le décalage de placement horizontal
@@ -528,6 +531,15 @@ package fr.swapp.graphic.base
 				
 				// Invalider
 				invalidate();
+				
+				// Actualiser la position
+				//x = _leftMargin + _horizontalOffset;
+				
+				// Signaler
+				//replaced();
+				
+				// Dispatcher
+				//_onReplaced.dispatch();
 			}
 		}
 		
@@ -545,6 +557,15 @@ package fr.swapp.graphic.base
 				
 				// Invalider
 				invalidate();
+				
+				// Actualiser la position
+				//y = _topMargin + _verticalOffset;
+				
+				// Signaler
+				//replaced();
+				
+				// Dispatcher
+				//_onReplaced.dispatch();
 			}
 		}
 		
@@ -660,6 +681,29 @@ package fr.swapp.graphic.base
 			
 			// Retourner le fond
 			return _backgroundImage;
+		}
+		public function set backgroundImage (value:AdvancedBitmap):void
+		{
+			// Si c'est différent
+			if (_backgroundImage != value)
+			{
+				// Si on a déjà un fond
+				if (_backgroundImage != null)
+				{
+					// On le vire
+					_backgroundImage.into(null);
+				}
+				
+				// Si la valeur est différent de null
+				if (value != null)
+				{
+					// On enregistre le nouveau
+					_backgroundImage = value;
+					
+					// Et on le place
+					_backgroundImage.place(0, 0, 0, 0).into(this, "background", 0);
+				}
+			}
 		}
 		
         /**
@@ -1152,7 +1196,7 @@ package fr.swapp.graphic.base
 				}
 				
 				// Placement normal sur les marges
-				else if (_horizontalOffset != 0 || _leftMargin != 0)
+				else
 				{
 					super.x = _horizontalOffset + _leftMargin;
 				}
@@ -1189,7 +1233,7 @@ package fr.swapp.graphic.base
 				}
 				
 				// Placement normal sur les marges
-				else if (_verticalOffset != 0 || _topMargin != 0)
+				else
 				{
 					super.y = _verticalOffset + _topMargin;
 				}
@@ -1209,10 +1253,10 @@ package fr.swapp.graphic.base
 			if (super.x != _oldXPosition || super.y != _oldYPosition)
 			{
 				// Signaler
-				//replaced();
+				replaced();
 				
 				// Dispatcher
-				//_onReplaced.dispatch();
+				_onReplaced.dispatch();
 			}
 			
 			// Si on a touché aux dimensions du composant

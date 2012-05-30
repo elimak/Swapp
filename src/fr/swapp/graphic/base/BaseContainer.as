@@ -90,7 +90,7 @@ package fr.swapp.graphic.base
 			_container.onResized.add(containerResized);
 			
 			// Le placer / nommer / ajouter
-			_container.place(0, 0, 0, 0).into(this, "container");
+			_container.place(0, 0, 0, 0).into(this);
 		}
 		
 		/**

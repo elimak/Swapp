@@ -1,4 +1,4 @@
-package fr.swapp.graphic.components.containers.stacks 
+package fr.swapp.graphic.components.navigation 
 {
 	import flash.display.DisplayObjectContainer;
 	import fr.swapp.core.actions.IAction;
@@ -6,9 +6,8 @@ package fr.swapp.graphic.components.containers.stacks
 	import fr.swapp.core.bootstrap.BootstrapAction;
 	import fr.swapp.core.bootstrap.IBootstrap;
 	import fr.swapp.core.mvc.abstract.IViewController;
-	import fr.swapp.core.mvc.concrete.ViewController;
-	import fr.swapp.graphic.components.base.ResizableComponent;
-	import fr.swapp.graphic.components.containers.base.BaseContainer;
+	import fr.swapp.graphic.base.ResizableComponent;
+	import fr.swapp.graphic.components.navigation.items.IStackLayerItem;
 	import fr.swapp.graphic.errors.GraphicalError;
 	import org.osflash.signals.Signal;
 	

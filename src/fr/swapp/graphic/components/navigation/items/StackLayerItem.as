@@ -1,4 +1,4 @@
-package fr.swapp.graphic.components.containers.stacks 
+package fr.swapp.graphic.components.navigation.items 
 {
 	import fr.swapp.core.bootstrap.BootstrapAction;
 	import fr.swapp.utils.ObjectUtils;

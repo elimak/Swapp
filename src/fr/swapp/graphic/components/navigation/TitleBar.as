@@ -1,18 +1,13 @@
-package fr.swapp.graphic.components.controls.title 
+package fr.swapp.graphic.components.navigation 
 {
-	import com.greensock.easing.Quad;
-	import com.greensock.easing.Strong;
-	import com.greensock.TweenMax;
-	import flash.display.BitmapData;
 	import flash.events.MouseEvent;
-	import flash.events.TouchEvent;
 	import fr.swapp.graphic.animations.ITransition;
-	import fr.swapp.graphic.components.base.ResizableComponent;
+	import fr.swapp.graphic.base.ResizableComponent;
 	import fr.swapp.utils.ObjectUtils;
 	import org.osflash.signals.Signal;
 	
 	/**
-	 * ...
+	 * La barre de titre
 	 * @author ZoulouX
 	 */
 	public class TitleBar extends ResizableComponent 
@@ -47,12 +42,6 @@ package fr.swapp.graphic.components.controls.title
 		 * Le composant du centre
 		 */
 		protected var _centerComponent					:ResizableComponent;
-		
-		
-		/**
-		 * Le fond
-		 */
-		protected var _back								:ResizableComponent;
 		
 		
 		/**
@@ -107,10 +96,6 @@ package fr.swapp.graphic.components.controls.title
 		 */
 		public function get centerComponent ():ResizableComponent { return _centerComponent; }
 		
-		/**
-		 * Le fond
-		 */
-		public function get back ():ResizableComponent { return _back; }
 		
 		/**
 		 * L'amplitude de l'animation (le décallage du composant sur l'axe x)
@@ -158,15 +143,6 @@ package fr.swapp.graphic.components.controls.title
 			addEventListener(MouseEvent.CLICK, clickHandler);
 		}
 		
-		
-		/**
-		 * Définir le fond
-		 */
-		public function setBack (pComponent:ResizableComponent):void
-		{
-			// Enregistrer et placer le fond
-			_back = pComponent.place(0, 0, 0, 0).into(this, "back", 0);
-		}
 		
 		/**
 		 * Masquer le composant en cours

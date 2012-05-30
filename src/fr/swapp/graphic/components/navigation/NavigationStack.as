@@ -7,14 +7,14 @@ package fr.swapp.graphic.components.navigation
 	import fr.swapp.core.errors.SwappError;
 	import fr.swapp.core.mvc.abstract.IViewController;
 	import fr.swapp.graphic.animations.ITransition;
-	import fr.swapp.graphic.components.base.ComponentView;
-	import fr.swapp.graphic.components.base.ResizableComponent;
+	import fr.swapp.graphic.base.ResizableComponent;
 	import fr.swapp.graphic.components.containers.stacks.ActionStack;
+	import fr.swapp.graphic.components.controls.Button;
 	import fr.swapp.graphic.components.controls.menus.MenuBar;
 	import fr.swapp.graphic.components.controls.title.TitleBar;
+	import fr.swapp.graphic.components.navigation.items.NavigationStackItem;
 	import fr.swapp.graphic.errors.GraphicalError;
 	import fr.swapp.utils.ObjectUtils;
-	import fr.zapiks.app.views.elements.controls.BackButton;
 	
 	/**
 	 * ...
@@ -22,114 +22,6 @@ package fr.swapp.graphic.components.navigation
 	 */
 	public class NavigationStack extends ResizableComponent
 	{
-		/**
-		 * Les noms des éléments pour les layouts
-		 */
-		public static const TITLE_BAR							:String 		= "TITLE_BAR";
-		public static const MENU_BAR							:String 		= "MENU_BAR";
-		public static const ACTION_STACK						:String 		= "ACTION_STACK";
-		
-		/**
-		 * Layout sans titleBar, avec un menuBar de 50px en bas
-		 */
-		public static const NO_TITLE_BAR_LAYOUT					:Object = {
-			// Layout de l'actionStack
-			ACTION_STACK: {
-				top: 0,
-				right: 0,
-				bottom: 50,
-				left: 0
-			},
-			
-			// Layout de la menuBar
-			MENU_BAR: {
-				right: 0,
-				bottom: 0,
-				left: 0,
-				height: 50
-			}
-		};
-		
-		/**
-		 * Layout sans menu
-		 */
-		static public const NO_MENU_BAR_LAYOUT					:Object = {
-			// Layout de la titleBar
-			TITLE_BAR: {
-				top: 0,
-				right: 0,
-				left: 0,
-				height: 44
-			},
-			
-			// Layout de l'actionStack
-			ACTION_STACK: {
-				top: 44,
-				right: 0,
-				bottom: 0,
-				left: 0
-			}
-		};
-		
-		/**
-		 * Layout iOS par défaut, titleBar de 44px et menuBar de 50px en bas
-		 */
-		public static const DEFAULT_IOS_LAYOUT					:Object = {
-			// Layout de la titleBar
-			TITLE_BAR: {
-				top: 0,
-				right: 0,
-				left: 0,
-				height: 44
-			},
-			
-			// Layout de l'actionStack
-			ACTION_STACK: {
-				top: 44,
-				right: 0,
-				bottom: 50,
-				left: 0
-			},
-			
-			// Layout de la menuBar
-			MENU_BAR: {
-				right: 0,
-				bottom: 0,
-				left: 0,
-				height: 50
-			}
-		};
-		
-		/**
-		 * Layout Android par défaut, titleBar de 44px suivit de la menuBar de 50px. L'actionStack est en bas.
-		 */
-		public static const DEFAULT_ANDROID_LAYOUT				:Object = {
-			// Layout de la titleBar
-			TITLE_BAR: {
-				top: 0,
-				right: 0,
-				left: 0,
-				height: 44
-			},
-			
-			// Layout de la menuBar
-			MENU_BAR: {
-				top: 44,
-				right: 0,
-				left: 0,
-				height: 50
-			},
-			
-			// Layout de l'actionStack
-			ACTION_STACK: {
-				top: 94,
-				right: 0,
-				bottom: 0,
-				left: 0
-			}
-		};
-		
-		
 		/**
 		 * La titleBar
 		 */
@@ -145,20 +37,21 @@ package fr.swapp.graphic.components.navigation
 		 */
 		protected var _menuBar						:MenuBar;
 		
-		/**
-		 * La class du bouton retour sur la titleBar
-		 */
-		protected var _backButtonClass				:Class;
-		
-		/**
-		 * Les injections du bouton back
-		 */
-		protected var _backButtonExtra				:Object;
 		
 		/**
 		 * L'index séléctionné (-1 pour aucune séléction)
 		 */
 		protected var _selectedIndex				:int					= -1;
+		
+		/**
+		 * La classe du bouton back
+		 */
+		protected var _backButtonClass				:Class					= Button;
+		
+		/**
+		 * Les extras du bouton back
+		 */
+		protected var _backButtonExtra				:Object;
 		
 		/**
 		 * La transition par défaut pour le bouton back
@@ -196,7 +89,7 @@ package fr.swapp.graphic.components.navigation
 		}
 		
 		/**
-		 * La class du bouton retour sur la titleBar
+		 * La classe du bouton back
 		 */
 		public function get backButtonClass ():Class { return _backButtonClass; }
 		public function set backButtonClass (value:Class):void
@@ -205,7 +98,7 @@ package fr.swapp.graphic.components.navigation
 		}
 		
 		/**
-		 * Les injections du bouton back
+		 * Les extras du bouton back
 		 */
 		public function get backButtonExtra ():Object { return _backButtonExtra; }
 		public function set backButtonExtra (value:Object):void
@@ -226,14 +119,13 @@ package fr.swapp.graphic.components.navigation
 		/**
 		 * Le constructeur
 		 * @param	pBootstrap : Le bootstrap qui va permettre d'instancier dans l'actionStack. Obligatoire.
-		 * @param	pLayout : Le layout pour placer les 3 éléments de la navigationStack (titleBar / actionStack / menuBar). La titleBar et la menuBar sont optionnelles, le layout peut les supprimer. Obligatoire.
 		 * @param	pItems : La liste des items (objets dynamiques ou objets de type NavigationStackItem)
+		 * @param	pSelectedIndex : L'index séléctionné (aucun par défaut)
+		 * @param	pTitleBar : Si la barre de titre doit être créée
+		 * @param	pMenuBar : Si la barre de menu doit être créée
 		 * @param	pMenuItemRenderer : L'item renderer des boutons de la menuBar. pItems ne doit pas être null pour que ce paramètre soit pris en compte.
-		 * @param	pSelectedIndex : L'index séléctionné 
-		 * @param	pTitleBar : La concrête de la titleBar (une titleBar par défaut sera créée si null et si spécifiée dans le layout)
-		 * @param	pMenuBar : La concrête de la menuBar (une menuBar par défaut sera créée si null et si spécifiée dans le layout)
 		 */
-		public function NavigationStack (pBootstrap:IBootstrap, pLayout:Object, pItems:Array = null, pMenuItemRenderer:Class = null, pSelectedIndex:int = -1, pTitleBar:TitleBar = null, pMenuBar:MenuBar = null)
+		public function NavigationStack (pBootstrap:IBootstrap, pItems:Array = null, pSelectedIndex:int = -1, pTitleBar:Boolean = true, pMenuBar:Boolean = true, pMenuItemRenderer:Class = null)
 		{
 			// Si on n'a pas de bootstrap
 			if (pBootstrap == null)
@@ -251,25 +143,34 @@ package fr.swapp.graphic.components.navigation
 				return;
 			}
 			
+			// On créé l'actionStack et lui donne un placement par défaut (un seul container si on n'a pas de menu)
+			_actionStack = new ActionStack(null, null, -1, !pMenuBar);
+			_actionStack.place(pTitleBar ? 44 : 0, 0, pMenuBar ? 50 : 0, 0);
+			_actionStack.into(this);
+			
+			// Ecouter les changements sur l'actionStack
+			_actionStack.onIndexChange.add(actionStackChangedHandler);
+			
 			// Si on a une titleBar
-			if (pTitleBar != null)
+			if (pTitleBar)
 			{
 				// On l'ajoute
-				_titleBar = pTitleBar;
-				_titleBar.into(this, TITLE_BAR);
+				_titleBar = new TitleBar();
+				_titleBar.place(0, 0, NaN, 0).size(NaN, 44);
+				_titleBar.into(this);
 			}
 			
 			// Si on a une menuBar
-			if (pMenuBar != null)
+			if (pMenuBar)
 			{
 				// On l'ajoute
-				_menuBar = pMenuBar;
-				_menuBar.into(this, MENU_BAR);
+				_menuBar = new MenuBar();
+				_menuBar.place(NaN, 0, 0, 0).size(NaN, 50);
+				_menuBar.into(this);
+				
+				// Ecouter les changements d'index sur le menu
 				_menuBar.onChange.add(menuBarChangedHandler);
 			}
-			
-			// Le layout
-			setLayout(pLayout);
 			
 			// Les items
 			if (pItems != null)
@@ -314,91 +215,6 @@ package fr.swapp.graphic.components.navigation
 			// Réactiver la menuBar
 			if (_menuBar != null)
 				_menuBar.interactive(true);
-		}
-		
-		/**
-		 * Définnir le placement des éléments de cette navigationStack. Les clés sont :
-		 * "titleBar", "actionStack" et "menuBar". Voir constantes statiques pour plus d'info sur la création de layout personnalisé.
-		 * @param	pLayout : Le layout pour le placement des éléments. Si une clé n'existe pas, l'élément sera supprimé.
-		 * @return : Méthode chaînable
-		 */
-		public function setLayout (pLayout:Object):NavigationStack
-		{
-			// Vérifier qu'on ai bien un layout
-			if (pLayout == null)
-			{
-				// On déclanche une erreur et on arrête le script
-				throw new GraphicalError("NavigationStack.setLayout", "pLayout can't be null.");
-				return this;
-			}
-			
-			// Si le layout a des infos sur la titleBar
-			if (TITLE_BAR in pLayout)
-			{
-				// Si on n'a pas de titleBar
-				if (_titleBar == null)
-				{
-					// On en créé une par défaut
-					_titleBar = new TitleBar();
-					_titleBar.into(this, TITLE_BAR);
-				}
-				
-				// On configure cette titleBar
-				ObjectUtils.extra(_titleBar, pLayout[TITLE_BAR]);
-			}
-			
-			// Sinon si on a une titleBar déjà présente
-			else if (_titleBar != null && contains(_titleBar))
-			{
-				// On la supprime
-				removeChild(_titleBar);
-				_titleBar = null;
-			}
-			
-			// Si on n'a pas d'actionStack
-			if (_actionStack == null)
-			{
-				// On créé l'actionBar et lui donne un placement par défaut
-				_actionStack = new ActionStack(null, null, -1, !(MENU_BAR in pLayout));
-				_actionStack.into(this, ACTION_STACK, 0);
-				
-				// Ecouter les changements sur l'actionStack
-				_actionStack.onIndexChange.add(actionStackChangedHandler);
-			}
-			
-			// Si le layout a des infos sur l'actionStack
-			if (ACTION_STACK in pLayout)
-			{
-				ObjectUtils.extra(_actionStack, pLayout[ACTION_STACK]);
-			}
-			
-			// Si le layout a des infos sur la menuBar
-			if (MENU_BAR in pLayout)
-			{
-				// Si on n'a pas de menuBar
-				if (_menuBar == null)
-				{
-					// On en créé une par défaut
-					_menuBar = new MenuBar();
-					_menuBar.into(this, MENU_BAR);
-					_menuBar.onChange.add(menuBarChangedHandler);
-				}
-				
-				// On configure cette menuBar
-				ObjectUtils.extra(_menuBar, pLayout[MENU_BAR]);
-			}
-			
-			// Sinon, si on a une menuBar déjà présente
-			else if (_menuBar != null && contains(_menuBar))
-			{
-				// On la supprime
-				_menuBar.onChange.remove(menuBarChangedHandler);
-				removeChild(_menuBar);
-				_menuBar = null;
-			}
-			
-			// Méthode chaînable
-			return this;
 		}
 		
 		/**

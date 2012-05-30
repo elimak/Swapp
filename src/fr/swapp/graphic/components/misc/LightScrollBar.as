@@ -1,11 +1,11 @@
-package fr.swapp.graphic.components.controls.scrolls 
+package fr.swapp.graphic.components.misc 
 {
-	import fr.swapp.core.masters.MasterSprite;
+	import fr.swapp.graphic.base.ResizableComponent;
 	
 	/**
 	 * @author ZoulouX
 	 */
-	public class TouchScrollBar extends MasterSprite
+	public class TouchScrollBar extends ResizableComponent
 	{
 		/**
 		 * Le constructeur

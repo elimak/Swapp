@@ -20,12 +20,17 @@ package fr.swapp.graphic.components.text
 		/**
 		 * La limite du scale pour passer en matrice
 		 */
+		static public var DEFAULT_CAB_ENABLED		:Boolean 					= false;
+		
+		/**
+		 * La limite du scale pour passer en matrice
+		 */
 		static public var DEFAULT_SCALE_LIMIT		:Number 					= 1;
 		
 		/**
 		 * Le facteur sur le scale lorsqu'on est au dessus de la limit
 		 */
-		static public var DEFAULT_SCALE_FACTOR		:Number 					= .7;
+		static public var DEFAULT_SCALE_FACTOR		:Number 					= .75;
 		
 		
 		/**
@@ -210,25 +215,29 @@ package fr.swapp.graphic.components.text
 		 */
 		protected function enableFlatText ():void
 		{
-			// Si on a un wrapper
-			if (wrapper != null)
+			// Si le CAB est activé
+			if (DEFAULT_CAB_ENABLED)
 			{
-				// Récupérer le facteur d'échelle
-				var scaleFactor:Number = wrapper.ratio;
-				
-				// S'il est supérieur à la densité par défaut
-				if (scaleFactor > DEFAULT_SCALE_LIMIT)
+				// Si on a un wrapper
+				if (wrapper != null)
 				{
-					// On le réduit en le limitant à 1
-					scaleFactor = Math.max(1, scaleFactor * DEFAULT_SCALE_FACTOR);
+					// Récupérer le facteur d'échelle
+					var scaleFactor:Number = wrapper.ratio;
 					
-					// Et on applique la matrice sur le textField
-					_textField.cacheAsBitmapMatrix = new Matrix(scaleFactor, 0, 0, scaleFactor);
+					// S'il est supérieur à la densité par défaut
+					if (scaleFactor > DEFAULT_SCALE_LIMIT)
+					{
+						// On le réduit en le limitant au scale par défaut
+						scaleFactor = Math.max(DEFAULT_SCALE_LIMIT, scaleFactor * DEFAULT_SCALE_FACTOR);
+						
+						// Et on applique la matrice sur le textField
+						_textField.cacheAsBitmapMatrix = new Matrix(scaleFactor, 0, 0, scaleFactor);
+					}
 				}
+				
+				// Activer le stockage bitmap
+				_textField.cacheAsBitmap = true;
 			}
-			
-			// Activer le stockage bitmap
-			_textField.cacheAsBitmap = true;
 		}
 		
 		/**

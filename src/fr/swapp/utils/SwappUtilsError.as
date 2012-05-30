@@ -14,11 +14,8 @@ package fr.swapp.utils
 		 */
 		public function SwappUtilsError (pMethod:String, pMessage:String, pId:uint = 0)
 		{
-			// Récupérer la stack d'erreur
-			var stack:String = getStackTrace();
-			
 			// Afficher l'erreur
-			super("# Utils error in " + pMethod + " : " + pMessage, pId);
+			super("# Utils error in " + pMethod + " : " + pMessage + "\n" + getStackTrace(), pId);
 		}
 	}
 }

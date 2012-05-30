@@ -1,11 +1,7 @@
-package fr.swapp.graphic.components.controls.menus 
+package fr.swapp.graphic.components.navigation 
 {
 	import flash.events.MouseEvent;
-	import fr.swapp.graphic.components.base.ResizableComponent;
-	import fr.swapp.graphic.components.containers.base.BaseContainer;
-	import fr.swapp.graphic.components.controls.buttons.Button;
-	import fr.swapp.graphic.components.controls.buttons.skins.ButtonSkinItem;
-	import fr.swapp.graphic.components.controls.buttons.skins.IButtonSkinItem;
+	import fr.swapp.graphic.base.BaseContainer;
 	import org.osflash.signals.Signal;
 	
 	/**

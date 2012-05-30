@@ -512,7 +512,7 @@ package fr.swapp.graphic.components.lists
 		 */
 		override protected function elementResized ():void
 		{
-			trace("ELEMENT RESIZED");
+			//trace("ELEMENT RESIZED");
 			return;
 			
 			// Compter le nombre d'éléments
@@ -733,6 +733,8 @@ package fr.swapp.graphic.components.lists
 			// Si on a un delegate
 			if (_delegate != null && _localHeight > 0 && _localWidth > 0)
 			{
+				//trace("BUILD ELEMENT");
+				
 				// Les éléments traités
 				var element:ResizableComponent;
 				var currentIndex:int;
@@ -744,6 +746,52 @@ package fr.swapp.graphic.components.lists
 				// Les overloads
 				var overloadBeginLimit	:Number = beginLimit - _elementsOverLoad * _typicalElementSize;
 				var overloadEndLimit	:Number = endLimit + _elementsOverLoad * _typicalElementSize;
+				
+				// Parcourir les éléments de la liste
+				var i:int = _elements.length;
+				while (--i >= 0)
+				{
+					// Cibler l'élément
+					element = _elements[i];
+					
+					// Vérifier si cet élément dépasse de la liste
+					if  (
+							// On supprime rien si on est en déplacement
+							!_dragLocked
+							&&
+							// On ne supprime pas si on ne doit jamais supprimer
+							!_neverRemove
+							&&
+							// Ne pas supprimer les overloads
+							(
+								element[_positionVar] + element[_contentTotalSizeVar] <= overloadBeginLimit
+								||
+								element[_positionVar] >= overloadEndLimit
+							)
+							&&
+							// Supprimer le premier élément que s'il dépasse du début
+							(element.index != _firstElementIndex || element[_positionVar] <= beginLimit)
+							&&
+							// Supprimer le dernier élément que s'il dépasse de la fin
+							(element.index != _lastElementIndex || element[_positionVar] >= endLimit)
+						)
+					{
+						trace("DELETED", element.index);
+						
+						// Effacer l'élément en faisant attention au pooling
+						surelyDeleteElement(element);
+						
+						// Un élément de moins
+						i--;
+					}
+					
+					// Sinon on est dans la liste
+					else if (!element.visible)
+					{
+						// Donc afficher cet élément
+						element.visible = true;
+					}
+				}
 				
 				// Si on a pas d'élément, on demande le courant
 				if (_elements.length == 0)
@@ -763,6 +811,8 @@ package fr.swapp.graphic.components.lists
 					{
 						// Ajouter à la suite au début
 						element = needElementAt(_elements[0].index - 1, 0);
+						
+						trace("TOP ADDED", _elements[0].index, element);
 						
 						// Si ce dernier est disponible
 						if (element != null)
@@ -786,6 +836,8 @@ package fr.swapp.graphic.components.lists
 						// Ajouter à la suite à la fin
 						element = needElementAt(getElementAt(-1).index + 1, -1);
 						
+						trace("BOTTOM ADDED", getElementAt(-1).index, element);
+						
 						// Si ce dernier est disponible
 						if (element != null)
 						{
@@ -802,6 +854,8 @@ package fr.swapp.graphic.components.lists
 						}
 					}
 				}
+				
+				/*
 				
 				// Parcourir les éléments de la liste
 				var i:int = _elements.length;
@@ -842,6 +896,8 @@ package fr.swapp.graphic.components.lists
 							)
 						{
 							
+							trace("DELETED", element.index);
+							
 							// Effacer l'élément en faisant attention au pooling
 							surelyDeleteElement(element);
 							
@@ -862,7 +918,7 @@ package fr.swapp.graphic.components.lists
 						// Donc afficher cet élément
 						element.visible = true;
 					}
-				}
+				}*/
 			}
 		}
 		

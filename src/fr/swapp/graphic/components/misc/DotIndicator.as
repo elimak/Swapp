@@ -1,8 +1,8 @@
-package fr.swapp.graphic.components.controls.indicator
+package fr.swapp.graphic.components.misc
 {
 	import com.greensock.TweenMax;
 	import flash.display.BitmapData;
-	import fr.swapp.graphic.components.base.ResizableComponent;
+	import fr.swapp.graphic.base.ResizableComponent;
 	import fr.swapp.graphic.components.bitmaps.AdvancedBitmap;
 	import fr.swapp.graphic.errors.GraphicalError;
 	
@@ -172,6 +172,8 @@ package fr.swapp.graphic.components.controls.indicator
 				throw new GraphicalError("DotIndicator{}", "pDotBitmapData can't be null");
 				return;
 			}
+			
+			// TODO: Refaire le dotIndicator avec invalidate.
 			
 			// Enregistrer l'image
 			_dotsBitmapData = pDotBitmapData;

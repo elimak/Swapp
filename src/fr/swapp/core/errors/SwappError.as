@@ -14,11 +14,8 @@ package fr.swapp.core.errors
 		 */
 		public function SwappError (pMethod:String, pMessage:String, pId:uint = 0)
 		{
-			// Récupérer la stack d'erreur
-			var stack:String = getStackTrace();
-			
 			// Afficher l'erreur
-			super("# Internal error in " + pMethod + " : " + pMessage, pId);
+			super("# Internal error in " + pMethod + " : " + pMessage + "\n" + getStackTrace(), pId);
 		}
 	}
 }

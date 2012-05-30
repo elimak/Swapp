@@ -138,10 +138,10 @@ package fr.swapp.graphic.components.lists
 				element = _elements[i];
 				
 				// Appliquer la largeur totale
-				element.width = _typicalElementSize;
+				element[_contentSizeVar] = _typicalElementSize;
 				
 				// Et replacer
-				element[_positionVar] = element.index * _typicalElementSize
+				element[_positionVar] = element.index * _typicalElementSize;
 			}
 			
 			// Relayer
@@ -209,14 +209,24 @@ package fr.swapp.graphic.components.lists
 					_velocity = pYDelta;
 				}
 				
+				// Enregistrer la vélocité
+				var currentVelocity:Number = _velocity;
+				
 				// Gestion de la vélocité
 				replaceList(false);
 				
 				// On applique cette vélocité au scroll
 				currentScroll += _velocity;
+				
+				// Si la vélocité a changé
+				if (currentVelocity != _velocity)
+				{
+					// On bloque les dispatch parent
+					return true;
+				}
 			}
 			
-			
+			// Autoriser les dispatch parent
 			return false;
 		}
 		

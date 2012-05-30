@@ -2,14 +2,7 @@ package fr.swapp.graphic.animations
 {
 	import com.greensock.easing.Quad;
 	import com.greensock.TweenMax;
-	import flash.display.Bitmap;
-	import flash.display.BitmapData;
-	import flash.events.Event;
-	import flash.geom.Matrix;
-	import flash.geom.Rectangle;
-	import flash.utils.getTimer;
-	import fr.swapp.graphic.components.base.ResizableComponent;
-	import fr.swapp.utils.DisplayObjectUtils;
+	import fr.swapp.graphic.base.ResizableComponent;
 	import fr.swapp.utils.TimerUtils;
 	
 	/**

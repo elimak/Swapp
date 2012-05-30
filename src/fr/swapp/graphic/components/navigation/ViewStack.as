@@ -1,8 +1,8 @@
-package fr.swapp.graphic.components.containers.stacks 
+package fr.swapp.graphic.components.navigation 
 {
 	import flash.display.DisplayObject;
-	import fr.swapp.graphic.components.base.ResizableComponent;
-	import fr.swapp.graphic.components.containers.base.BaseContainer;
+	import fr.swapp.graphic.base.BaseContainer;
+	import fr.swapp.graphic.base.ResizableComponent;
 	
 	/**
 	 * @author ZoulouX
