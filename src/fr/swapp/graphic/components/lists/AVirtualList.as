@@ -5,6 +5,7 @@ package fr.swapp.graphic.components.lists
 	import flash.events.MouseEvent;
 	import flash.events.TouchEvent;
 	import flash.geom.Point;
+	import flash.utils.Dictionary;
 	import fr.swapp.core.pool.ObjectPool;
 	import fr.swapp.graphic.base.BaseContainer;
 	import fr.swapp.graphic.base.ResizableComponent;
@@ -201,6 +202,11 @@ package fr.swapp.graphic.components.lists
 		 * Si la liste a été déplacée
 		 */
 		protected var _moved						:Boolean					= false;
+		
+		/**
+		 * Le premier dispatch par élément
+		 */
+		protected var _firstResizeByElement			:Dictionary					= new Dictionary(true);
 		
 		
 		/**
@@ -515,7 +521,8 @@ package fr.swapp.graphic.components.lists
 		 */
 		override protected function elementResized ():void
 		{
-			//trace("ELEMENT RESIZED");
+			trace("ELEMENT RESIZED", Math.random());
+			
 			return;
 			
 			// Compter le nombre d'éléments
@@ -524,21 +531,33 @@ package fr.swapp.graphic.components.lists
 			// Si on a au moins 2 éléments
 			if (total > 0)
 			{
-				// L'élément précédent
+				// Les éléménets
+				var element:ResizableComponent;
 				var lastElement:ResizableComponent;
 				
 				// Parcourir les éléments
 				for (var i:int = 0; i < total; i++)
 				{
-					// Placer selon la taille estimée
-					if (i > 0)
+					// Cibler notre élément
+					element = _elements[i];
+					
+					// Si c'est le premier placement de cet élément, on ne le prend pas en compte car on vient de le placer. (C'est le premier invalidate qui fait passer dans cette boucle)
+					// Sinon si on a une taille différente de celle que l'on connaissait, meaculpa.
+					if (element in _firstResizeByElement && _firstResizeByElement[element] == element[_contentTotalSizeVar])
+					{
+						trace("NOT THIS ONE BITCH", element.index);
+						delete _firstResizeByElement[element];
+					}
+					
+					// Sinon placer selon la taille estimée
+					else if (i > 0)
 					{
 						// Sinon on place par rapport à l'ancien élément
-						_elements[i][_positionVar] = lastElement[_positionVar] + lastElement[_contentTotalSizeVar];
+						element[_positionVar] = lastElement[_positionVar] + lastElement[_contentTotalSizeVar];
 					}
 					
 					// Cibler l'ancien élément
-					lastElement = _elements[i];
+					lastElement = element;
 				}
 			}
 			
@@ -547,6 +566,15 @@ package fr.swapp.graphic.components.lists
 			
 			// La liste a bougé
 			listMovedHandler(false);
+		}
+		
+		/**
+		 * Un élément est supprimé de la liste
+		 */
+		override protected function elementRemoved (pElement:ResizableComponent):void
+		{
+			// Le supprimer du dictionnaire
+			delete _firstResizeByElement[pElement];
 		}
 		
 		/**
@@ -588,7 +616,7 @@ package fr.swapp.graphic.components.lists
 					// Spécifier les dimensions du container
 					element[_placementVar1] = 0;
 					element[_placementVar2] = 0;
-					
+					/*
 					// Compter le nombre d'éléments
 					const total:int = _elements.length;
 					
@@ -621,6 +649,10 @@ package fr.swapp.graphic.components.lists
 							}
 						}
 					}
+					*/
+					
+					// Enregistrer la taille de l'élément
+					_firstResizeByElement[element] = element[_contentTotalSizeVar];
 					
 					// On l'ajoute
 					addElement(element, pToIndex);
@@ -736,15 +768,14 @@ package fr.swapp.graphic.components.lists
 			// Si on a un delegate
 			if (_delegate != null && _localHeight > 0 && _localWidth > 0)
 			{
-				//trace("BUILD ELEMENT");
-				
 				// Les éléments traités
-				var element:ResizableComponent;
-				var currentIndex:int;
+				var element				:ResizableComponent;
+				var relativeElement		:ResizableComponent;
+				var currentIndex		:int;
 				
 				// Calculer les limites
 				const beginLimit		:Number = - _container[_containerPlacementVar1] - _container[_positionVar];
-				const endLimit			:Number = _container[_containerPlacementVar1] + _container[_contentSizeVar] + _container[_containerPlacementVar2] - _container[_positionVar];
+				const endLimit			:Number = _container[_containerPlacementVar1] + _container[_contentTotalSizeVar] + _container[_containerPlacementVar2] - _container[_positionVar];
 				
 				// Les overloads
 				var overloadBeginLimit	:Number = beginLimit - _elementsOverLoad * _typicalElementSize;
@@ -760,8 +791,8 @@ package fr.swapp.graphic.components.lists
 					// Vérifier si cet élément dépasse de la liste
 					if  (
 							// On supprime rien si on est en déplacement
-							!_dragLocked
-							&&
+							//!_dragLocked
+							//&&
 							// On ne supprime pas si on ne doit jamais supprimer
 							!_neverRemove
 							&&
@@ -779,8 +810,6 @@ package fr.swapp.graphic.components.lists
 							(element.index != _lastElementIndex || element[_positionVar] >= endLimit)
 						)
 					{
-						trace("DELETED", element.index);
-						
 						// Effacer l'élément en faisant attention au pooling
 						surelyDeleteElement(element);
 						
@@ -800,31 +829,32 @@ package fr.swapp.graphic.components.lists
 				if (_elements.length == 0)
 				{
 					// Ajouter le premier à sa position théorique
-					needElementAt(int((- currentScroll) / _typicalElementSize + .5), 0);
+					element = needElementAt(int(( - currentScroll) / _typicalElementSize + .5), 0);
+					
+					// Placer cet élément au début du container
+					element[_positionVar] = - _container[_positionVar];
 				}
 				
 				// Si on a au moins un élément
 				if (_elements.length > 0)
 				{
-					// Forcer le rendu sur l'élément
-					//_elements[0].render();
+					// Cibler le premier élément
+					relativeElement = getElementAt(0);
 					
 					// On ajoute les éléments dont on a besoin au début
-					while (_elements[0][_positionVar] > overloadBeginLimit)
+					while (relativeElement[_positionVar] > overloadBeginLimit)
 					{
 						// Ajouter à la suite au début
-						element = needElementAt(_elements[0].index - 1, 0);
-						
-						trace("TOP ADDED", _elements[0].index, element);
+						element = needElementAt(relativeElement.index - 1, 0);
 						
 						// Si ce dernier est disponible
 						if (element != null)
 						{
 							// Placer cet élément sous l'élément de l'index suivant
-							element[_positionVar] = _elements[1][_positionVar] - element[_contentTotalSizeVar];
+							element[_positionVar] = relativeElement[_positionVar] - element[_contentTotalSizeVar];
 							
-							// Forcer le rendu
-							//element.render();
+							// Cibler le premier élément
+							relativeElement = element;
 						}
 						else
 						{
@@ -833,22 +863,23 @@ package fr.swapp.graphic.components.lists
 						}
 					}
 					
+					// Cibler le dernier élément
+					relativeElement = getElementAt(-1);
+					
 					// On ajoute les éléments dont on a besoin à la fin
-					while (getElementAt(-1)[_positionVar] + getElementAt(-1)[_contentTotalSizeVar] < overloadEndLimit)
+					while (relativeElement[_positionVar] + relativeElement[_contentTotalSizeVar] < overloadEndLimit)
 					{
 						// Ajouter à la suite à la fin
-						element = needElementAt(getElementAt(-1).index + 1, -1);
-						
-						trace("BOTTOM ADDED", getElementAt(-1).index, element);
+						element = needElementAt(relativeElement.index + 1, -1);
 						
 						// Si ce dernier est disponible
 						if (element != null)
 						{
 							// Placer cet élément sous l'élément de l'index suivant
-							element[_positionVar] = getElementAt(-2)[_positionVar] + getElementAt(-2)[_contentTotalSizeVar];
+							element[_positionVar] = relativeElement[_positionVar] + relativeElement[_contentTotalSizeVar];
 							
-							// Forcer le rendu
-							//element.render();
+							// Cibler le dernier élément
+							relativeElement = element;
 						}
 						else
 						{
@@ -857,71 +888,6 @@ package fr.swapp.graphic.components.lists
 						}
 					}
 				}
-				
-				/*
-				
-				// Parcourir les éléments de la liste
-				var i:int = _elements.length;
-				while (--i >= 0)
-				{
-					// Cibler l'élément
-					element = _elements[i];
-					
-					// Vérifier si cet élément dépasse de la liste
-					if (
-							// Si on dépasse avant le début
-							element[_positionVar] + element[_contentTotalSizeVar] <= beginLimit
-							||
-							// Ou si on dépasse après la fin
-							element[_positionVar] >= endLimit
-						)
-					{
-						// Si c'est un élément supprimable
-						if (
-								// On supprime rien si on est en déplacement
-								!_dragLocked
-								&&
-								// On ne supprime pas si on ne doit jamais supprimer
-								!_neverRemove
-								&&
-								// Ne pas supprimer les overloads
-								(
-									element[_positionVar] + element[_contentTotalSizeVar] <= overloadBeginLimit
-									||
-									element[_positionVar] >= overloadEndLimit
-								)
-								&&
-								// Supprimer le premier élément que s'il dépasse du début
-								(element.index != _firstElementIndex || element[_positionVar] <= beginLimit)
-								&&
-								// Supprimer le dernier élément que s'il dépasse de la fin
-								(element.index != _lastElementIndex || element[_positionVar] >= endLimit)
-							)
-						{
-							
-							trace("DELETED", element.index);
-							
-							// Effacer l'élément en faisant attention au pooling
-							surelyDeleteElement(element);
-							
-							// Un élément de moins
-							i--;
-						}
-						
-						// Sinon on masque juste cet élément
-						else if (element.visible && !_neverHide)
-						{
-							element.visible = false;
-						}
-					}
-					
-					// Sinon on est dans la liste
-					else if (!element.visible)
-					{
-						// Donc afficher cet élément
-						element.visible = true;
-					}
-				}*/
 			}
 		}
 		
@@ -1096,7 +1062,21 @@ package fr.swapp.graphic.components.lists
 			removeEventListener(MouseEvent.CLICK, tapAndClickHandler, true);
 			removeEventListener(TouchEvent.TOUCH_TAP, tapAndClickHandler, true);
 			
+			// Supprimer les références
+			_firstResizeByElement = null;
+			_delegate = null;
+			
+			// Supprimer les signaux
+			_onListMoved.removeAll();
+			_onElementAdded.removeAll();
+			_onElementDeleted.removeAll();
+			
+			_onListMoved = null;
+			_onElementAdded = null;
+			_onElementDeleted = null;
+			
 			// Vider la pool
+			// Ne pas faire de dispose mais un clear, le dispose se ferra automatiquement lors de la suppression de la liste
 			if (_objectPool != null)
 				_objectPool.clear();
 			

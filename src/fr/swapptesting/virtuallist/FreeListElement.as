@@ -17,6 +17,8 @@ package fr.swapptesting.virtuallist
 		
 		public function FreeListElement (pHasContent:Boolean, pIndex:int = 0)
 		{
+			_styleEnabled = true;
+			
 			(new BorderComponent(0x666666, 1)).place(0, 0, 0, 0).into(this);
 			
 			_hasContent = pHasContent;

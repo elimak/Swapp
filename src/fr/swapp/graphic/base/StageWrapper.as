@@ -83,6 +83,11 @@ package fr.swapp.graphic.base
 		 */
 		protected var _styleCentral								:StyleCentral;
 		
+		/**
+		 * Si on est en phase de rendu
+		 */
+		protected var _isInRenderPhase							:Boolean;
+		
 		
 		/**
 		 * Le signal pour remonter en haut
@@ -107,6 +112,11 @@ package fr.swapp.graphic.base
 		 * Le centre de gestion des styles
 		 */
 		public function get styleCentral ():StyleCentral { return _styleCentral; }
+		
+		/**
+		 * Si on est en phase de rendu
+		 */
+		public function get isInRenderPhase ():Boolean { return _isInRenderPhase; }
 		
 		
 		/**
@@ -194,8 +204,14 @@ package fr.swapp.graphic.base
 		 */
 		protected function stageRenderHandler (event:Event):void
 		{
+			// On est en phase de rendu
+			_isInRenderPhase = true;
+			
 			// Relayer vers le rendu en cascade
 			renderHandler();
+			
+			// On n'est plus en phase de rendu
+			_isInRenderPhase = false;
 		}
 		
 		/**
@@ -246,6 +262,7 @@ package fr.swapp.graphic.base
 			if (_stage.stageWidth > 0 && _stage.stageHeight > 0)
 			{
 				// Décallage du clavier
+				/*
 				var keyboardOffset:Number = 0;
 				
 				// Si on a un softKeyboard
@@ -256,7 +273,7 @@ package fr.swapp.graphic.base
 					// Enregistrer la hauteur du clavier
 					keyboardOffset = _stage.softKeyboardRect.height;
 				}
-				
+				*/
 				/*
 				TweenMax.to(this, .5, {
 					ease: Quad.easeInOut,
@@ -281,13 +298,15 @@ package fr.swapp.graphic.base
 					// On récupère la taille et on applique la modification du scale
 					size(
 						int(_stage.stageWidth / scaleX + .5),
-						int((_stage.stageHeight - keyboardOffset) / scaleY + .5)
+						int(_stage.stageHeight / scaleY + .5)
+						//int((_stage.stageHeight - keyboardOffset) / scaleY + .5)
 					);
 				}
 				else
 				{
 					// On applique directement
-					size(_stage.stageWidth, _stage.stageHeight - keyboardOffset);
+					size(_stage.stageWidth, _stage.stageHeight);
+					//size(_stage.stageWidth, _stage.stageHeight - keyboardOffset);
 				}
 			}
 		}

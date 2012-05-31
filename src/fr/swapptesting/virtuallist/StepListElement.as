@@ -9,6 +9,7 @@ package fr.swapptesting.virtuallist
 	{
 		public function StepListElement ()
 		{
+			_styleEnabled = true;
 			backgroundImage.background(0xFFFFFF * Math.random(), 1);
 		}
 	}

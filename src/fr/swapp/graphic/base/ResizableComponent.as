@@ -6,6 +6,7 @@ package fr.swapp.graphic.base
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
 	import fr.swapp.core.display.MasterSprite;
+	import fr.swapp.core.log.Log;
 	import fr.swapp.core.roles.IDataContainer;
 	import fr.swapp.core.roles.IIndexable;
 	import fr.swapp.graphic.components.bitmaps.AdvancedBitmap;
@@ -209,6 +210,11 @@ package fr.swapp.graphic.base
 		 * Désactivé par défaut pour gagner en performances.
 		 */
 		protected var _styleEnabled					:Boolean					= false;
+		
+		/**
+		 * Si l'élément a été disposé
+		 */
+		protected var _disposed						:Boolean;
 		
 		
 		/**
@@ -823,6 +829,11 @@ package fr.swapp.graphic.base
 		 */
 		public function get onVisibilityChanged ():Signal { return _onVisibilityChanged; }
 		
+		/**
+		 * Si l'élément a été disposé
+		 */
+		public function get disposed ():Boolean { return _disposed; }
+		
 		
 		/**
 		 * Constructeur du composant avec gestion des dimensions
@@ -1164,6 +1175,8 @@ package fr.swapp.graphic.base
 		 */
 		public function render (pRenderStyle:Boolean = false):void
 		{
+			Log.warning("Direct render on ResizableComponent.");
+			
 			// Tout invalider
 			_invalidated = true;
 			_forceInvalidate = true;
@@ -1478,34 +1491,55 @@ package fr.swapp.graphic.base
 		 */
 		override protected function removedHandler (event:Event):void
 		{
-			// Relayer
-			super.removedHandler(event);
-			
-			// Supprimer tous les listeners
-			_onResized.removeAll();
-			_onReplaced.removeAll();
-			_onStyleChanged.removeAll();
-			_onRendered.removeAll();
-			_onVisibilityChanged.removeAll();
-			
-			// Supprimer les signaux
-			_onResized = null;
-			_onReplaced = null;
-			_onStyleChanged = null
-			_onRendered = null;
-			_onVisibilityChanged = null;
-			
-			// On n'écoute les changements de taille
-			if (_watchedParent != null && _watchedParent.onResized != null)
+			// Si on a déjà été disposé
+			if (_disposed)
 			{
-				_watchedParent.onResized.remove(parentResizedHandler);
-				_watchedParent.onReplaced.remove(parentReplacedHandler);
-				_watchedParent.onStyleChanged.remove(parentStyleChangedHandler);
-				_watchedParent.onRendered.remove(renderHandler);
-				_watchedParent.onVisibilityChanged.remove(parentVisibilityChangedHandler);
+				// C'est un problème
+				Log.error("Multiple dispose detected in ResizableComponent");
 			}
-			
-			_watchedParent = null;
+			else
+			{
+				// Relayer
+				super.removedHandler(event);
+				
+				// On est disposé
+				_disposed = true;
+				
+				// Supprimer tous les listeners
+				_onResized.removeAll();
+				_onReplaced.removeAll();
+				_onStyleChanged.removeAll();
+				_onRendered.removeAll();
+				_onVisibilityChanged.removeAll();
+				
+				// Supprimer les signaux
+				_onResized = null;
+				_onReplaced = null;
+				_onStyleChanged = null
+				_onRendered = null;
+				_onVisibilityChanged = null;
+				
+				// On n'écoute plus le parent
+				
+				if (_watchedParent.onResized == null)
+				{
+					trace("		STRANGE PARENT", this, parent, parent.stage, wrapper.isInRenderPhase);
+					
+					_watchedParent = null;
+					return;
+				}
+				
+				if (_watchedParent != null)
+				{
+					_watchedParent.onResized.remove(parentResizedHandler);
+					_watchedParent.onReplaced.remove(parentReplacedHandler);
+					_watchedParent.onStyleChanged.remove(parentStyleChangedHandler);
+					_watchedParent.onRendered.remove(renderHandler);
+					_watchedParent.onVisibilityChanged.remove(parentVisibilityChangedHandler);
+				}
+				
+				_watchedParent = null;
+			}
 		}
 		
 		/**
