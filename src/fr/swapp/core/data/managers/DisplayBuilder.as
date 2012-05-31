@@ -3,13 +3,11 @@
 	/**
 	 * Les imports
 	 */
-	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import fr.swapp.core.data.collect.DataCollection;
 	import fr.swapp.core.data.collect.IDataCollection;
 	import fr.swapp.core.data.items.IItemContainer;
-	import fr.swapp.core.errors.SwappError;
-	import fr.swapp.core.masters.IDisplayObject;
+	import fr.swapp.core.display.IDisplayObject;
 	
 	/**
 	 * Permet de générer un DataCollection et ses displayObjects directement depuis un IDataCollection. Les items sont associés.
@@ -55,7 +53,7 @@
 					// Si le container n'est pas null, on ajoute
 					if (pContainer != null)
 					{
-						pContainer.addChild((displayObject as IDisplayObject).getDisplayObject());
+						pContainer.addChild((displayObject as IDisplayObject).displayObject);
 					}
 					
 					// S'il n'est pas null

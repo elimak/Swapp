@@ -48,7 +48,7 @@ package fr.swapptesting.virtuallist
 			_stepList.clipContent = true;
 			_stepList.place(0, 0, NaN, 0).size(NaN, 150).into(_container);
 			_stepList.container.place(0, 10, 0, 10);
-			_stepList.elementsOverLoad = 2;
+			//_stepList.elementsOverLoad = 2;
 			
 			//(new BorderComponent(0x000000, 1)).place(0, 0, 0, 0).into(_container);
 			//(new BorderComponent(0x00FF00, 1)).place(0, 0, 0, 0).into(_freeList);

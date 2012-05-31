@@ -114,18 +114,19 @@ package fr.swapp.graphic.animations
 			}
 			
 			// Masquer le contenu
-			pTarget.maskContent = true;
+			pTarget.clipContent = true;
 			
 			// Si on doit déplacer en bitmap
 			if ("useBitmap" in pContextInfo)
 			{
 				// Passer en bitmap
-				pTarget.cab(pContextInfo.useBitmap);
+				if (pContextInfo.useBitmap)
+					pTarget.flatten();
 			}
 			else if (_useBitmap)
 			{
 				// Passer en bitmap
-				pTarget.cab(true);
+				pTarget.flatten();
 			}
 			
 			// Signaler que l'animation démarre
@@ -180,18 +181,19 @@ package fr.swapp.graphic.animations
 			TimerUtils.wait(pTarget, delay, false, function ():void
 			{
 				// Masquer le contenu
-				pTarget.maskContent = true;
+				pTarget.clipContent = true;
 				
 				// Si on doit déplacer en bitmap
 				if ("useBitmap" in pContextInfo)
 				{
 					// Passer en bitmap
-					pTarget.cab(pContextInfo.useBitmap);
+					if (pContextInfo.useBitmap)
+						pTarget.flatten();
 				}
 				else if (_useBitmap)
 				{
 					// Passer en bitmap
-					pTarget.cab(true);
+					pTarget.flatten();
 				}
 				
 				// Signaler que l'animation démarre
@@ -232,13 +234,13 @@ package fr.swapp.graphic.animations
 		{
 			// On vire le masque si on est en playIn
 			if (pPlayIn)
-				pTarget.maskContent = false;
+				pTarget.clipContent = false;
 			
 			// Si on était en bitmap
 			if (pTarget.cacheAsBitmap && pPlayIn)
 			{
 				// On vire le bitmap
-				pTarget.cab(false, null);
+				pTarget.unflatten();
 			}
 			
 			// Attendre pour appeler le handler

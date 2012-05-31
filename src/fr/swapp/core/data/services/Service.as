@@ -8,6 +8,12 @@ package fr.swapp.core.data.services
 	public class Service implements IService 
 	{
 		/**
+		 * La remote associée à ce service
+		 */
+		protected var _remote					:IRemote;
+		
+		
+		/**
 		 * Le constructeur
 		 */
 		public function Service ()
@@ -19,9 +25,9 @@ package fr.swapp.core.data.services
 		 * La remote associée à ce service
 		 */
 		public function get remote ():IRemote { return _remote; }
-		public function set remove (value:IRemote):void 
+		public function set remote (value:IRemote):void 
 		{
-			_remove = value;
+			_remote = value;
 		}
 		
 		/**

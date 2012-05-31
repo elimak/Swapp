@@ -352,10 +352,10 @@ package fr.swapp.touch.emulator
 				_rootStage.removeEventListener(TouchEvent.TOUCH_END, touchEndHandler);
 				
 				// Purger les deltas si on en a
-				if (_deltas[event.touchPointID].x != 0 || _deltas[event.touchPointID].y != 0)
-				{
-					enterFrameHandler();
-				}
+				//if (_deltas[event.touchPointID].x != 0 || _deltas[event.touchPointID].y != 0)
+				//{
+					//enterFrameHandler();
+				//}
 				
 				// Dispatcher le dévérouillage du drag
 				dispatchDragUnlock();
@@ -443,22 +443,10 @@ package fr.swapp.touch.emulator
 		/**
 		 * Boucle par frame pour les dispatchs de drag
 		 */
-		protected function enterFrameHandler (e:Event = null):void
+		protected function enterFrameHandler (event:Event = null):void
 		{
 			// On dispatche le dragging
 			dispatchDragging();
-			
-			// Parcourir les events
-			for each (var event:TouchEvent in _events)
-			{
-				// Si ce point a une direction
-				if (event.touchPointID in _directions)
-				{
-					// Remettre ce point à 0
-					_deltas[event.touchPointID].x = 0;
-					_deltas[event.touchPointID].y = 0;
-				}
-			}
 		}
 		
 		/**
@@ -553,12 +541,20 @@ package fr.swapp.touch.emulator
 				// Parcourir les points qui déplacent
 				for each (var pointID:int in _pointsIds)
 				{
-					// Ajouter la position de ce point à la liste
-					points.push(_positions[pointID]);
-					
-					// Ajouter le delta de ce point au delta total
-					xDelta += (_deltas[pointID].x / _pointsIds.length);
-					yDelta += (_deltas[pointID].y / _pointsIds.length);
+					// Si ce point a une direction
+					if (pointID in _directions)
+					{
+						// Ajouter la position de ce point à la liste
+						points.push(_positions[pointID]);
+						
+						// Ajouter le delta de ce point au delta total
+						xDelta += (_deltas[pointID].x / _pointsIds.length);
+						yDelta += (_deltas[pointID].y / _pointsIds.length);
+						
+						// Remettre ce point à 0
+						_deltas[pointID].x = 0;
+						_deltas[pointID].y = 0;
+					}
 				}
 				
 				// Dispatcher

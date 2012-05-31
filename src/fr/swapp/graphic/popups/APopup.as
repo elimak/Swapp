@@ -1,11 +1,8 @@
-package fr.swapp.graphic.components.containers.popups
+package fr.swapp.graphic.popups
 {
 	import fr.swapp.core.mvc.abstract.IView;
-	import fr.swapp.core.roles.IEngine;
-	import fr.swapp.graphic.animations.ITransition;
-	import fr.swapp.graphic.components.base.ComponentView;
-	import fr.swapp.graphic.components.base.ResizableComponent;
-	import org.osflash.signals.ISignal;
+	import fr.swapp.graphic.base.ComponentView;
+	import fr.swapp.graphic.base.ResizableComponent;
 	
 	/**
 	 * @author ZoulouX

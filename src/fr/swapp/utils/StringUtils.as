@@ -524,7 +524,7 @@
 		}
 
 		/**
-		*	Remove's all < and > based tags from a string
+		*	Remove's all &lt; and &gt; based tags from a string
 		*
 		*	@param p_string The source string.
 		*

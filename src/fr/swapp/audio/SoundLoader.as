@@ -1,6 +1,5 @@
 ﻿package fr.swapp.audio 
 {
-	import com.greensock.TweenLite;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.IOErrorEvent;
@@ -199,7 +198,7 @@
 			if (pConfig["delay"] != null && pConfig["delay"] is Number && pConfig["delay"] != 0)
 			{
 				// Ajouter le delais
-				TweenLite.delayedCall(pConfig["delay"], function (pConfigDelay:Object):void
+				TweenMax.delayedCall(pConfig["delay"], function (pConfigDelay:Object):void
 				{
 					// Virer le delais de la config
 					pConfigDelay["delay"] = 0;
@@ -216,7 +215,7 @@
 			if (fadeParam > 0)
 			{
 				// Tweener
-				TweenLite.from(soundTransform, pConfig["fade"], {
+				TweenMax.from(soundTransform, pConfig["fade"], {
 					volume: 0
 				});
 			}
@@ -245,7 +244,7 @@
 			_oldVolume = volume;
 			
 			// Tweener
-			TweenLite.to(this, fade, {
+			TweenMax.to(this, fade, {
 				volume: 0
 			})
 		}
@@ -257,7 +256,7 @@
 		public function unmute (fade:Number = 1):void
 		{
 			// Tweener
-			TweenLite.to(this, fade, {
+			TweenMax.to(this, fade, {
 				volume: _oldVolume
 			});
 		}

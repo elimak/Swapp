@@ -28,7 +28,7 @@
 		
 		/**
 		 * Récupérer un nombre aléatoire entier.
-		 * NB: pStart < pEnd n'est pas vérifié lors de l'opération.
+		 * NB: pStart &lt; pEnd n'est pas vérifié lors de l'opération.
 		 * @param	pStart : Le minimum du nombre aléatoire
 		 * @param	pEnd : Le maximum du nombre aléatoire
 		 * @return : Le nombre entier aléatoire entre pStart et pEnd
@@ -40,7 +40,7 @@
 		
 		/**
 		 * Récupérer un nombre aléatoire flottant
-		 * NB: pStart < pEnd n'est pas vérifié lors de l'opération.
+		 * NB: pStart &lt; pEnd n'est pas vérifié lors de l'opération.
 		 * @param	pStart : Le minimum du nombre aléatoire
 		 * @param	pEnd : Le maximum du nombre aléatoire
 		 * @return : Le nombre flottant aléatoire entre pStart et pEnd

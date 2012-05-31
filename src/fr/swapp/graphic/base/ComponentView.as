@@ -2,15 +2,12 @@ package fr.swapp.graphic.base
 {
 	import flash.display.DisplayObjectContainer;
 	import fr.swapp.core.bundle.IBundle;
-	import fr.swapp.core.mvc.abstract.IModel;
 	import fr.swapp.core.mvc.concrete.View;
 	import fr.swapp.graphic.animations.ITransition;
-	import fr.swapp.graphic.components.base.ResizableComponent;
-	import fr.swapp.graphic.components.containers.stacks.ActionStack;
-	import fr.swapp.graphic.components.containers.stacks.ViewStack;
+	import fr.swapp.graphic.components.navigation.ActionStack;
 	import fr.swapp.graphic.components.navigation.NavigationStack;
+	import fr.swapp.graphic.components.navigation.ViewStack;
 	import fr.swapp.utils.DisplayObjectUtils;
-	import org.osflash.signals.ISignal;
 	
 	/**
 	 * Une vue dont le displayObject est un ResizableComponent.

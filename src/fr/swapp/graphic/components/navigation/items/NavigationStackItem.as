@@ -16,6 +16,11 @@ package fr.swapp.graphic.components.navigation.items
 		 */
 		protected var _visible							:Boolean;
 		
+		/**
+		 * Le nom de style du bouton
+		 */
+		protected var _styleName						:String;
+		
 		
 		/**
 		 * Le titre
@@ -34,6 +39,15 @@ package fr.swapp.graphic.components.navigation.items
 		public function set visible (value:Boolean):void 
 		{
 			_visible = value;
+		}
+		
+		/**
+		 * Le nom de style du bouton
+		 */
+		public function get styleName ():String { return _styleName; }
+		public function set styleName (value:String):void
+		{
+			_styleName = value;
 		}
 		
 		

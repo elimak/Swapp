@@ -11,7 +11,6 @@ package fr.swapp.core.bundle
 	import fr.swapp.core.mvc.abstract.IViewController;
 	import fr.swapp.core.mvc.concrete.View;
 	import fr.swapp.core.mvc.concrete.ViewController;
-	import fr.swapp.graphic.components.containers.popups.PopupProvider;
 	
 	/**
 	 * @author ZoulouX
@@ -53,11 +52,6 @@ package fr.swapp.core.bundle
 		 */
 		protected var _appController					:IViewController;
 		
-		/**
-		 * Le provider de popups
-		 */
-		protected var _popupProvider					:PopupProvider;
-		
 		
 		/**
 		 * Le conteneur graphique de ce bundle
@@ -78,11 +72,6 @@ package fr.swapp.core.bundle
 		 * Le controlleur principal de l'application
 		 */
 		public function get appController ():IViewController { return _appController; }
-		
-		/**
-		 * Le provider de popups
-		 */
-		public function get popupProvider ():PopupProvider { return _popupProvider; }
 		
 		
 		/**
@@ -170,9 +159,6 @@ package fr.swapp.core.bundle
 			// Initialiser les dépendances de base
 			initBaseDependences();
 			
-			// Initialiser le provider de popups
-			initPopupsProvider();
-			
 			// Mapper le delegate le manager de dépendances sur le bootstrap
 			mapDelegateAndDependencesManagerToBootstrap();
 			
@@ -224,16 +210,6 @@ package fr.swapp.core.bundle
 			_dependencesManager.addDependences(View, {
 				bundle: this
 			});
-		}
-		
-		/**
-		 * Initialiser le provider de popups
-		 */
-		protected function initPopupsProvider ():void
-		{
-			// Créer le popup provider et lui donner une instance de ce bundle
-			_popupProvider = new PopupProvider();
-			_popupProvider.bundle = this;
 		}
 		
 		/**

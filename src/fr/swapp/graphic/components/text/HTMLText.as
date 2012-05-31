@@ -227,6 +227,7 @@ package fr.swapp.graphic.components.text
 		 */
 		public function HTMLText (pAutoSize:Boolean = true, pMultiLine:Boolean = true, pTouchFriendlyLinks:Boolean = true, pValue:String = "")
 		{
+			// Enregistrer
 			autoSize = pAutoSize;
 			multiline = pMultiLine;
 			touchFriendlyLinks = pTouchFriendlyLinks;
@@ -440,7 +441,7 @@ package fr.swapp.graphic.components.text
 		 * Définir le style du texte
 		 * @param	pStyle : La CSS
 		 */
-		public function style (pStyle:Object):HTMLText
+		public function textStyle (pStyle:Object):HTMLText
 		{
 			// Si on a un style
 			if (pStyle != null)

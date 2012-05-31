@@ -48,6 +48,10 @@ package fr.swapp.graphic.components.misc
 		 */
 		public function BorderComponent (pBorderColor:uint = 0xFF0000, pBorderWidth:Number = 1)
 		{
+			// Activer les styles
+			_styleEnabled = true;
+			
+			// Enregistrer
 			_borderColor = pBorderColor;
 			_borderWidth = pBorderWidth;
 		}

@@ -15,7 +15,7 @@
 		 */
 		public static function difDate (pDateA:Date, pDateB:Date):Date
 		{
-			
+			return null;
 		}
 		
 		/**
@@ -41,7 +41,7 @@
 		 */
 		public static function dateToString (pDate:Date, pTemplate:String):String
 		{
-			
+			return "";
 		}
 		
 		/**
@@ -52,7 +52,7 @@
 		 */
 		public static function datDifToString (pDate:Date):String
 		{
-			
+			return "";
 		}
 	}
 }

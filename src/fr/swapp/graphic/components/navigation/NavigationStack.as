@@ -7,11 +7,9 @@ package fr.swapp.graphic.components.navigation
 	import fr.swapp.core.errors.SwappError;
 	import fr.swapp.core.mvc.abstract.IViewController;
 	import fr.swapp.graphic.animations.ITransition;
+	import fr.swapp.graphic.base.ComponentView;
 	import fr.swapp.graphic.base.ResizableComponent;
-	import fr.swapp.graphic.components.containers.stacks.ActionStack;
 	import fr.swapp.graphic.components.controls.Button;
-	import fr.swapp.graphic.components.controls.menus.MenuBar;
-	import fr.swapp.graphic.components.controls.title.TitleBar;
 	import fr.swapp.graphic.components.navigation.items.NavigationStackItem;
 	import fr.swapp.graphic.errors.GraphicalError;
 	import fr.swapp.utils.ObjectUtils;
@@ -127,19 +125,14 @@ package fr.swapp.graphic.components.navigation
 		 */
 		public function NavigationStack (pBootstrap:IBootstrap, pItems:Array = null, pSelectedIndex:int = -1, pTitleBar:Boolean = true, pMenuBar:Boolean = true, pMenuItemRenderer:Class = null)
 		{
+			// Activer les styles
+			_styleEnabled = true;
+			
 			// Si on n'a pas de bootstrap
 			if (pBootstrap == null)
 			{
 				// On déclanche une erreur et on stoppe
 				throw new GraphicalError("NavigationStack{}", "pBootstrap can't be null.");
-				return;
-			}
-			
-			// Si on n'a pas de layout
-			if (pLayout == null)
-			{
-				// On déclanche une erreur et on stoppe
-				throw new GraphicalError("NavigationStack{}", "pLayout can't be null.");
 				return;
 			}
 			

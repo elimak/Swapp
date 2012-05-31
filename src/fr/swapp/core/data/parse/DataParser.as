@@ -8,8 +8,6 @@
 	import fr.swapp.core.data.parse.IDataParser;
 	import fr.swapp.core.errors.SwappError;
 	import fr.swapp.core.log.Log;
-	import fr.swapp.utils.ArrayUtils;
-	import fr.swapp.utils.ClassUtils;
 	
 	/**
 	 * Permet de parser des données brutes en IDataItem.

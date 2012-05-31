@@ -1,6 +1,5 @@
 package fr.swapp.core.actions 
 {
-	import fr.swapp.core.errors.SwappError;
 	import fr.swapp.utils.ObjectUtils;
 	
 	/**

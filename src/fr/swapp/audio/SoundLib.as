@@ -1,6 +1,5 @@
 ﻿package fr.swapp.audio 
 {
-	import com.zouloux.utils.ArrayUtils;
 	import flash.media.Sound;
 	import flash.media.SoundChannel;
 	/**

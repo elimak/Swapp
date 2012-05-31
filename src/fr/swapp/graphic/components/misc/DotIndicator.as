@@ -4,6 +4,7 @@ package fr.swapp.graphic.components.misc
 	import flash.display.BitmapData;
 	import fr.swapp.graphic.base.ResizableComponent;
 	import fr.swapp.graphic.components.bitmaps.AdvancedBitmap;
+	import fr.swapp.graphic.components.bitmaps.BitmapRender;
 	import fr.swapp.graphic.errors.GraphicalError;
 	
 	/**
@@ -165,6 +166,9 @@ package fr.swapp.graphic.components.misc
 		 */
 		public function DotIndicator (pDotBitmapData:BitmapData, pTotalDots:int = 0, pSelectedIndex:int = -1, pDotSize:int = 6, pDotMargin:int = 5, pDisableAlpha:Number = .6)
 		{
+			// Activer les styles
+			_styleEnabled = true;
+			
 			// Si on n'a pas d'image
 			if (pDotBitmapData == null)
 			{
@@ -265,7 +269,7 @@ package fr.swapp.graphic.components.misc
 			for (var i:int = 0; i < _totalDots; i++) 
 			{
 				// Créer le point
-				dot = new AdvancedBitmap(_dotsBitmapData, AdvancedBitmap.BITMAP_RENDER_MODE);
+				dot = new AdvancedBitmap(_dotsBitmapData, BitmapRender.BITMAP_RENDER_MODE);
 				
 				// L'enregistrer dans le vecteur
 				_dots[i] = dot;

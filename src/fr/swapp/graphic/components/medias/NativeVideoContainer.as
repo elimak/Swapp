@@ -1,7 +1,6 @@
 package fr.swapp.graphic.components.medias 
 {
 	import flash.events.Event;
-	import fr.swapp.graphic.components.webview.WebViewContainer;
 	
 	/**
 	 * Player video natif via un StageWebView.

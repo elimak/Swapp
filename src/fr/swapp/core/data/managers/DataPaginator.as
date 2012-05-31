@@ -9,12 +9,12 @@
 	 * Permet de paginer un collector
 	 * @author ZoulouX
 	 */
-	public class DataPaginator implements IDataIterator
+	public class DataPaginator// implements IDataIterator
 	{
 		/**
 		 * Le collecteur à paginer
 		 */
-		protected var _collector				:IDataCollection
+		protected var _dataCollection			:IDataCollection
 		
 		/**
 		 * La page courrante
@@ -34,10 +34,10 @@
 		/**
 		 * Le collecteur à paginer
 		 */
-		public function get collector ():IDataCollection { return _collector; }
-		public function set collector (value:IDataCollection):void 
+		public function get dataCollection ():IDataCollection { return _dataCollection; }
+		public function set dataCollection (value:IDataCollection):void 
 		{
-			_collector = value;
+			_dataCollection = value;
 		}
 		
 		/**

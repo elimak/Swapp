@@ -9,6 +9,8 @@ package fr.swapp.graphic.components.misc
 	{
 		public function ScrollPane ()
 		{
+			// Activer les styles
+			_styleEnabled = true;
 			
 		}
 	}

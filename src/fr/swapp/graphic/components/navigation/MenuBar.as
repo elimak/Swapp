@@ -2,6 +2,9 @@ package fr.swapp.graphic.components.navigation
 {
 	import flash.events.MouseEvent;
 	import fr.swapp.graphic.base.BaseContainer;
+	import fr.swapp.graphic.base.ResizableComponent;
+	import fr.swapp.graphic.components.controls.Button;
+	import fr.swapp.graphic.components.navigation.items.NavigationStackItem;
 	import org.osflash.signals.Signal;
 	
 	/**
@@ -21,7 +24,7 @@ package fr.swapp.graphic.components.navigation
 		/**
 		 * La classe graphique des boutons
 		 */
-		protected var _itemRenderer				:Class 					= MenuBarElement;
+		protected var _itemRenderer				:Class 					= Button;
 		
 		/**
 		 * La largeur des boutons
@@ -41,7 +44,7 @@ package fr.swapp.graphic.components.navigation
 		/**
 		 * Les items que cette barre de menu doit afficher
 		 */
-		protected var _items					:Vector.<IButtonSkinItem>;
+		protected var _items					:Vector.<NavigationStackItem>;
 		
 		/**
 		 * L'item séléctionné (-1 pour ne pas séléctionner)
@@ -98,7 +101,7 @@ package fr.swapp.graphic.components.navigation
 		/**
 		 * Les items que cette barre de menu doit afficher
 		 */
-		public function get items ():Vector.<IButtonSkinItem> { return _items; }
+		public function get items ():Vector.<NavigationStackItem> { return _items; }
 		
 		/**
 		 * L'item séléctionné (-1 pour ne pas séléctionner)
@@ -130,6 +133,9 @@ package fr.swapp.graphic.components.navigation
 		 */
 		public function MenuBar (pItems:Array = null, pItemRenderer:Class = null)
 		{
+			// Activer les styles
+			_styleEnabled = true;
+			
 			// Ecouter les clics
 			addEventListener(MouseEvent.CLICK, clickHandler);
 			
@@ -149,16 +155,16 @@ package fr.swapp.graphic.components.navigation
 		public function setItems (pItems:Array, pItemRenderer:Class = null):void
 		{
 			// Remettre le tableau à 0
-			_items = new <IButtonSkinItem>[];
+			_items = new <NavigationStackItem>[];
 			
 			// L'item renderer
-			_itemRenderer = pItemRenderer == null ? MenuBarElement : pItemRenderer;
+			_itemRenderer = pItemRenderer == null ? Button : pItemRenderer;
 			
 			// Parcourir les items
 			for each (var item:Object in pItems)
 			{
 				// Créer l'objet et l'ajouter aux couches
-				_items.push(item is IButtonSkinItem ? item : new ButtonSkinItem(item));
+				_items.push(item is NavigationStackItem ? item : new NavigationStackItem(item));
 			}
 			
 			// Construire les boutons
@@ -181,13 +187,16 @@ package fr.swapp.graphic.components.navigation
 			
 			// Parcourir 
 			var buttonIndex:uint;
-			for each (var item:IButtonSkinItem in _items)
+			for each (var item:NavigationStackItem in _items)
 			{
 				// Créer le bouton
 				button = new _itemRenderer();
 				
 				// Lui passer l'item
-				button.item = item;
+				button.styleName = item.styleName;
+				
+				// Lui passer le titre
+				
 				
 				// Lui passer son index
 				button.index = buttonIndex ++;

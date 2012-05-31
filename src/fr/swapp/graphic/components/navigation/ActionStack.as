@@ -8,6 +8,7 @@ package fr.swapp.graphic.components.navigation
 	import fr.swapp.core.mvc.abstract.IViewController;
 	import fr.swapp.graphic.base.ResizableComponent;
 	import fr.swapp.graphic.components.navigation.items.IStackLayerItem;
+	import fr.swapp.graphic.components.navigation.items.StackLayerItem;
 	import fr.swapp.graphic.errors.GraphicalError;
 	import org.osflash.signals.Signal;
 	
@@ -128,6 +129,9 @@ package fr.swapp.graphic.components.navigation
 		{
 			// TODO: Signal onChange sur le actionStack (le layerstackitem en paramètre)
 			// TODO: Implémenter la gestion d'un seul container
+			
+			// Activer les styles
+			_styleEnabled = true;
 			
 			// Enregistrer
 			_oneContainer = pOneContainer;

@@ -74,6 +74,10 @@ package fr.swapp.graphic.components.navigation
 		 */
 		public function ViewStack ()
 		{
+			// Activer les styles
+			_styleEnabled = true;
+			
+			// Tous les addChilds seront ajoutés comme des éléments
 			_addChildAsElement = true;
 		}
 		

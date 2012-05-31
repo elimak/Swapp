@@ -357,6 +357,9 @@ package fr.swapp.graphic.components.lists
 			// Relayer
 			super();
 			
+			// Activer les styles
+			_styleEnabled = true;
+			
 			// Définir une orientation
 			orientation = pOrientation;
 			

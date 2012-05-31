@@ -1,12 +1,8 @@
-package fr.swapp.graphic.components.containers.popups
+package fr.swapp.graphic.popups
 {
 	import flash.display.DisplayObjectContainer;
 	import fr.swapp.core.bundle.IBundle;
-	import fr.swapp.graphic.animations.ITransition;
-	import fr.swapp.graphic.components.base.ResizableComponent;
-	import fr.swapp.graphic.errors.GraphicalError;
 	import fr.swapp.utils.ObjectUtils;
-	
 	/**
 	 * @author ZoulouX
 	 */

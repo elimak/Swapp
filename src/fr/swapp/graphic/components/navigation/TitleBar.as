@@ -139,6 +139,9 @@ package fr.swapp.graphic.components.navigation
 		 */
 		public function TitleBar ()
 		{
+			// Activer les styles
+			_styleEnabled = true;
+			
 			// Ecouter les clics
 			addEventListener(MouseEvent.CLICK, clickHandler);
 		}

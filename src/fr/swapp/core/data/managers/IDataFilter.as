@@ -4,7 +4,6 @@
 	 * Les imports
 	 */
 	import fr.swapp.core.data.collect.IDataCollection;
-	import fr.swapp.core.data.items.IDataItem;
 	
 	/**
 	 * Permet de créer des filtres de collection. Les DataFilters doivent implément IDataFilter et étendre ADataFilter.

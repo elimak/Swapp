@@ -57,6 +57,12 @@ package fr.swapp.graphic.base
 		protected var _onRendered					:Signal						= new Signal();
 		
 		/**
+		 * Lorsque la visibilité de l'élément change
+		 */
+		protected var _onVisibilityChanged			:Signal						= new Signal();
+		
+		
+		/**
 		 * Le parent écouté
 		 */
 		protected var _watchedParent				:ResizableComponent;
@@ -197,6 +203,12 @@ package fr.swapp.graphic.base
 		 * La liste des enfants pour le wrapper MXML
 		 */
         protected var _children						:Vector.<DisplayObject>;
+		
+		/**
+		 * Si la stylisation de cet élément est activé.
+		 * Désactivé par défaut pour gagner en performances.
+		 */
+		protected var _styleEnabled					:Boolean					= false;
 		
 		
 		/**
@@ -665,10 +677,15 @@ package fr.swapp.graphic.base
 		public function get allowRedraw ():Boolean { return _allowRedraw; }
 		
 		/**
-		 * Le fond généré à la demande
+		 * Le fond généré à la demande (le getter ajoute un background vide par défaut).
+		 * Si les styles sont désactivés, le fond ne sera pas créé automatiquement.
 		 */
 		public function get backgroundImage ():AdvancedBitmap
 		{
+			// Interdire si on n'a pas les styles
+			if (!_styleEnabled)
+				return null;
+			
 			// Si on n'a pas de fond
 			if (_backgroundImage == null)
 			{
@@ -744,6 +761,24 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
+		 * Si la stylisation de cet élément est activé.
+		 * Désactivé par défaut pour gagner en performances.
+		 */
+		public function get styleEnabled ():Boolean { return _styleEnabled; }
+		public function set styleEnabled (value:Boolean):void
+		{
+			// Si c'est différent
+			if (_styleEnabled != value)
+			{
+				// On enregistre
+				_styleEnabled = value;
+				
+				// Et on invalide le style
+				invalidateStyle();
+			}
+		}
+		
+		/**
 		 * Récupérer l'élément stylisable parent
 		 */
 		public function get parentStylable ():IStylable
@@ -760,6 +795,33 @@ package fr.swapp.graphic.base
 		 * Lors qu'un rendu est terminé
 		 */
 		public function get onRendered ():Signal { return _onRendered; }
+		
+		/**
+		 * Whether or not the display object is visible. Display objects that are not visible
+		 * are disabled. For example, if visible=false for an InteractiveObject instance,
+		 * it cannot be clicked.
+		 * @langversion	3.0
+		 * @playerversion	Flash 9
+		 * @playerversion	Lite 4
+		 */
+		override public function get visible ():Boolean { return super.visible; }
+		override public function set visible (value:Boolean):void
+		{
+			// Si c'est différent
+			if (value != super.visible)
+			{
+				// Enregistrer
+				super.visible = value;
+				
+				// Dispatcher le changement
+				_onVisibilityChanged.dispatch();
+			}
+		}
+		
+		/**
+		 * Lorsque la visibilité de l'élément change
+		 */
+		public function get onVisibilityChanged ():Signal { return _onVisibilityChanged; }
 		
 		
 		/**
@@ -787,6 +849,7 @@ package fr.swapp.graphic.base
 					_watchedParent.onReplaced.remove(parentReplacedHandler);
 					_watchedParent.onStyleChanged.remove(parentStyleChangedHandler);
 					_watchedParent.onRendered.remove(renderHandler);
+					_watchedParent.onVisibilityChanged.remove(parentVisibilityChangedHandler);
 				}
 				
 				// On le mémorise
@@ -797,6 +860,7 @@ package fr.swapp.graphic.base
 				_watchedParent.onReplaced.add(parentReplacedHandler);
 				_watchedParent.onStyleChanged.add(parentStyleChangedHandler);
 				_watchedParent.onRendered.add(renderHandler);
+				_watchedParent.onVisibilityChanged.add(parentVisibilityChangedHandler);
 			}
 			
 			// Invalider
@@ -828,6 +892,16 @@ package fr.swapp.graphic.base
 		protected function parentStyleChangedHandler ():void
 		{
 			invalidateStyle();
+		}
+		
+		/**
+		 * Le parent a changé de visibilité
+		 */
+		protected function parentVisibilityChangedHandler ():void
+		{
+			// Signaler
+			visibilityChanged();
+			_onVisibilityChanged.dispatch();
 		}
 		
 		/**
@@ -1382,8 +1456,8 @@ package fr.swapp.graphic.base
 		 */
 		protected function updateStyle ():void
 		{
-			// Si on a un wrapper et un style
-			if (wrapper != null && _styleName != null && _styleName != "")
+			// Si on a un wrapper et si les styles sont autorisés
+			if (wrapper != null && _styleEnabled)
 			{
 				// Récupérer la liste des styles des parents
 				var style:Object = wrapper.styleCentral.getComputedStyleFromStylable(this);
@@ -1412,12 +1486,14 @@ package fr.swapp.graphic.base
 			_onReplaced.removeAll();
 			_onStyleChanged.removeAll();
 			_onRendered.removeAll();
+			_onVisibilityChanged.removeAll();
 			
 			// Supprimer les signaux
 			_onResized = null;
 			_onReplaced = null;
 			_onStyleChanged = null
 			_onRendered = null;
+			_onVisibilityChanged = null;
 			
 			// On n'écoute les changements de taille
 			if (_watchedParent != null && _watchedParent.onResized != null)
@@ -1426,6 +1502,7 @@ package fr.swapp.graphic.base
 				_watchedParent.onReplaced.remove(parentReplacedHandler);
 				_watchedParent.onStyleChanged.remove(parentStyleChangedHandler);
 				_watchedParent.onRendered.remove(renderHandler);
+				_watchedParent.onVisibilityChanged.remove(parentVisibilityChangedHandler);
 			}
 			
 			_watchedParent = null;
@@ -1445,6 +1522,38 @@ package fr.swapp.graphic.base
 		protected function resized ():void
 		{
 			
+		}
+		
+		/**
+		 * Le composant à changé de visibilité
+		 */
+		protected function visibilityChanged ():void
+		{
+			
+		}
+		
+		/**
+		 * Savoir si cet élément est visible.
+		 * Si un parent est en visible false ou si cet élément n'a pas été ajouté à la scène, false sera retourné.
+		 */
+		public function isVisible ():Boolean
+		{
+			if (stage != null)
+			{
+				var parent:ResizableComponent = _watchedParent;
+				
+				while (parent != null)
+				{
+					if (!parent.visible)
+					{
+						return false;
+					}
+					
+					parent = parent.parent as ResizableComponent;
+				}
+			}
+			
+			return true;
 		}
 		
 		/**

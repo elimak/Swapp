@@ -12,6 +12,8 @@ package fr.swapp.graphic.components.misc
 		 */
 		public function TouchScrollBar ()
 		{
+			// Activer les styles
+			_styleEnabled = true;
 			
 		}
 		

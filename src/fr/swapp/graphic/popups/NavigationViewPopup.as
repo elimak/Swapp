@@ -1,10 +1,8 @@
 package fr.swapp.graphic.popups
 {
 	import flash.events.MouseEvent;
-	import fr.swapp.graphic.animations.ITransition;
-	import fr.swapp.graphic.components.base.ResizableComponent;
+	import fr.swapp.graphic.base.ResizableComponent;
 	import fr.swapp.graphic.components.bitmaps.AdvancedBitmap;
-	import fr.swapp.graphic.components.controls.title.TitleBar;
 	import fr.swapp.graphic.components.navigation.NavigationStack;
 	
 	/**
@@ -16,11 +14,6 @@ package fr.swapp.graphic.popups
 		 * La navigationStack
 		 */
 		protected var _navigationStack					:NavigationStack;
-		
-		/**
-		 * La barre de titre
-		 */
-		protected var _titleBar							:TitleBar;
 		
 		/**
 		 * Le fond
@@ -43,15 +36,6 @@ package fr.swapp.graphic.popups
 		 */
 		public function get navigationStack ():NavigationStack { return _navigationStack; }
 		
-		
-		/**
-		 * La barre de titre
-		 */
-		public function get titleBar ():TitleBar { return _titleBar; }
-		public function set titleBar (value:TitleBar):void
-		{
-			_titleBar = value;
-		}
 		
 		/**
 		 * Le fond
@@ -87,7 +71,7 @@ package fr.swapp.graphic.popups
 		override protected function attachDefaultDisplayObject ():void
 		{
 			// Créer la navigationStack
-			_navigationStack = new NavigationStack(_bundle.bootstrap, NavigationStack.NO_MENU_BAR_LAYOUT, null, null, -1, _titleBar)
+			_navigationStack = new NavigationStack(_bundle.bootstrap, null, -1, true, false)
 			
 			// Si on a un fond
 			if (_background != null)

@@ -36,9 +36,6 @@ package fr.swapp.core.data.remote
 			// L'appel a réussi
 			function ExternalInterfaceCallRoutine (pCommand:String, pParameters:Array):void
 			{
-				// Enregistrer les données
-				remotingCall.data = loader.data;
-				
 				// Vérifier que l'externalInterface soit disponible
 				if (ExternalInterface.available)
 				{

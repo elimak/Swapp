@@ -1,24 +1,14 @@
-package fr.swapp.graphic.components.containers.popups
+package fr.swapp.graphic.popups
 {
 	import com.greensock.easing.Strong;
 	import com.greensock.TweenMax;
-	import flash.text.AntiAliasType;
-	import flash.text.TextFormatAlign;
 	import fr.swapp.graphic.components.bitmaps.AdvancedBitmap;
-	import fr.swapp.graphic.components.controls.text.Label;
-	import fr.swapp.graphic.components.controls.text.TextSkin;
+	import fr.swapp.graphic.components.text.Label;
 	/**
 	 * @author ZoulouX
 	 */
 	public class ToastPopup extends APopup
 	{
-		protected static var __textSkin:TextSkin = new TextSkin( {
-			font: "Arial",
-			color: 0xFFFFFF,
-			size: 13,
-			align: TextFormatAlign.CENTER
-		}, null, true, AntiAliasType.ADVANCED);
-		
 		protected var _background					:AdvancedBitmap;
 		
 		protected var _label						:Label;
@@ -38,7 +28,7 @@ package fr.swapp.graphic.components.containers.popups
 			_background.radius(10);
 			_background.place(0, 0, 0, 0).into(resizableComponent);
 			
-			_background.cab(true, _background.transform.concatenatedMatrix.clone());
+			//_background.cab(true, _background.transform.concatenatedMatrix.clone());
 			
 			_label = new Label(true, true);
 			_label.place(NaN, 10, NaN, 10).center(NaN, 0).into(resizableComponent);
@@ -49,11 +39,6 @@ package fr.swapp.graphic.components.containers.popups
 			dispatchEngineSignal(_onTurningOn);
 			
 			_label.text(pContextInfo.message as String);
-			
-			if ("textSkin" in pContextInfo)
-				_label.textSkin(pContextInfo.textSkin as TextSkin)
-			else
-				_label.textSkin(__textSkin);
 			
 			if ("verticalOffset" in pContextInfo)
 				resizableComponent.verticalOffset = pContextInfo.verticalOffset;

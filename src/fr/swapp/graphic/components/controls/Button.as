@@ -253,6 +253,9 @@ package fr.swapp.graphic.components.controls
 		 */
 		public function Button ()
 		{
+			// Activer les styles
+			_styleEnabled = true;
+			
 			// Ne pas gérer l'intéractivité sur le contenu
 			mouseChildren = false;
 			buttonMode = true;

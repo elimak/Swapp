@@ -68,6 +68,7 @@ package fr.swapp.graphic.styles
 			var styleSelector				:String;
 			var styleSelectorSplitted		:Array;
 			var selectorKey					:String;
+			var pointIndex					:int;
 			
 			// Réinitialiser la liste des sélécteurs
 			_selectors = [];
@@ -84,17 +85,61 @@ package fr.swapp.graphic.styles
 				// Si cette clé n'était pas encore déclarée
 				if (_selectors[selectorKey] == null)
 				{
-					// On la déclare
+					// On la selectorKey
 					_selectors[selectorKey] = [];
 				}
 				
 				// On ajoute le selecteur sur cette clé
 				_selectors[selectorKey].push(styleSelectorSplitted);
+				
+				/*
+				// Récupérer la position du point
+				pointIndex = selectorKey.indexOf(".");
+				
+				// Pas de point (-1), c'est juste un style
+				// Point au début (0), c'est juste une classe
+				if (pointIndex <= 0)
+				{
+					addSelectorKey(selectorKey, styleSelectorSplitted);
+				}
+				
+				// Point au milieu (> 0), c'est les deux
+				else
+				{
+					// Ajouter la classe
+					addSelectorKey(selectorKey.substring(), styleSelectorSplitted);
+					
+					// Ajouter le style
+					addSelectorKey(selectorKey, styleSelectorSplitted);
+					
+					// Et ajouter le tout
+				}
+				*/
 			}
 			
 			// Signaler que le style a changé
 			invalidateStyleData();
 		}
+		
+		/**
+		 * Ajouter une clé de sélécteur dans la liste rapide des sélécteurs.
+		 * @param	pSelectorKey : La clé
+		 * @param	pStyleSelectorSplitted : Le sélécteur complet, splitté.
+		 */
+		/*
+		protected function addSelectorKey (pSelectorKey:String, pStyleSelectorSplitted:Array):void
+		{
+			// Si cette clé n'était pas encore déclarée
+			if (_selectors[pSelectorKey] == null)
+			{
+				// On la déclare
+				_selectors[pSelectorKey] = [];
+			}
+			
+			// On ajoute le selecteur sur cette clé
+			_selectors[pSelectorKey].push(pStyleSelectorSplitted);
+		}
+		*/
 		
 		/**
 		 * Récupérer un style calculé pour un élément stylisable.
@@ -147,6 +192,8 @@ package fr.swapp.graphic.styles
 		 */
 		public function getSelectorsFromSignature (pSignature:Vector.<String>):Vector.<String>
 		{
+			trace("getSelectorsFromSignature", pSignature);
+			
 			// La liste des sélécteurs que l'on va retourner
 			var validSelectors:Vector.<String> = new Vector.<String>;
 			
@@ -157,8 +204,26 @@ package fr.swapp.graphic.styles
 			// Récupérer la clé de la signature
 			var signatureKey:String = pSignature[pSignature.length == 1 ? 0 : pSignature.length - 1];
 			
+			// Les éléments de signature
+			var signatureKeyParts:Array = [signatureKey];
+			
+			// L'index de séparation entre la classe et le style
+			var dotIndex:int = signatureKey.indexOf(".");
+			
+			// S'il y a un style
+			if (dotIndex > 0 && dotIndex < signatureKey.length - 1)
+			{
+				// Ajouter la classe et le nom du style
+				signatureKeyParts[1] = signatureKey.substring(0, dotIndex);
+				signatureKeyParts[2] = signatureKey.substring(dotIndex, signatureKey.length);
+			}
+			
+			
+			// La partie de la clé de la signature en cours de traitement
+			var currentSignatureKeyPart:String;
+			
 			// Les sélécteurs correspondant à la clé trouvée
-			var selectors:Array = _selectors[signatureKey];
+			var selectors:Array 
 			
 			// Le selecteur
 			var selector:Array;
@@ -173,48 +238,90 @@ package fr.swapp.graphic.styles
 			// Si le selecteur correspond à la signature
 			var selectorOk:Boolean;
 			
-			// Parcourir les sélécteurs
-			for each (selector in selectors)
+			// Les parties du sélécteur en cours
+			var currentSelectorSplit:Array;
+			
+			// Parcourir les éléments de la signature
+			var h:int = signatureKeyParts.length;
+			while (--h >= 0)
 			{
-				// Placer les variables d'itérations à la fin des entités à parcourir
-				i = selector.length;
-				j = pSignature.length;
+				// Cibler la partie du sélécteur
+				currentSignatureKeyPart = signatureKeyParts[h];
 				
-				// Par défaut le sélécteur est valide
-				selectorOk = true;
-				
-				// Parcourir les éléments de ce selecteur
-				while (i -- > 0)
+				// Si cette partie de la clé du sélécteur correspond à un style
+				if (currentSignatureKeyPart in _selectors)
 				{
-					// Par défaut cet élément n'a pas été trouvé
-					selectorElementfound = false;
+					// Les sélécteurs correspondant à la clé trouvée
+					selectors = _selectors[currentSignatureKeyPart];
 					
-					// Parcourir les éléments de la signature
-					while (j-- > 0)
+					// Parcourir les sélécteurs
+					for each (selector in selectors)
 					{
-						// Si cet élément du selecteur est dans la signature
-						if (pSignature[j] == selector[i])
+						// Placer les variables d'itérations à la fin des entités à parcourir
+						i = selector.length;
+						j = pSignature.length;
+						
+						// Par défaut le sélécteur est valide
+						selectorOk = true;
+						
+						// Parcourir les éléments de ce selecteur
+						while (i -- > 0)
 						{
-							// Alors on a trouvé
-							selectorElementfound = true;
-							break;
+							// Par défaut cet élément n'a pas été trouvé
+							selectorElementfound = false;
+							
+							// Parcourir les éléments de la signature
+							while (j-- > 0)
+							{
+								// Si cet élément du selecteur est dans la signature
+								if (pSignature[j] == selector[i])
+								{
+									// Alors on a trouvé
+									selectorElementfound = true;
+									break;
+								}
+								
+								// Si notre sélécteur est en plusieurs parties
+								else if (pSignature[j].indexOf(".") != 0)
+								{
+									// Récupérer la position du point
+									dotIndex = selector[i].indexOf(".");
+									
+									// On coupe l'élément de la signature en deux
+									currentSelectorSplit = pSignature[j].split(".");
+									
+									if (
+											// Si c'est un style (point au début)
+											(dotIndex == 0 && selector[i] == "." + currentSelectorSplit[1])
+											||
+											
+											// Si c'est une classe (pas de point)
+											(dotIndex == -1 && selector[i] == currentSelectorSplit[0])
+										)
+									{
+										// Alors on a trouvé
+										selectorElementfound = true;
+										break;
+									}
+								}
+							}
+							
+							// Si cet élément n'a pas été trouvé
+							if (!selectorElementfound)
+							{
+								// Le selecteur n'est pas conforme
+								selectorOk = false;
+								break;
+							}
+						}
+						
+						// Si le selecteur est conforme
+						if (selectorOk)
+						{
+							// On l'ajoute à la liste des sélécteurs
+							validSelectors.push(selector.join(" "));
 						}
 					}
-					
-					// Si cet élément n'a pas été trouvé
-					if (!selectorElementfound)
-					{
-						// Le selecteur n'est pas conforme
-						selectorOk = false;
-						break;
-					}
-				}
-				
-				// Si le selecteur est conforme
-				if (selectorOk)
-				{
-					// On l'ajoute à la liste des sélécteurs
-					validSelectors.push(selector.join(" "));
 				}
 			}
 			
@@ -257,7 +364,7 @@ package fr.swapp.graphic.styles
 							injectStyle(pTarget[property], value);
 						}
 						
-						// Sinon on injecte
+						// Sinon on injecte simplement
 						else
 						{
 							pTarget[property] = value;
@@ -267,6 +374,7 @@ package fr.swapp.graphic.styles
 					{
 						Log.warning("Property \"" + property + "\" not found when applying style \"" + (pTarget is IStylable ? pTarget.styleName : "unknow") + "\" in \"" + pTarget + "\"");
 					}
+					
 				}
 			}
 		}
@@ -278,18 +386,29 @@ package fr.swapp.graphic.styles
 		 */
 		public function getStyleSignature (pTarget:IStylable):Vector.<String>
 		{
-			// La liste des styles des parents
-			var parentsStylesList:Vector.<String> = Vector.<String>([pTarget.styleName]);
+			// Le nom de classe de l'élément parent
+			var parentClassName:String;
 			
-			// Le parent de notre élément
-			var parent:IStylable = (pTarget.parentStylable as IStylable);
+			// La liste des styles des parents
+			var parentsStylesList:Vector.<String> = new Vector.<String>;
+			
+			// On commence par notre éléménet
+			var parent:IStylable = pTarget;
 			
 			// Tant qu'on n'est pas sur le stage
 			while (parent != null)
 			{
+				// Récupérer le nom de classe du parent
+				parentClassName = getQualifiedClassName(parent);
+				
+				// Virer les package
+				parentClassName = parentClassName.substring(parentClassName.lastIndexOf("::") + 2, parentClassName.length);
+				
 				// On ajoute le parent à notre liste de parents
-				if (parent.styleName != null)
-					parentsStylesList.push(parent.styleName);
+				if (parent.styleName != null && parent.styleName != "")
+					parentsStylesList.push(parentClassName + "." + parent.styleName);
+				else
+					parentsStylesList.push(parentClassName);
 				
 				// On remonte d'un niveau
 				parent = (parent.parentStylable as IStylable);

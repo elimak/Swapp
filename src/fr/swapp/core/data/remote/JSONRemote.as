@@ -36,7 +36,9 @@
 		
 		
 		/**
-		 * Le constructeur
+		 * Le constructeur.
+		 * Pour Flash Player 11+ et AIR 3+, utilisez JSON.parse et JSON.stringify.
+		 * Pour les versions inférieures, utilisez les méthodes de la CoreLib d'Adobe.
 		 * @param	pJSONEncodeFunction : La fonction d'encodage JSON
 		 * @param	pJSONDecodeFunction : La fonction de décodage JSON
 		 * @param	pEncodeOnSend : Encoder automatiquement les paramètres envoyés

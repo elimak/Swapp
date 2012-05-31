@@ -7,7 +7,6 @@ package fr.swapp.core.bundle
 	import fr.swapp.core.mvc.abstract.IViewController;
 	import fr.swapp.core.roles.IDisposable;
 	import fr.swapp.core.roles.IInitializable;
-	import fr.swapp.graphic.components.containers.popups.PopupProvider;
 	
 	/**
 	 * @author ZoulouX & Pascal
@@ -33,11 +32,6 @@ package fr.swapp.core.bundle
 		 * Le controlleur principal de l'application
 		 */
 		function get appController ():IViewController;
-		
-		/**
-		 * Le provider de popups
-		 */
-		function get popupProvider ():PopupProvider;
 		
 		/**
 		 * Exécuter l'action par défaut

@@ -183,6 +183,9 @@ package fr.swapp.graphic.components.text
 		 */
 		public function TextBase ()
 		{
+			// Activer les styles
+			_styleEnabled = true;
+			
 			// Construire le textField
 			buildTextField();
 		}

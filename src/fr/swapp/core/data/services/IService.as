@@ -13,6 +13,6 @@ package fr.swapp.core.data.services
 		 * La remote associée à ce service
 		 */
 		function get remote ():IRemote;
-		function set remove (value:IRemote):void;
+		function set remote (value:IRemote):void;
 	}	
 }

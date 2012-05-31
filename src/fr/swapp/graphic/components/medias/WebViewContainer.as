@@ -13,7 +13,6 @@ package fr.swapp.graphic.components.medias
 	import fr.swapp.core.log.Log;
 	import fr.swapp.core.roles.IReadyable;
 	import fr.swapp.graphic.base.ResizableComponent;
-	import fr.swapp.utils.ScreenUtils;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -318,6 +317,10 @@ package fr.swapp.graphic.components.medias
 		 */
 		public function WebViewContainer (pUseInternalStructure:Boolean = true)
 		{
+			// Activer les styles
+			_styleEnabled = true;
+			
+			// Enregistrer
 			_useInternalStructure = pUseInternalStructure;
 		}
 		
@@ -489,10 +492,10 @@ package fr.swapp.graphic.components.medias
 		/**
 		 * Besoin de rafraichir la position
 		 */
-		override protected function needReplace (pNeedResized:Boolean = false):void 
+		override protected function needReplace ():void 
 		{
 			// Relayer
-			super.needReplace(pNeedResized);
+			super.needReplace();
 			
 			// Réappliquer au stageWebView
 			refreshPosition();
@@ -540,10 +543,10 @@ package fr.swapp.graphic.components.medias
 		public function refreshPosition ():void 
 		{
 			// Si on a un stageWebView
-			if (_stageWebView != null && _localWidth > 0 && _localHeight > 0)
+			if (_stageWebView != null && _localWidth > 0 && _localHeight > 0 && wrapper != null)
 			{
 				// Récupérer le ratio du stage
-				var ratio:Number = ScreenUtils.getRatioForStage(stage);
+				var ratio:Number = wrapper.ratio;
 				
 				// Si cette webview est visible
 				if (super.visible && !_rasterize && _ready)

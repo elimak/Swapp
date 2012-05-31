@@ -45,6 +45,8 @@ package fr.swapp.graphic.components.medias
 		 */
 		public function VideoContainer ()
 		{
+			// Activer les styles
+			_styleEnabled = true;
 			
 		}
 		

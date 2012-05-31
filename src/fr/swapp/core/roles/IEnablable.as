@@ -1,8 +1,5 @@
 ﻿package fr.swapp.core.roles 
 {
-	/**
-	 * Les imports
-	 */
 	import org.osflash.signals.ISignal;
 	
 	/**

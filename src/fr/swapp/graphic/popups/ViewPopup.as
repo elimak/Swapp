@@ -1,4 +1,4 @@
-package fr.swapp.graphic.components.containers.popups
+package fr.swapp.graphic.popups
 {
 	/**
 	 * @author ZoulouX

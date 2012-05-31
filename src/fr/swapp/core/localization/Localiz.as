@@ -7,7 +7,6 @@ package fr.swapp.core.localization
 {   
 	import flash.utils.Dictionary;
 	import fr.swapp.core.data.remote.IRemote;
-	import fr.swapp.core.data.remote.JSONRemote;
 	import fr.swapp.core.data.remote.RemotingCall;
 	import fr.swapp.core.log.Log;
 	import org.osflash.signals.Signal;
@@ -293,13 +292,9 @@ package fr.swapp.core.localization
 		/**
 		 * Configure les signaux.
 		 */
-		private function setupSignals():void 
+		private function setupSignals ():void 
 		{
 			onChange = new Signal();
 		}
-		
-		
-		
-		
 	}
 }
