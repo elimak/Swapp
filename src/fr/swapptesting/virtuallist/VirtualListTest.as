@@ -31,7 +31,6 @@ package fr.swapptesting.virtuallist
 		
 		override public function init():void
 		{
-			
 			// DEBUG : Passer le listMovedHandler en phase de rendu
 			
 			MouseToTouchEmulator.auto(stage);
@@ -47,11 +46,11 @@ package fr.swapptesting.virtuallist
 			_freeList.dragAllowOppositeDirection = true;
 			_freeList.place(150, 0, 0, 0).into(_container);
 			
-			_stepList = new StepVirtualList(this, AVirtualList.HORIZONTAL_ORIENTATION);
-			_stepList.clipContent = true;
-			_stepList.place(0, 0, NaN, 0).size(NaN, 150).into(_container);
-			_stepList.container.place(0, 10, 0, 10);
-			_stepList.elementsOverLoad = 2;
+			//_stepList = new StepVirtualList(this, AVirtualList.HORIZONTAL_ORIENTATION);
+			//_stepList.clipContent = true;
+			//_stepList.place(0, 0, NaN, 0).size(NaN, 150).into(_container);
+			//_stepList.container.place(0, 10, 0, 10);
+			//_stepList.elementsOverLoad = 2;
 			
 			//(new BorderComponent(0x000000, 1)).place(0, 0, 0, 0).into(_container);
 			//(new BorderComponent(0x00FF00, 1)).place(0, 0, 0, 0).into(_freeList);

@@ -235,8 +235,11 @@ package fr.swapp.graphic.components.lists
 					_container[_positionVar] -= limit;
 				}
 				
+				// Invalider
+				invalidateList();
+				
 				// Signaler
-				listMovedHandler();
+				//listMovedHandler();
 			}
 			else
 			{

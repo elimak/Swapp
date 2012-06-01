@@ -208,6 +208,11 @@ package fr.swapp.graphic.components.lists
 		 */
 		protected var _firstResizeByElement			:Dictionary					= new Dictionary(true);
 		
+		/**
+		 * Si la liste est invalidée
+		 */
+		protected var _listInvalidated				:Boolean;
+		
 		
 		/**
 		 * Lorsque la liste a été déplacée (par l'utilisateur ou le code)
@@ -260,9 +265,8 @@ package fr.swapp.graphic.components.lists
 					this[i] = ORIENTATIONS_VAR_NAMES[_orientation][i];
 				}
 				
-				// Actualiser
-				if (stage != null)
-					listMovedHandler();
+				// Invalider la liste
+				invalidateList();
 			}
 		}
 		
@@ -290,12 +294,15 @@ package fr.swapp.graphic.components.lists
 		public function get delegate ():IVirtualListDelegate { return _delegate; }
 		public function set delegate (value:IVirtualListDelegate):void
 		{
-			// Enregistrer
-			_delegate = value;
-			
-			// Actualiser
-			if (stage != null)
-				listMovedHandler();
+			// Si c'est différent
+			if (_delegate != value)
+			{
+				// Enregistrer
+				_delegate = value;
+				
+				// Invalider la liste
+				invalidateList();
+			}
 		}
 		
 		/**
@@ -304,12 +311,15 @@ package fr.swapp.graphic.components.lists
 		public function get currentScroll ():Number { return _container[_positionVar]; }
 		public function set currentScroll (value:Number):void 
 		{
-			// Enregistrer
-			_container[_positionVar] = value;
-			
-			// Actualiser
-			if (stage != null)
-				listMovedHandler();
+			// Si c'est différent
+			if (value != _container[_positionVar])
+			{
+				// Enregistrer
+				_container[_positionVar] = value;
+				
+				// Invalider la liste
+				invalidateList();
+			}
 		}
 		
 		/**
@@ -318,12 +328,15 @@ package fr.swapp.graphic.components.lists
 		public function get neverHide ():Boolean { return _neverHide; }
 		public function set neverHide (value:Boolean):void
 		{
-			// Enregistrer
-			_neverHide = value;
-			
-			// Actualiser
-			if (stage != null)
-				listMovedHandler();
+			// Si c'est différent
+			if (_neverHide != value)
+			{
+				// Enregistrer
+				_neverHide = value;
+				
+				// Invalider la liste
+				invalidateList();
+			}
 		}
 		
 		/**
@@ -332,12 +345,15 @@ package fr.swapp.graphic.components.lists
 		public function get neverRemove ():Boolean { return _neverRemove; }
 		public function set neverRemove (value:Boolean):void
 		{
-			// Enregistrer
-			_neverRemove = value;
-			
-			// Actualiser
-			if (stage != null)
-				listMovedHandler();
+			// Si c'est différent
+			if (_neverRemove != value)
+			{
+				// Enregistrer
+				_neverRemove = value;
+				
+				// Invalider la liste
+				invalidateList();
+			}
 		}
 		
 		/**
@@ -346,12 +362,15 @@ package fr.swapp.graphic.components.lists
 		public function get objectPool ():ObjectPool { return _objectPool; }
 		public function set objectPool (value:ObjectPool):void
 		{
-			// Enregistrer
-			_objectPool = value;
-			
-			// Actualiser
-			if (stage != null)
-				listMovedHandler();
+			// Si c'est différent
+			if (_objectPool != value)
+			{
+				// Enregistrer
+				_objectPool = value;
+				
+				// Invalider la liste
+				invalidateList();
+			}
 		}
 		
 		
@@ -396,6 +415,41 @@ package fr.swapp.graphic.components.lists
 			
 			// Initialiser les intéractions
 			initInteractions();
+		}
+		
+		/**
+		 * Invalider la liste
+		 */
+		public function invalidateList (pForce:Boolean = false):void
+		{
+			// Si la liste n'est pas déjà invalidée
+			if (!_listInvalidated)
+			{
+				// On l'invalide
+				_listInvalidated = true;
+				
+				// On invalide le super
+				invalidate(pForce);
+			}
+		}
+		
+		/**
+		 * Rendu
+		 */
+		override protected function renderHandler ():void
+		{
+			// Relayer
+			super.renderHandler();
+			
+			// Si la liste est invalidée
+			if (_listInvalidated)
+			{
+				// Acutaliser la liste
+				listMovedHandler();
+				
+				// La liste est validée
+				_listInvalidated = false;
+			}
 		}
 		
 		/**
@@ -471,11 +525,13 @@ package fr.swapp.graphic.components.lists
 		/**
 		 * Besoin d'un rafraichissement (revérifie les index des éléments)
 		 */
+		/*
 		public function update ():void
 		{
-			// Actualiser
-			listMovedHandler();
+			// Invalider la liste
+			invalidateList();
 		}
+		*/
 		
 		/**
 		 * La liste a bougé
@@ -521,7 +577,7 @@ package fr.swapp.graphic.components.lists
 		 */
 		override protected function elementResized ():void
 		{
-			trace("ELEMENT RESIZED", Math.random());
+			trace("ELEMENT RESIZED", Math.random(), wrapper.isInRenderPhase);
 			
 			return;
 			
@@ -675,11 +731,13 @@ package fr.swapp.graphic.components.lists
 		 */
 		override protected function containerResized ():void
 		{
+			trace("CONTAINER RESIZED", wrapper.isInRenderPhase);
+			
 			// Replacer
-			replaceList(true);
+			//replaceList(true);
 			
 			// La liste a bougé
-			listMovedHandler(false);
+			//listMovedHandler(false);
 		}
 		
 		/**
