@@ -316,7 +316,7 @@ package fr.swapp.touch.emulator
 					dispatchDragLock();
 					
 					// On active l'écoute des moves et des ends
-					_rootStage.addEventListener(Event.ENTER_FRAME, enterFrameHandler);
+					//_rootStage.addEventListener(Event.ENTER_FRAME, enterFrameHandler);
 					_rootStage.addEventListener(TouchEvent.TOUCH_MOVE, touchMoveHandler);
 					_rootStage.addEventListener(TouchEvent.TOUCH_END, touchEndHandler);
 				}
@@ -347,7 +347,7 @@ package fr.swapp.touch.emulator
 			if (-- _totalPoints == 0)
 			{
 				// On désactive l'écoute des moves et des ends
-				_rootStage.removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
+				//_rootStage.removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
 				_rootStage.removeEventListener(TouchEvent.TOUCH_MOVE, touchMoveHandler);
 				_rootStage.removeEventListener(TouchEvent.TOUCH_END, touchEndHandler);
 				
@@ -438,16 +438,23 @@ package fr.swapp.touch.emulator
 			
 			// Enregistrer le nouvel event
 			_events[event.touchPointID] = event;
+			
+			// Si c'est le dernier point enregistré
+			if (_pointsIds[_totalPoints - 1] == event.touchPointID)
+			{
+				// On dispatche le dragging
+				dispatchDragging();
+			}
 		}
 		
 		/**
 		 * Boucle par frame pour les dispatchs de drag
 		 */
-		protected function enterFrameHandler (event:Event = null):void
-		{
+		//protected function enterFrameHandler (event:Event = null):void
+		//{
 			// On dispatche le dragging
-			dispatchDragging();
-		}
+			//dispatchDragging();
+		//}
 		
 		/**
 		 * Dispatcher un TAP sur le delegate

@@ -196,23 +196,23 @@ package fr.swapp.graphic.base
 			stageResizedHandler();
 			
 			// Ecouter le rendu du stage
-			_stage.addEventListener(Event.RENDER, stageRenderHandler);
+			//_stage.addEventListener(Event.RENDER, stageRenderHandler);
 		}
 		
 		/**
 		 * Rendu du stage
 		 */
-		protected function stageRenderHandler (event:Event):void
-		{
+		//protected function stageRenderHandler (event:Event):void
+		//{
 			// On est en phase de rendu
-			_isInRenderPhase = true;
+			//_isInRenderPhase = true;
 			
 			// Relayer vers le rendu en cascade
-			renderHandler();
+			//renderHandler();
 			
 			// On n'est plus en phase de rendu
-			_isInRenderPhase = false;
-		}
+			//_isInRenderPhase = false;
+		//}
 		
 		/**
 		 * Initialiser le redimensionnement selon le DPI
@@ -320,7 +320,7 @@ package fr.swapp.graphic.base
 			_stage.removeEventListener(Event.RESIZE, stageResizedHandler);
 			
 			// Ne plus écouter le rendu du stage
-			_stage.addEventListener(Event.RENDER, stageRenderHandler);
+			//_stage.addEventListener(Event.RENDER, stageRenderHandler);
 			
 			// Ne plus écouter le clavier virtuel
 			_stage.removeEventListener(SoftKeyboardEvent.SOFT_KEYBOARD_ACTIVATE, stageResizedHandler);

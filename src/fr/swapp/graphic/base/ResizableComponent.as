@@ -55,7 +55,7 @@ package fr.swapp.graphic.base
 		/**
 		 * Lors qu'un rendu est terminé
 		 */
-		protected var _onRendered					:Signal						= new Signal();
+		//protected var _onRendered					:Signal						= new Signal();
 		
 		/**
 		 * Lorsque la visibilité de l'élément change
@@ -800,7 +800,7 @@ package fr.swapp.graphic.base
 		/**
 		 * Lors qu'un rendu est terminé
 		 */
-		public function get onRendered ():Signal { return _onRendered; }
+		//public function get onRendered ():Signal { return _onRendered; }
 		
 		/**
 		 * Whether or not the display object is visible. Display objects that are not visible
@@ -849,6 +849,9 @@ package fr.swapp.graphic.base
 		 */
 		override protected function addedHandler (event:Event = null):void
 		{
+			// Ecouter les rendus
+			addEventListener(Event.RENDER, renderHandler);
+			
 			// Si on a un parent redimensionnable
 			if (parent is ResizableComponent)
 			{
@@ -859,7 +862,7 @@ package fr.swapp.graphic.base
 					_watchedParent.onResized.remove(parentResizedHandler);
 					_watchedParent.onReplaced.remove(parentReplacedHandler);
 					_watchedParent.onStyleChanged.remove(parentStyleChangedHandler);
-					_watchedParent.onRendered.remove(renderHandler);
+					//_watchedParent.onRendered.remove(renderHandler);
 					_watchedParent.onVisibilityChanged.remove(parentVisibilityChangedHandler);
 				}
 				
@@ -870,7 +873,7 @@ package fr.swapp.graphic.base
 				_watchedParent.onResized.add(parentResizedHandler);
 				_watchedParent.onReplaced.add(parentReplacedHandler);
 				_watchedParent.onStyleChanged.add(parentStyleChangedHandler);
-				_watchedParent.onRendered.add(renderHandler);
+				//_watchedParent.onRendered.add(renderHandler);
 				_watchedParent.onVisibilityChanged.add(parentVisibilityChangedHandler);
 			}
 			
@@ -1158,8 +1161,8 @@ package fr.swapp.graphic.base
 		 */
 		public function invalidateStyle (pForce:Boolean = false):void
 		{
-			// Si le style n'est pas déjà invalidé et si on a un stage
-			if (!_styleInvalidated && stage != null)
+			// Si le style n'est pas déjà invalidé
+			if (!_styleInvalidated)
 			{
 				// On invalide le style
 				_styleInvalidated = true;
@@ -1183,7 +1186,9 @@ package fr.swapp.graphic.base
 			
 			// Si on doit aussi invalider le style
 			if (pRenderStyle)
+			{
 				_styleInvalidated = true;
+			}
 			
 			// Faire un rendu directement
 			renderHandler();
@@ -1192,7 +1197,7 @@ package fr.swapp.graphic.base
 		/**
 		 * Rendu du stage
 		 */
-		protected function renderHandler ():void
+		protected function renderHandler (event:Event = null):void
 		{
 			// Si le style est invalide
 			if (_styleInvalidated)
@@ -1213,7 +1218,7 @@ package fr.swapp.graphic.base
 				// On est valide
 				_invalidated = false;
 			}
-			
+			/*
 			// Si les redraw sont autorisés ou si on force
 			if (_allowRedraw || _forceInvalidate)
 			{
@@ -1223,6 +1228,7 @@ package fr.swapp.graphic.base
 				// Redispatcher le render
 				_onRendered.dispatch();
 			}
+			*/
 		}
 		
 		/**
@@ -1499,9 +1505,6 @@ package fr.swapp.graphic.base
 			}
 			else
 			{
-				// Relayer
-				super.removedHandler(event);
-				
 				// On est disposé
 				_disposed = true;
 				
@@ -1509,19 +1512,20 @@ package fr.swapp.graphic.base
 				_onResized.removeAll();
 				_onReplaced.removeAll();
 				_onStyleChanged.removeAll();
-				_onRendered.removeAll();
+				//_onRendered.removeAll();
 				_onVisibilityChanged.removeAll();
 				
 				// Supprimer les signaux
 				_onResized = null;
 				_onReplaced = null;
 				_onStyleChanged = null
-				_onRendered = null;
+				//_onRendered = null;
 				_onVisibilityChanged = null;
 				
-				// On n'écoute plus le parent
+				// Ne plus écouter les rendus
+				removeEventListener(Event.RENDER, renderHandler);
 				
-				if (_watchedParent.onResized == null)
+				if (_watchedParent != null && _watchedParent.onResized == null)
 				{
 					trace("		STRANGE PARENT", this, parent, parent.stage, wrapper.isInRenderPhase);
 					
@@ -1529,16 +1533,20 @@ package fr.swapp.graphic.base
 					return;
 				}
 				
+				// On n'écoute plus le parent
 				if (_watchedParent != null)
 				{
 					_watchedParent.onResized.remove(parentResizedHandler);
 					_watchedParent.onReplaced.remove(parentReplacedHandler);
 					_watchedParent.onStyleChanged.remove(parentStyleChangedHandler);
-					_watchedParent.onRendered.remove(renderHandler);
+					//_watchedParent.onRendered.remove(renderHandler);
 					_watchedParent.onVisibilityChanged.remove(parentVisibilityChangedHandler);
 				}
 				
 				_watchedParent = null;
+				
+				// Relayer
+				super.removedHandler(event);
 			}
 		}
 		

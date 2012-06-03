@@ -99,7 +99,7 @@ package fr.swapp.graphic.base
 		override protected function resized ():void
 		{
 			// Forcer le rendu du container
-			//_container.render();
+			_container.render();
 		}
 		
 		/**

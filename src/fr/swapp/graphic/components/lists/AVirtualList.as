@@ -181,7 +181,7 @@ package fr.swapp.graphic.components.lists
 		/**
 		 * Le frein de l'inertie quand la liste dépasse
 		 */
-		protected var _velocityOutBreak				:Number						= 2;
+		protected var _velocityOutBreak				:Number						= 1.4;
 		
 		/**
 		 * Ne jamais masquer les éléments
@@ -436,10 +436,27 @@ package fr.swapp.graphic.components.lists
 		/**
 		 * Rendu
 		 */
-		override protected function renderHandler ():void
+		override protected function renderHandler (event:Event = null):void
 		{
-			// Relayer
-			super.renderHandler();
+			// Si le style est invalide
+			if (_styleInvalidated)
+			{
+				// On l'actualise
+				updateStyle();
+				
+				// Le style est valide
+				_styleInvalidated = false;
+			}
+			
+			// Si la position est invalidée
+			if (_invalidated)
+			{
+				// Replacer
+				needReplace();
+				
+				// On est valide
+				_invalidated = false;
+			}
 			
 			// Si la liste est invalidée
 			if (_listInvalidated)
@@ -450,6 +467,16 @@ package fr.swapp.graphic.components.lists
 				// La liste est validée
 				_listInvalidated = false;
 			}
+			
+			// Si les redraw sont autorisés ou si on force
+			/*if (_allowRedraw || _forceInvalidate)
+			{
+				// On ne force plus
+				_forceInvalidate = false;
+				
+				// Redispatcher le render
+				_onRendered.dispatch();
+			}*/
 		}
 		
 		/**
@@ -523,17 +550,6 @@ package fr.swapp.graphic.components.lists
 		}
 		
 		/**
-		 * Besoin d'un rafraichissement (revérifie les index des éléments)
-		 */
-		/*
-		public function update ():void
-		{
-			// Invalider la liste
-			invalidateList();
-		}
-		*/
-		
-		/**
 		 * La liste a bougé
 		 */
 		protected function listMovedHandler (pNeedReplaceCheck:Boolean = true):void
@@ -577,7 +593,7 @@ package fr.swapp.graphic.components.lists
 		 */
 		override protected function elementResized ():void
 		{
-			trace("ELEMENT RESIZED", Math.random(), wrapper.isInRenderPhase);
+			//trace("ELEMENT RESIZED", Math.random(), wrapper.isInRenderPhase);
 			
 			return;
 			
@@ -601,7 +617,7 @@ package fr.swapp.graphic.components.lists
 					// Sinon si on a une taille différente de celle que l'on connaissait, meaculpa.
 					if (element in _firstResizeByElement && _firstResizeByElement[element] == element[_contentTotalSizeVar])
 					{
-						trace("NOT THIS ONE BITCH", element.index);
+						//trace("NOT THIS ONE BITCH", element.index);
 						delete _firstResizeByElement[element];
 					}
 					
@@ -672,40 +688,6 @@ package fr.swapp.graphic.components.lists
 					// Spécifier les dimensions du container
 					element[_placementVar1] = 0;
 					element[_placementVar2] = 0;
-					/*
-					// Compter le nombre d'éléments
-					const total:int = _elements.length;
-					
-					// Si on a pas d'éléments
-					if (total == 0)
-					{
-						// Placer cet élément a une position estimée
-						element[_positionVar] = pToIndex * _typicalElementSize;
-					}
-					else
-					{
-						// Parcourir les éléments
-						var i:int = total;
-						while (--i >= 0)
-						{
-							// Si c'est l'élément d'avant
-							if (_elements[i].index == pToIndex - 1)
-							{
-								// On place après
-								element[_positionVar] = _elements[i][_positionVar] + _elements[i][_contentTotalSizeVar];
-								break;
-							}
-							
-							// Si c'est l'élément d'après
-							else if (_elements[i].index == pToIndex + 1)
-							{
-								// On place avant
-								element[_positionVar] = _elements[i][_positionVar] - element[_contentTotalSizeVar];
-								break;
-							}
-						}
-					}
-					*/
 					
 					// Enregistrer la taille de l'élément
 					_firstResizeByElement[element] = element[_contentTotalSizeVar];
@@ -731,7 +713,7 @@ package fr.swapp.graphic.components.lists
 		 */
 		override protected function containerResized ():void
 		{
-			trace("CONTAINER RESIZED", wrapper.isInRenderPhase);
+			//trace("CONTAINER RESIZED", wrapper.isInRenderPhase);
 			
 			// Replacer
 			//replaceList(true);
@@ -839,58 +821,18 @@ package fr.swapp.graphic.components.lists
 				var overloadBeginLimit	:Number = beginLimit - _elementsOverLoad * _typicalElementSize;
 				var overloadEndLimit	:Number = endLimit + _elementsOverLoad * _typicalElementSize;
 				
-				// Parcourir les éléments de la liste
-				var i:int = _elements.length;
-				while (--i >= 0)
-				{
-					// Cibler l'élément
-					element = _elements[i];
-					
-					// Vérifier si cet élément dépasse de la liste
-					if  (
-							// On supprime rien si on est en déplacement
-							//!_dragLocked
-							//&&
-							// On ne supprime pas si on ne doit jamais supprimer
-							!_neverRemove
-							&&
-							// Ne pas supprimer les overloads
-							(
-								element[_positionVar] + element[_contentTotalSizeVar] <= overloadBeginLimit
-								||
-								element[_positionVar] >= overloadEndLimit
-							)
-							&&
-							// Supprimer le premier élément que s'il dépasse du début
-							(element.index != _firstElementIndex || element[_positionVar] <= beginLimit)
-							&&
-							// Supprimer le dernier élément que s'il dépasse de la fin
-							(element.index != _lastElementIndex || element[_positionVar] >= endLimit)
-						)
-					{
-						// Effacer l'élément en faisant attention au pooling
-						surelyDeleteElement(element);
-						
-						// Un élément de moins
-						i--;
-					}
-					
-					// Sinon on est dans la liste
-					else if (!element.visible)
-					{
-						// Donc afficher cet élément
-						element.visible = true;
-					}
-				}
-				
 				// Si on a pas d'élément, on demande le courant
 				if (_elements.length == 0)
 				{
 					// Ajouter le premier à sa position théorique
 					element = needElementAt(int(( - currentScroll) / _typicalElementSize + .5), 0);
 					
-					// Placer cet élément au début du container
-					element[_positionVar] = - _container[_positionVar];
+					// Si on a un élément
+					if (element != null)
+					{
+						// Placer cet élément au début du container
+						element[_positionVar] = - _container[_positionVar];
+					}
 				}
 				
 				// Si on a au moins un élément
@@ -944,6 +886,50 @@ package fr.swapp.graphic.components.lists
 							// Arrêter l'ajout
 							break;
 						}
+					}
+				}
+				
+				// Parcourir les éléments de la liste
+				var i:int = _elements.length;
+				while (--i >= 0)
+				{
+					// Cibler l'élément
+					element = _elements[i];
+					
+					// Vérifier si cet élément dépasse de la liste
+					if  (
+							// On supprime rien si on est en déplacement
+							//!_dragLocked
+							//&&
+							// On ne supprime pas si on ne doit jamais supprimer
+							!_neverRemove
+							&&
+							// Ne pas supprimer les overloads
+							(
+								element[_positionVar] + element[_contentTotalSizeVar] <= overloadBeginLimit
+								||
+								element[_positionVar] >= overloadEndLimit
+							)
+							&&
+							// Supprimer le premier élément que s'il dépasse du début
+							(element.index != _firstElementIndex || element[_positionVar] <= beginLimit)
+							&&
+							// Supprimer le dernier élément que s'il dépasse de la fin
+							(element.index != _lastElementIndex || element[_positionVar] >= endLimit)
+						)
+					{
+						// Effacer l'élément en faisant attention au pooling
+						surelyDeleteElement(element);
+						
+						// Un élément de moins
+						i--;
+					}
+					
+					// Sinon on est dans la liste
+					else if (!element.visible)
+					{
+						// Donc afficher cet élément
+						element.visible = true;
 					}
 				}
 			}

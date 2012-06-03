@@ -1,6 +1,7 @@
 package fr.swapptesting.virtuallist 
 {
 	import com.greensock.TweenMax;
+	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.Matrix;
 	import fr.swapp.graphic.base.ResizableComponent;
@@ -47,6 +48,15 @@ package fr.swapptesting.virtuallist
 			TweenMax.to(this, .4, {
 				height: Math.random() * 100 + 50
 			});
+		}
+		
+		override protected function removedHandler (event:Event):void
+		{
+			trace("REMOVED", index, _watchedParent);
+			
+			super.removedHandler(event);
+			
+			//trace(_watchedParent);
 		}
 	}
 }

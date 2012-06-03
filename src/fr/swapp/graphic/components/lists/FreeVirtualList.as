@@ -26,12 +26,12 @@ package fr.swapp.graphic.components.lists
 		/**
 		 * L'inertie (1 infinie, 0 aucune)
 		 */
-		protected var _inertia						:Number						= .92;
+		protected var _inertia						:Number						= .93;
 		
 		/**
 		 * Le frein
 		 */
-		protected var _breakForce					:Number						= .2;
+		protected var _breakForce					:Number						= .15;
 		
 		
 		/**

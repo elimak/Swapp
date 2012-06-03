@@ -315,7 +315,7 @@ package fr.swapp.graphic.components.text
 		/**
 		 * Rendu du stage
 		 */
-		override protected function renderHandler ():void
+		override protected function renderHandler (event:Event = null):void
 		{
 			// Si le style est invalide
 			if (_styleInvalidated)

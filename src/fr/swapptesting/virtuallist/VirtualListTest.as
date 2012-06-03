@@ -44,7 +44,8 @@ package fr.swapptesting.virtuallist
 			_freeList = new FreeVirtualList(this, AVirtualList.VERTICAL_ORIENTATION);
 			_freeList.clipContent = true;
 			_freeList.dragAllowOppositeDirection = true;
-			_freeList.place(150, 0, 0, 0).into(_container);
+			//_freeList.place(150, 0, 0, 0).into(_container);
+			_freeList.place(0, 0, 0, 0).into(_container);
 			
 			//_stepList = new StepVirtualList(this, AVirtualList.HORIZONTAL_ORIENTATION);
 			//_stepList.clipContent = true;

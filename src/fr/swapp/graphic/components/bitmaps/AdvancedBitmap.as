@@ -570,7 +570,7 @@ package fr.swapp.graphic.components.bitmaps
 		/**
 		 * Rendu du stage
 		 */
-		override protected function renderHandler ():void
+		override protected function renderHandler (event:Event = null):void
 		{
 			// Relayer avant pour avoir les dimensions
 			super.renderHandler();
