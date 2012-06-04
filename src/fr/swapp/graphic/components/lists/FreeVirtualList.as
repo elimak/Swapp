@@ -236,7 +236,7 @@ package fr.swapp.graphic.components.lists
 				}
 				
 				// Invalider
-				invalidateList();
+				//invalidateList();
 				
 				// Signaler
 				//listMovedHandler();

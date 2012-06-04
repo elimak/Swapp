@@ -55,7 +55,7 @@ package fr.swapp.graphic.base
 		/**
 		 * Lors qu'un rendu est terminé
 		 */
-		//protected var _onRendered					:Signal						= new Signal();
+		protected var _onRendered					:Signal						= new Signal();
 		
 		/**
 		 * Lorsque la visibilité de l'élément change
@@ -493,49 +493,6 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * Position horizontale
-		 */
-		/*
-		override public function get x ():Number { return super.x - _leftMargin - _horizontalOffset; }
-		override public function set x (value:Number):void
-		{
-			// Si la valeur est différente
-			if (value != super.x + _leftMargin + _horizontalOffset)
-			{
-				// Enregistrer la nouvelle valeur
-				super.x = value + _leftMargin + _horizontalOffset;
-				
-				// Signaler
-				replaced();
-				
-				// Dispatcher
-				_onReplaced.dispatch();
-			}
-		}*/
-		
-		/**
-		 * Position verticale
-		 */
-		/*
-		override public function get y ():Number { return super.y - _topMargin - _verticalOffset; }
-		override public function set y (value:Number):void
-		{
-			// Si la valeur est différente
-			if (value != super.y + _topMargin + _verticalOffset)
-			{
-				// Enregistrer la nouvelle valeur
-				super.y = value + _topMargin + _verticalOffset;
-				
-				// Signaler
-				replaced();
-				
-				// Dispatcher
-				_onReplaced.dispatch();
-			}
-		}
-		*/
-		
-		/**
 		 * Le décalage de placement horizontal
 		 */
 		public function get horizontalOffset ():Number { return _horizontalOffset; }
@@ -547,17 +504,14 @@ package fr.swapp.graphic.base
 				// Enregistrer la nouvelle valeur
 				_horizontalOffset = value;
 				
-				// Invalider
-				invalidate();
-				
-				// Actualiser la position
-				//x = _leftMargin + _horizontalOffset;
+				// Placer
+				x = _horizontalOffset + _leftMargin;
 				
 				// Signaler
-				//replaced();
+				replaced();
 				
 				// Dispatcher
-				//_onReplaced.dispatch();
+				_onReplaced.dispatch();
 			}
 		}
 		
@@ -573,17 +527,14 @@ package fr.swapp.graphic.base
 				// Enregistrer la nouvelle valeur
 				_verticalOffset = value;
 				
-				// Invalider
-				invalidate();
-				
-				// Actualiser la position
-				//y = _topMargin + _verticalOffset;
+				// Placer
+				y = _verticalOffset + _topMargin;
 				
 				// Signaler
-				//replaced();
+				replaced();
 				
 				// Dispatcher
-				//_onReplaced.dispatch();
+				_onReplaced.dispatch();
 			}
 		}
 		
@@ -800,7 +751,7 @@ package fr.swapp.graphic.base
 		/**
 		 * Lors qu'un rendu est terminé
 		 */
-		//public function get onRendered ():Signal { return _onRendered; }
+		public function get onRendered ():Signal { return _onRendered; }
 		
 		/**
 		 * Whether or not the display object is visible. Display objects that are not visible
@@ -849,9 +800,6 @@ package fr.swapp.graphic.base
 		 */
 		override protected function addedHandler (event:Event = null):void
 		{
-			// Ecouter les rendus
-			addEventListener(Event.RENDER, renderHandler);
-			
 			// Si on a un parent redimensionnable
 			if (parent is ResizableComponent)
 			{
@@ -862,7 +810,6 @@ package fr.swapp.graphic.base
 					_watchedParent.onResized.remove(parentResizedHandler);
 					_watchedParent.onReplaced.remove(parentReplacedHandler);
 					_watchedParent.onStyleChanged.remove(parentStyleChangedHandler);
-					//_watchedParent.onRendered.remove(renderHandler);
 					_watchedParent.onVisibilityChanged.remove(parentVisibilityChangedHandler);
 				}
 				
@@ -873,7 +820,6 @@ package fr.swapp.graphic.base
 				_watchedParent.onResized.add(parentResizedHandler);
 				_watchedParent.onReplaced.add(parentReplacedHandler);
 				_watchedParent.onStyleChanged.add(parentStyleChangedHandler);
-				//_watchedParent.onRendered.add(renderHandler);
 				_watchedParent.onVisibilityChanged.add(parentVisibilityChangedHandler);
 			}
 			
@@ -889,7 +835,7 @@ package fr.swapp.graphic.base
 		 */
 		protected function parentResizedHandler ():void
 		{
-			invalidate();
+			needReplace();
 		}
 		
 		/**
@@ -897,7 +843,7 @@ package fr.swapp.graphic.base
 		 */
 		protected function parentReplacedHandler ():void
 		{
-			invalidate();
+			//invalidate();
 		}
 		
 		/**
@@ -905,7 +851,8 @@ package fr.swapp.graphic.base
 		 */
 		protected function parentStyleChangedHandler ():void
 		{
-			invalidateStyle();
+			//invalidateStyle();
+			updateStyle();
 		}
 		
 		/**
@@ -1151,6 +1098,9 @@ package fr.swapp.graphic.base
 					_forceInvalidate = true;
 				}
 				
+				// Ecouter les rendus
+				addEventListener(Event.RENDER, renderHandler);
+				
 				// Invalider le stage
 				stage.invalidate();
 			}
@@ -1199,6 +1149,9 @@ package fr.swapp.graphic.base
 		 */
 		protected function renderHandler (event:Event = null):void
 		{
+			// Ne plus écouter les rendus
+			removeEventListener(Event.RENDER, renderHandler);
+			
 			// Si le style est invalide
 			if (_styleInvalidated)
 			{
@@ -1218,17 +1171,9 @@ package fr.swapp.graphic.base
 				// On est valide
 				_invalidated = false;
 			}
-			/*
-			// Si les redraw sont autorisés ou si on force
-			if (_allowRedraw || _forceInvalidate)
-			{
-				// On ne force plus
-				_forceInvalidate = false;
-				
-				// Redispatcher le render
-				_onRendered.dispatch();
-			}
-			*/
+			
+			// Redispatcher le render
+			_onRendered.dispatch();
 		}
 		
 		/**
@@ -1261,7 +1206,7 @@ package fr.swapp.graphic.base
 				// Centrer horizontalement ou placer
 				if (_horizontalCenter >= 0 || _horizontalCenter < 0)
 				{
-					super.x = _watchedParent.width / 2 - _localWidth / 2 + _horizontalCenter + _horizontalOffset;
+					x = _watchedParent.width / 2 - _localWidth / 2 + _horizontalCenter + _horizontalOffset;
 				}
 				
 				// A gauche et à droite
@@ -1271,34 +1216,34 @@ package fr.swapp.graphic.base
 					_localWidth = Math.max(_minWidth, Math.min(_watchedParent.width - _left - _right - _leftMargin - _rightMargin, _maxWidth));
 					
 					// Actualiser la position
-					super.x = _left + _horizontalOffset + _leftMargin;
+					x = _left + _horizontalOffset + _leftMargin;
 				}
 				
 				// Alignement sur la droite
 				else if (!(_left >= 0 || _left < 0) && (_right >= 0 || _right < 0))
 				{
 					// Placer à droite
-					super.x = _watchedParent.width - _localWidth - _right - _rightMargin + _horizontalOffset;
+					x = _watchedParent.width - _localWidth - _right - _rightMargin + _horizontalOffset;
 				}
 				
 				// Alignement sur la gauche
 				else if (_left >= 0 || _left < 0)
 				{
 					// Placer à gauche
-					super.x = _left + _horizontalOffset + _leftMargin;
+					x = _left + _horizontalOffset + _leftMargin;
 				}
 				
 				// Placement normal sur les marges
 				else
 				{
-					super.x = _horizontalOffset + _leftMargin;
+					x = _horizontalOffset + _leftMargin;
 				}
 				
 				
 				// Centrer verticalement ou placer
 				if (_verticalCenter >= 0 || _verticalCenter < 0)
 				{
-					super.y = _watchedParent.height / 2 - _localHeight / 2 + _verticalCenter + _verticalOffset;
+					y = _watchedParent.height / 2 - _localHeight / 2 + _verticalCenter + _verticalOffset;
 				}
 				
 				// Alignement en haut et en bas
@@ -1308,27 +1253,27 @@ package fr.swapp.graphic.base
 					_localHeight = Math.max(_minHeight, Math.min(_watchedParent.height - _top - _bottom - _topMargin - _bottomMargin, _maxHeight));
 					
 					// Placer
-					super.y = _top + _verticalOffset + _topMargin;
+					y = _top + _verticalOffset + _topMargin;
 				}
 				
 				// Alignement en bas
 				else if (!(_top >= 0 || _top < 0) && (_bottom >= 0 || _bottom < 0))
 				{
 					// Placer en bas
-					super.y = _watchedParent.height - _localHeight - _bottom - _bottomMargin + _verticalOffset;
+					y = _watchedParent.height - _localHeight - _bottom - _bottomMargin + _verticalOffset;
 				}
 				
 				// Alignement en haut
 				else if (_top >= 0 || _top < 0)
 				{
 					// Placer en haut
-					super.y = _top + _verticalOffset + _topMargin;
+					y = _top + _verticalOffset + _topMargin;
 				}
 				
 				// Placement normal sur les marges
 				else
 				{
-					super.y = _verticalOffset + _topMargin;
+					y = _verticalOffset + _topMargin;
 				}
 			}
 			
@@ -1365,8 +1310,8 @@ package fr.swapp.graphic.base
 			// Enregistrer les nouvelles positions / dimensions
 			_oldWidth 			= _localWidth;
 			_oldHeight 			= _localHeight;
-			_oldXPosition 		= super.x;
-			_oldYPosition 		= super.y;
+			_oldXPosition 		= x;
+			_oldYPosition 		= y;
 		}
 		
 		/**
@@ -1512,14 +1457,14 @@ package fr.swapp.graphic.base
 				_onResized.removeAll();
 				_onReplaced.removeAll();
 				_onStyleChanged.removeAll();
-				//_onRendered.removeAll();
+				_onRendered.removeAll();
 				_onVisibilityChanged.removeAll();
 				
 				// Supprimer les signaux
 				_onResized = null;
 				_onReplaced = null;
 				_onStyleChanged = null
-				//_onRendered = null;
+				_onRendered = null;
 				_onVisibilityChanged = null;
 				
 				// Ne plus écouter les rendus
@@ -1527,7 +1472,7 @@ package fr.swapp.graphic.base
 				
 				if (_watchedParent != null && _watchedParent.onResized == null)
 				{
-					trace("		STRANGE PARENT", this, parent, parent.stage, wrapper.isInRenderPhase);
+					trace("		STRANGE PARENT", this, parent, parent.stage, wrapper.phase);
 					
 					_watchedParent = null;
 					return;
@@ -1539,7 +1484,6 @@ package fr.swapp.graphic.base
 					_watchedParent.onResized.remove(parentResizedHandler);
 					_watchedParent.onReplaced.remove(parentReplacedHandler);
 					_watchedParent.onStyleChanged.remove(parentStyleChangedHandler);
-					//_watchedParent.onRendered.remove(renderHandler);
 					_watchedParent.onVisibilityChanged.remove(parentVisibilityChangedHandler);
 				}
 				

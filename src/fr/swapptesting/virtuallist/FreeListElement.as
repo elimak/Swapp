@@ -50,6 +50,13 @@ package fr.swapptesting.virtuallist
 			});
 		}
 		
+		override protected function renderHandler (event:Event = null):void
+		{
+			trace("ELEMENT RENDER");
+			
+			super.renderHandler(event);
+		}
+		
 		override protected function removedHandler (event:Event):void
 		{
 			trace("REMOVED", index, _watchedParent);

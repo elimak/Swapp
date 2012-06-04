@@ -9,6 +9,7 @@ package fr.swapp.graphic.base
 	import flash.geom.Point;
 	import flash.system.Capabilities;
 	import flash.utils.Dictionary;
+	import fr.swapp.core.log.Log;
 	import fr.swapp.graphic.styles.StyleCentral;
 	import fr.swapp.utils.EnvUtils;
 	import org.osflash.signals.Signal;
@@ -66,7 +67,7 @@ package fr.swapp.graphic.base
 		/**
 		 * Le ratio appliqué après le DPI auto
 		 */
-		protected var _ratio								:Number					= 1;
+		protected var _ratio									:Number					= 1;
 		
 		/**
 		 * Si on doit réagir au clavier virtuel (ne pas utiliser softKeyboardBehavior PAN si true)
@@ -84,9 +85,9 @@ package fr.swapp.graphic.base
 		protected var _styleCentral								:StyleCentral;
 		
 		/**
-		 * Si on est en phase de rendu
+		 * La phase en cours
 		 */
-		protected var _isInRenderPhase							:Boolean;
+		protected var _phase									:int;
 		
 		
 		/**
@@ -114,9 +115,9 @@ package fr.swapp.graphic.base
 		public function get styleCentral ():StyleCentral { return _styleCentral; }
 		
 		/**
-		 * Si on est en phase de rendu
+		 * Si on est en phase en cours
 		 */
-		public function get isInRenderPhase ():Boolean { return _isInRenderPhase; }
+		public function get phase ():int { return _phase; }
 		
 		
 		/**
@@ -196,23 +197,24 @@ package fr.swapp.graphic.base
 			stageResizedHandler();
 			
 			// Ecouter le rendu du stage
-			//_stage.addEventListener(Event.RENDER, stageRenderHandler);
+			_stage.addEventListener(Event.ENTER_FRAME, stageRenderHandler);
+			_stage.addEventListener(Event.RENDER, stageRenderHandler);
 		}
 		
 		/**
 		 * Rendu du stage
 		 */
-		//protected function stageRenderHandler (event:Event):void
-		//{
-			// On est en phase de rendu
-			//_isInRenderPhase = true;
-			
-			// Relayer vers le rendu en cascade
-			//renderHandler();
-			
-			// On n'est plus en phase de rendu
-			//_isInRenderPhase = false;
-		//}
+		protected function stageRenderHandler (event:Event):void
+		{
+			if (event.type == Event.RENDER)
+			{
+				_phase = 1;
+			}
+			else if (_phase != 0)
+			{
+				_phase = 0;
+			}
+		}
 		
 		/**
 		 * Initialiser le redimensionnement selon le DPI
@@ -320,7 +322,8 @@ package fr.swapp.graphic.base
 			_stage.removeEventListener(Event.RESIZE, stageResizedHandler);
 			
 			// Ne plus écouter le rendu du stage
-			//_stage.addEventListener(Event.RENDER, stageRenderHandler);
+			_stage.removeEventListener(Event.ENTER_FRAME, stageRenderHandler);
+			_stage.removeEventListener(Event.RENDER, stageRenderHandler);
 			
 			// Ne plus écouter le clavier virtuel
 			_stage.removeEventListener(SoftKeyboardEvent.SOFT_KEYBOARD_ACTIVATE, stageResizedHandler);

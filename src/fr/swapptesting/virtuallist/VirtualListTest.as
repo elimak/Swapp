@@ -1,9 +1,13 @@
 package fr.swapptesting.virtuallist
 {
 	import flash.display.StageQuality;
+	import flash.events.Event;
+	import flash.events.MouseEvent;
 	import flash.ui.Multitouch;
 	import flash.ui.MultitouchInputMode;
 	import fr.swapp.core.entries.Document;
+	import fr.swapp.core.log.Log;
+	import fr.swapp.core.log.TraceLogger;
 	import fr.swapp.graphic.base.ResizableComponent;
 	import fr.swapp.graphic.base.StageWrapper;
 	import fr.swapp.graphic.components.lists.AVirtualList;
@@ -41,11 +45,13 @@ package fr.swapptesting.virtuallist
 			
 			_container = (new ResizableComponent()).place(10, 10, 10, 10).into(_wrapper);
 			
-			_freeList = new FreeVirtualList(this, AVirtualList.VERTICAL_ORIENTATION);
-			_freeList.clipContent = true;
-			_freeList.dragAllowOppositeDirection = true;
+			Log.addLogger(new TraceLogger());
+			
+			//_freeList = new FreeVirtualList(this, AVirtualList.VERTICAL_ORIENTATION);
+			//_freeList.clipContent = true;
+			//_freeList.dragAllowOppositeDirection = true;
 			//_freeList.place(150, 0, 0, 0).into(_container);
-			_freeList.place(0, 0, 0, 0).into(_container);
+			//_freeList.place(0, 0, 0, 0).into(_container);
 			
 			//_stepList = new StepVirtualList(this, AVirtualList.HORIZONTAL_ORIENTATION);
 			//_stepList.clipContent = true;
@@ -53,12 +59,34 @@ package fr.swapptesting.virtuallist
 			//_stepList.container.place(0, 10, 0, 10);
 			//_stepList.elementsOverLoad = 2;
 			
-			//(new BorderComponent(0x000000, 1)).place(0, 0, 0, 0).into(_container);
+			(new BorderComponent(0xFF0000, 2)).place(0, 0, 0, 0).into(_wrapper);
+			(new BorderComponent(0x000000, 1)).place(0, 0, 0, 0).into(_container);
 			//(new BorderComponent(0x00FF00, 1)).place(0, 0, 0, 0).into(_freeList);
 			//(new BorderComponent(0x0000FF, 1)).place(0, 0, 0, 0).into(_stepList);
 			//(new BorderComponent(0x0000FF, 1)).place(0, 0, 0, 0).into(_stepList.container);
+			//(new BorderComponent(0xFF0000, 1)).place(0, 0, 0, 0).into(_freeList.container);
 			
 			//(new BorderComponent(0x0000FF, 1)).place(0, NaN, 0, NaN).center(0, NaN).size(160, NaN).into(_stepList);
+			
+			
+			addEventListener(Event.RENDER, firstRender);
+			
+			stage.invalidate();
+		}
+		
+		protected function firstRender (event:Event):void
+		{
+			removeEventListener(Event.RENDER, firstRender);
+			trace("RENDER");
+			//stage.invalidate();
+			
+			var element:FreeListElement = new FreeListElement(true, 50);
+			
+			element.place(10, 10, 10, 10).into(_container);
+			
+			element.addEventListener(MouseEvent.CLICK, function (event:Event):void {
+				element.into(null);
+			});
 		}
 		
 		public function getVListFirstElementIndex(pTarget:AVirtualList):int

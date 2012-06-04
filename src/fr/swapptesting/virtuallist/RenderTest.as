@@ -62,8 +62,6 @@ package fr.swapptesting.virtuallist
 			c.stage.invalidate();
 		}
 		
-		
-		
 		protected function renderHandler (e:Event):void
 		{
 			trace(e.target.name);

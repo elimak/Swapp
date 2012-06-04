@@ -303,13 +303,17 @@ package fr.swapp.graphic.components.text
 		/**
 		 * Invalider le format du texte
 		 */
-		public function invalidateTextFormat ():void
+		public function invalidateTextFormat (pForce:Boolean = false):void
 		{
-			// Signaler que le format est maintenant invalidé
-			_textFormatInvalidated = true;
-			
-			// Relayer l'invalidation
-			invalidate();
+			// Si le textFormat n'est pas déjà invalidé
+			if (!_textFormatInvalidated)
+			{
+				// Signaler que le format est maintenant invalidé
+				_textFormatInvalidated = true;
+				
+				// Relayer l'invalidation
+				invalidate(pForce);
+			}
 		}
 		
 		/**
@@ -317,6 +321,9 @@ package fr.swapp.graphic.components.text
 		 */
 		override protected function renderHandler (event:Event = null):void
 		{
+			// Ne plus écouter les rendus
+			removeEventListener(Event.RENDER, renderHandler);
+			
 			// Si le style est invalide
 			if (_styleInvalidated)
 			{
@@ -337,12 +344,18 @@ package fr.swapp.graphic.components.text
 				_textFormatInvalidated = false;
 			}
 			
-			// Attention, ici le style est géré alors qu'il est géré aussi dans super.renderHandler
-			// Mais il faut que le style soit valide avant de valider le textFormat
-			// Donc pas de panique, la viariable _styleInvalidated interdira la revalidation dans super.renderHandler
+			// Si la position est invalidée
+			if (_invalidated)
+			{
+				// Replacer
+				needReplace();
+				
+				// On est valide
+				_invalidated = false;
+			}
 			
-			// Relayer
-			super.renderHandler();
+			// Redispatcher le render
+			_onRendered.dispatch();
 		}
 	}
 }

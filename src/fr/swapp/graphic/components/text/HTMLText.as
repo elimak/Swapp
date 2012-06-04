@@ -519,7 +519,6 @@ package fr.swapp.graphic.components.text
 			
 			// Actualiser le format du texte
 			renderHTML();
-			
 		}
 		
 		/**

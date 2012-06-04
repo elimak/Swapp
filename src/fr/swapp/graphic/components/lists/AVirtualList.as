@@ -379,9 +379,6 @@ package fr.swapp.graphic.components.lists
 		 */
 		public function AVirtualList (pDelegate:IVirtualListDelegate, pOrientation:String = "vertical")
 		{
-			// Relayer
-			super();
-			
 			// Activer les styles
 			_styleEnabled = true;
 			
@@ -438,6 +435,9 @@ package fr.swapp.graphic.components.lists
 		 */
 		override protected function renderHandler (event:Event = null):void
 		{
+			// Ne plus écouter les rendus
+			removeEventListener(Event.RENDER, renderHandler);
+			
 			// Si le style est invalide
 			if (_styleInvalidated)
 			{
@@ -468,15 +468,8 @@ package fr.swapp.graphic.components.lists
 				_listInvalidated = false;
 			}
 			
-			// Si les redraw sont autorisés ou si on force
-			/*if (_allowRedraw || _forceInvalidate)
-			{
-				// On ne force plus
-				_forceInvalidate = false;
-				
-				// Redispatcher le render
-				_onRendered.dispatch();
-			}*/
+			// Redispatcher le render
+			_onRendered.dispatch();
 		}
 		
 		/**
@@ -554,6 +547,8 @@ package fr.swapp.graphic.components.lists
 		 */
 		protected function listMovedHandler (pNeedReplaceCheck:Boolean = true):void
 		{
+			trace("LIST MOVED", wrapper.phase);
+			
 			// Récupérer les valeurs du delegate
 			getDelegateValues();
 			
@@ -668,8 +663,12 @@ package fr.swapp.graphic.components.lists
 					// Lui spécifier son index
 					element.index = pFromIndex;
 					
+					// Spécifier les dimensions du container
+					element[_placementVar1] = 0;
+					element[_placementVar2] = 0;
+					
 					// Si le composant n'a pas de taille de base, on pioche l'info dans le delegate
-					if (!(element[_contentSizeVar] > 0))
+					if (element[_contentSizeVar] <= 0)
 					{
 						// Si on a une taille typique donnée par le delegate
 						if (_typicalElementSize > 0)
@@ -684,10 +683,6 @@ package fr.swapp.graphic.components.lists
 							return null;
 						}
 					}
-					
-					// Spécifier les dimensions du container
-					element[_placementVar1] = 0;
-					element[_placementVar2] = 0;
 					
 					// Enregistrer la taille de l'élément
 					_firstResizeByElement[element] = element[_contentTotalSizeVar];
@@ -821,6 +816,50 @@ package fr.swapp.graphic.components.lists
 				var overloadBeginLimit	:Number = beginLimit - _elementsOverLoad * _typicalElementSize;
 				var overloadEndLimit	:Number = endLimit + _elementsOverLoad * _typicalElementSize;
 				
+				// Parcourir les éléments de la liste
+				var i:int = _elements.length;
+				while (--i >= 0)
+				{
+					// Cibler l'élément
+					element = _elements[i];
+					
+					// Vérifier si cet élément dépasse de la liste
+					if  (
+							// On supprime rien si on est en déplacement
+							//!_dragLocked
+							//&&
+							// On ne supprime pas si on ne doit jamais supprimer
+							!_neverRemove
+							&&
+							// Ne pas supprimer les overloads
+							(
+								element[_positionVar] + element[_contentTotalSizeVar] <= overloadBeginLimit
+								||
+								element[_positionVar] >= overloadEndLimit
+							)
+							&&
+							// Supprimer le premier élément que s'il dépasse du début
+							(element.index != _firstElementIndex || element[_positionVar] <= beginLimit)
+							&&
+							// Supprimer le dernier élément que s'il dépasse de la fin
+							(element.index != _lastElementIndex || element[_positionVar] >= endLimit)
+						)
+					{
+						// Effacer l'élément en faisant attention au pooling
+						surelyDeleteElement(element);
+						
+						// Un élément de moins
+						i--;
+					}
+					
+					// Sinon on est dans la liste
+					else if (!element.visible)
+					{
+						// Donc afficher cet élément
+						element.visible = true;
+					}
+				}
+				
 				// Si on a pas d'élément, on demande le courant
 				if (_elements.length == 0)
 				{
@@ -886,50 +925,6 @@ package fr.swapp.graphic.components.lists
 							// Arrêter l'ajout
 							break;
 						}
-					}
-				}
-				
-				// Parcourir les éléments de la liste
-				var i:int = _elements.length;
-				while (--i >= 0)
-				{
-					// Cibler l'élément
-					element = _elements[i];
-					
-					// Vérifier si cet élément dépasse de la liste
-					if  (
-							// On supprime rien si on est en déplacement
-							//!_dragLocked
-							//&&
-							// On ne supprime pas si on ne doit jamais supprimer
-							!_neverRemove
-							&&
-							// Ne pas supprimer les overloads
-							(
-								element[_positionVar] + element[_contentTotalSizeVar] <= overloadBeginLimit
-								||
-								element[_positionVar] >= overloadEndLimit
-							)
-							&&
-							// Supprimer le premier élément que s'il dépasse du début
-							(element.index != _firstElementIndex || element[_positionVar] <= beginLimit)
-							&&
-							// Supprimer le dernier élément que s'il dépasse de la fin
-							(element.index != _lastElementIndex || element[_positionVar] >= endLimit)
-						)
-					{
-						// Effacer l'élément en faisant attention au pooling
-						surelyDeleteElement(element);
-						
-						// Un élément de moins
-						i--;
-					}
-					
-					// Sinon on est dans la liste
-					else if (!element.visible)
-					{
-						// Donc afficher cet élément
-						element.visible = true;
 					}
 				}
 			}
