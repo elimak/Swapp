@@ -568,9 +568,9 @@ package fr.swapp.graphic.components.lists
 		 */
 		override protected function elementResized ():void
 		{
-			//trace("ELEMENT RESIZED", Math.random(), wrapper.isInRenderPhase);
+			trace("ELEMENT RESIZED");
 			
-			return;
+			//return;
 			
 			// Compter le nombre d'éléments
 			const total:int = _elements.length;
@@ -693,14 +693,8 @@ package fr.swapp.graphic.components.lists
 			// Actualiser la liste
 			updateList();
 			
-			// Invalider la liste
-			//invalidateList();
-			
 			// Replacer
-			//replaceList(true);
-			
-			// La liste a bougé
-			//listMovedHandler(false);
+			replaceList(true);
 		}
 		
 		/**
