@@ -10,27 +10,27 @@ package fr.swapptesting.virtuallist
 	import fr.swapp.core.log.TraceLogger;
 	import fr.swapp.graphic.base.ResizableComponent;
 	import fr.swapp.graphic.base.StageWrapper;
-	//import fr.swapp.graphic.components.lists.AVirtualList;
-	//import fr.swapp.graphic.components.lists.FreeVirtualList;
-	//import fr.swapp.graphic.components.lists.IVirtualListDelegate;
+	import fr.swapp.graphic.components.lists.AVirtualList;
+	import fr.swapp.graphic.components.lists.FreeVirtualList;
+	import fr.swapp.graphic.components.lists.IVirtualListDelegate;
 	import fr.swapp.graphic.components.misc.BorderComponent;
-	//import fr.swapp.graphic.components.lists.StepVirtualList;
+	import fr.swapp.graphic.components.lists.StepVirtualList;
 	import fr.swapp.touch.emulator.MouseToTouchEmulator;
 	
 	/**
 	 * ...
 	 * @author ZoulouX
 	 */
-	public class VirtualListTest extends Document// implements IVirtualListDelegate
+	public class VirtualListTest extends Document implements IVirtualListDelegate
 	{
 		protected var _wrapper:StageWrapper;
 		protected var _container:ResizableComponent;
-		//protected var _freeList:FreeVirtualList;
-		//protected var _stepList:StepVirtualList;
+		protected var _freeList:FreeVirtualList;
+		protected var _stepList:StepVirtualList;
 		
 		public function VirtualListTest()
 		{
-		
+			addEventListener(Event.ENTER_FRAME, enterFrameHandler);
 		}
 		
 		override public function init():void
@@ -47,11 +47,11 @@ package fr.swapptesting.virtuallist
 			
 			Log.addLogger(new TraceLogger());
 			
-			//_freeList = new FreeVirtualList(this, AVirtualList.VERTICAL_ORIENTATION);
-			//_freeList.clipContent = true;
-			//_freeList.dragAllowOppositeDirection = true;
+			_freeList = new FreeVirtualList(this, AVirtualList.VERTICAL_ORIENTATION);
+			_freeList.clipContent = true;
+			_freeList.dragAllowOppositeDirection = true;
 			//_freeList.place(150, 0, 0, 0).into(_container);
-			//_freeList.place(0, 0, 0, 0).into(_container);
+			_freeList.place(0, 0, 0, 0).into(_container);
 			
 			//_stepList = new StepVirtualList(this, AVirtualList.HORIZONTAL_ORIENTATION);
 			//_stepList.clipContent = true;
@@ -69,15 +69,27 @@ package fr.swapptesting.virtuallist
 			//(new BorderComponent(0x0000FF, 1)).place(0, NaN, 0, NaN).center(0, NaN).size(160, NaN).into(_stepList);
 			
 			
-			addEventListener(Event.RENDER, firstRender);
+			//addEventListener(Event.RENDER, firstRender);
 			
-			stage.invalidate();
+			//stage.invalidate();
+			
+			//firstRender();
+			
+			//stage.addEventListener(MouseEvent.CLICK, firstRender);
 		}
 		
-		protected function firstRender (event:Event):void
+		protected var _frame:int;
+		
+		protected function enterFrameHandler (event:Event):void 
 		{
-			removeEventListener(Event.RENDER, firstRender);
-			trace("RENDER");
+			//trace("---- " + (_frame ++));
+		}
+		
+		protected function firstRender (event:Event = null):void
+		{
+			stage.removeEventListener(MouseEvent.CLICK, firstRender);
+			//removeEventListener(Event.RENDER, firstRender);
+			//trace("RENDER");
 			//stage.invalidate();
 			
 			var element:FreeListElement = new FreeListElement(true, 50);
@@ -86,9 +98,10 @@ package fr.swapptesting.virtuallist
 			
 			element.addEventListener(MouseEvent.CLICK, function (event:Event):void {
 				element.into(null);
+				firstRender();
 			});
 		}
-		/*
+		
 		public function getVListFirstElementIndex(pTarget:AVirtualList):int
 		{
 			return 0;
@@ -139,6 +152,6 @@ package fr.swapptesting.virtuallist
 				//return 200;
 				return 0;
 			}
-		}*/
+		}
 	}
 }

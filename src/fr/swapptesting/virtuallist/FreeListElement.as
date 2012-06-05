@@ -49,6 +49,27 @@ package fr.swapptesting.virtuallist
 				height: Math.random() * 100 + 50
 			});
 		}
+		/*
+		override protected function preparePhase():void 
+		{
+			trace("PREPARE PHASE FLE");
+			
+			super.preparePhase();
+		}
+		
+		override protected function renderPhase():void 
+		{
+			trace("RENDER PHASE FLE");
+			
+			super.renderPhase();
+		}
+		
+		override protected function replace ():void 
+		{
+			trace("REPLACE FLE");
+			
+			super.replace();
+		}
 		
 		
 		override protected function removedHandler (event:Event):void
@@ -59,5 +80,6 @@ package fr.swapptesting.virtuallist
 			
 			//trace(_watchedParent);
 		}
+		*/
 	}
 }

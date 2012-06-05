@@ -171,7 +171,7 @@ package fr.swapp.graphic.components.lists
 		/**
 		 * Si on a besoin de vérifier les dépassements à la prochaine itération
 		 */
-		protected var _needReplaceCheck				:Boolean;
+		//protected var _needReplaceCheck				:Boolean;
 		
 		/**
 		 * La vélocité du mouvement de la liste
@@ -253,6 +253,9 @@ package fr.swapp.graphic.components.lists
 		public function get orientation ():String { return _orientation; }
 		public function set orientation (value:String):void 
 		{
+			if (_orientation != "")
+				throw new GraphicalError("AVirtualList.orientation", "Can't change orientation.");
+			
 			// Si on a des infos sur l'orientation
 			if (value in ORIENTATIONS_VAR_NAMES)
 			{
@@ -415,64 +418,6 @@ package fr.swapp.graphic.components.lists
 		}
 		
 		/**
-		 * Invalider la liste
-		 */
-		public function invalidateList (pForce:Boolean = false):void
-		{
-			// Si la liste n'est pas déjà invalidée
-			if (!_listInvalidated)
-			{
-				// On l'invalide
-				_listInvalidated = true;
-				
-				// On invalide le super
-				invalidate(pForce);
-			}
-		}
-		
-		/**
-		 * Rendu
-		 */
-		override protected function renderHandler (event:Event = null):void
-		{
-			// Ne plus écouter les rendus
-			removeEventListener(Event.RENDER, renderHandler);
-			
-			// Si le style est invalide
-			if (_styleInvalidated)
-			{
-				// On l'actualise
-				updateStyle();
-				
-				// Le style est valide
-				_styleInvalidated = false;
-			}
-			
-			// Si la position est invalidée
-			if (_invalidated)
-			{
-				// Replacer
-				needReplace();
-				
-				// On est valide
-				_invalidated = false;
-			}
-			
-			// Si la liste est invalidée
-			if (_listInvalidated)
-			{
-				// Acutaliser la liste
-				listMovedHandler();
-				
-				// La liste est validée
-				_listInvalidated = false;
-			}
-			
-			// Redispatcher le render
-			_onRendered.dispatch();
-		}
-		
-		/**
 		 * Initialiser les intéractions
 		 */
 		protected function initInteractions ():void 
@@ -484,6 +429,41 @@ package fr.swapp.graphic.components.lists
 			addEventListener(MouseEvent.MOUSE_WHEEL, mouseWheelHandler);
 			addEventListener(MouseEvent.CLICK, tapAndClickHandler, true, 1000, false);
 			addEventListener(TouchEvent.TOUCH_TAP, tapAndClickHandler, true, 1000, false);
+		}
+		
+		/**
+		 * Invalider la liste
+		 */
+		public function invalidateList ():void
+		{
+			// Si la liste n'est pas déjà invalidée
+			if (!_listInvalidated)
+			{
+				// On l'invalide
+				_listInvalidated = true;
+				
+				// Lancer la phase de préparation
+				launchPreparePhase();
+			}
+		}
+		
+		/**
+		 * Rendu
+		 */
+		override protected function preparePhase ():void
+		{
+			// Relayer le style et la position
+			super.preparePhase();
+			
+			// Si la liste est invalidée
+			if (_listInvalidated)
+			{
+				// La liste est validée
+				_listInvalidated = false;
+				
+				// Acutaliser la liste
+				updateList();
+			}
 		}
 		
 		/**
@@ -543,26 +523,6 @@ package fr.swapp.graphic.components.lists
 		}
 		
 		/**
-		 * La liste a bougé
-		 */
-		protected function listMovedHandler (pNeedReplaceCheck:Boolean = true):void
-		{
-			trace("LIST MOVED", wrapper.phase);
-			
-			// Récupérer les valeurs du delegate
-			getDelegateValues();
-			
-			// Construire les nouveaux éléments dont on a besoin pour remplir la liste
-			buildElements();
-			
-			// Vu qu'on a bougé, vérifier les dépassements à la prochaine itération
-			_needReplaceCheck = pNeedReplaceCheck;
-			
-			// Signaler qu'on a bougé
-			_onListMoved.dispatch();
-		}
-		
-		/**
 		 * Récupérer les valeurs du delegate pour le prochain traitement
 		 */
 		protected function getDelegateValues ():void 
@@ -581,6 +541,26 @@ package fr.swapp.graphic.components.lists
 				_lastElementIndex 	= 0;
 				_typicalElementSize = 0;
 			}
+		}
+		
+		/**
+		 * Actualiser la liste
+		 */
+		protected function updateList ():void
+		{
+			trace("UDPATE LIST");
+			
+			// Récupérer les valeurs du delegate
+			getDelegateValues();
+			
+			// Replacer la liste
+			replaceList();
+			
+			// Construire les nouveaux éléments dont on a besoin pour remplir la liste
+			buildElements();
+			
+			// Signaler qu'on a bougé
+			_onListMoved.dispatch();
 		}
 		
 		/**
@@ -632,7 +612,7 @@ package fr.swapp.graphic.components.lists
 			replaceList(true);
 			
 			// La liste a bougé
-			listMovedHandler(false);
+			//updateList(false);
 		}
 		
 		/**
@@ -708,7 +688,13 @@ package fr.swapp.graphic.components.lists
 		 */
 		override protected function containerResized ():void
 		{
-			//trace("CONTAINER RESIZED", wrapper.isInRenderPhase);
+			trace("CONTAINER RESIZED", wrapper.phase);
+			
+			// Actualiser la liste
+			updateList();
+			
+			// Invalider la liste
+			//invalidateList();
 			
 			// Replacer
 			//replaceList(true);
@@ -1089,9 +1075,9 @@ package fr.swapp.graphic.components.lists
 		}
 		
 		/**
-		 * Déstruction
+		 * Destruction
 		 */
-		override public function dispose ():void
+		override protected function removedHandler (event:Event):void
 		{
 			// Ne plus émuler cet éléments
 			TouchEmulator.demulate(this);
@@ -1120,7 +1106,7 @@ package fr.swapp.graphic.components.lists
 				_objectPool.clear();
 			
 			// Relayer
-			super.dispose();
+			super.removedHandler(event);
 		}
 	}
 }

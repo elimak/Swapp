@@ -512,18 +512,6 @@ package fr.swapp.graphic.components.bitmaps
 			renderMode = pRenderMode;
 		}
 		
-		/**
-		 * L'élément est ajouté à la scène
-		 */
-		override protected function addedHandler (event:Event = null):void
-		{
-			// Relayer
-			super.addedHandler(event);
-			
-			// Lancer une première phase de rendu
-			launchRenderPhase();
-		}
-		
 		
 		/**
 		 * Préparer le bitmap pour le mode de rendu bitmap
@@ -695,15 +683,15 @@ package fr.swapp.graphic.components.bitmaps
 		 */
 		public function invalidateDraw ():void
 		{
-			trace("INVALIDATE DRAW");
 			// Si le dessin n'est pas déjà invalidé
 			if (!_drawInvalidated)
 			{
 				// Invalider le dessin
 				_drawInvalidated = true;
 				
-				// Lancer la phase de rendu
+				// Lancer la phase de prérendu et de rendu
 				launchRenderPhase();
+				launchPreparePhase();
 			}
 		}
 		
@@ -732,6 +720,9 @@ package fr.swapp.graphic.components.bitmaps
 		 */
 		override protected function renderPhase ():void 
 		{
+			// Relayer
+			super.renderPhase();
+			
 			// Si le dessin est invalidé
 			if (_drawInvalidated)
 			{
@@ -753,7 +744,6 @@ package fr.swapp.graphic.components.bitmaps
 		 */
 		public function redraw ():void
 		{
-			trace("REDRAW", _localWidth, _localHeight);
 			// Virer l'ancienne image
 			graphics.clear();
 			

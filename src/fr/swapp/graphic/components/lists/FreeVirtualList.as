@@ -74,6 +74,8 @@ package fr.swapp.graphic.components.lists
 		 */
 		protected function enterFrameHandler (event:Event):void
 		{
+			trace("-");
+			
 			// Le déplacement n'est pas vérouillé par un drag
 			if (!_dragLocked)
 			{
@@ -81,12 +83,6 @@ package fr.swapp.graphic.components.lists
 				if (_velocity != 0)
 				{
 					currentScroll += _velocity;
-				}
-				
-				// Limiter les dépassements de la liste
-				if (_needReplaceCheck)
-				{
-					replaceList();
 				}
 				
 				// Si on a assez de vélocité
@@ -187,12 +183,18 @@ package fr.swapp.graphic.components.lists
 					_velocity = _velocity / _velocityOutBreak;
 					
 					// On applique cette vélocité au scroll
-					currentScroll += _velocity;
+					_container[_positionVar] += _velocity;
+					
+					// Actualiser
+					updateList();
 				}
 				else
 				{
 					// On applique cette vélocité au scroll
-					currentScroll += _velocity;
+					_container[_positionVar] += _velocity;
+					
+					// Actualiser
+					updateList();
 					
 					// On interdit les drag en amont
 					return true;
@@ -228,23 +230,14 @@ package fr.swapp.graphic.components.lists
 				// Si on est proche de la destination
 				if (limit < .5  && limit > -.5 && _velocity < .5 && _velocity > -.5)
 				{
-					// On ne vérifie plus si on dépasse
-					_needReplaceCheck = false;
-					
 					// On place à la destination
 					_container[_positionVar] -= limit;
 				}
-				
-				// Invalider
-				//invalidateList();
-				
-				// Signaler
-				//listMovedHandler();
-			}
-			else
-			{
-				// Pas de limite détéctée, plus besoin de tester
-				_needReplaceCheck = false;
+				else
+				{
+					// Invalider la liste car il nous reste de la distance
+					invalidateList();
+				}
 			}
 		}
 		

@@ -208,6 +208,11 @@ package fr.swapp.graphic.base
 		 */
 		protected var _disposed						:Boolean;
 		
+		/**
+		 * La visibilité de l'élément
+		 */
+		protected var _visible						:Boolean					= true;
+		
 		
 		/**
 		 * Les anciennes valeurs pour détécter les changements.
@@ -676,14 +681,17 @@ package fr.swapp.graphic.base
 		 * @playerversion	Flash 9
 		 * @playerversion	Lite 4
 		 */
-		override public function get visible ():Boolean { return super.visible; }
+		override public function get visible ():Boolean { return _visible; }
 		override public function set visible (value:Boolean):void
 		{
 			// Si c'est différent
-			if (value != super.visible)
+			if (value != _visible)
 			{
 				// Enregistrer
-				super.visible = value;
+				_visible = value;
+				
+				// Invalider la position
+				invalidatePosition();
 				
 				// Dispatcher le changement
 				_onVisibilityChanged.dispatch();
@@ -811,8 +819,21 @@ package fr.swapp.graphic.base
 				_watchedParent.onVisibilityChanged.add(parentVisibilityChangedHandler);
 			}
 			
+			// Invalider le rendu
+			//launchRenderPhase();
+			
+			// Invalider une première fois
+			//invalidatePosition();
+			//invalidateStyle();
+			//launchPreparePhase();
+			//preparePhase();
+			
 			// Relayer
 			super.addedHandler(event);
+			
+			// Préparer le rendu et rafraichir
+			preparePhase();
+			renderPhase();
 		}
 		
 		/**
@@ -820,6 +841,10 @@ package fr.swapp.graphic.base
 		 */
 		override protected function removedHandler (event:Event):void
 		{
+			// Ne plus écouter les phases
+			removeEventListener(Event.FRAME_CONSTRUCTED, constructHandler);
+			stage.removeEventListener(Event.RENDER, renderHandler);
+			
 			// Si on a déjà été disposé
 			if (_disposed)
 			{
@@ -828,10 +853,6 @@ package fr.swapp.graphic.base
 			}
 			else
 			{
-				// Ne plus écouter les phases
-				removeEventListener(Event.RENDER, renderHandler);
-				removeEventListener(Event.EXIT_FRAME, exitHandler);
-				
 				// On est disposé
 				_disposed = true;
 				
@@ -847,16 +868,8 @@ package fr.swapp.graphic.base
 				_onStyleChanged = null;
 				_onVisibilityChanged = null;
 				
-				if (_watchedParent != null && _watchedParent.onResized == null)
-				{
-					trace("		STRANGE PARENT", this, parent, parent.stage, wrapper.phase);
-					
-					_watchedParent = null;
-					return;
-				}
-				
 				// On n'écoute plus le parent
-				if (_watchedParent != null)
+				if (_watchedParent != null && _watchedParent.onResized != null)
 				{
 					_watchedParent.onResized.remove(parentResizedHandler);
 					_watchedParent.onReplaced.remove(parentReplacedHandler);
@@ -864,6 +877,7 @@ package fr.swapp.graphic.base
 					_watchedParent.onVisibilityChanged.remove(parentVisibilityChangedHandler);
 				}
 				
+				// On n'a plus de parent
 				_watchedParent = null;
 				
 				// Relayer
@@ -881,8 +895,11 @@ package fr.swapp.graphic.base
 		 */
 		protected function parentReplacedHandler ():void
 		{
-			// Replacer
-			replace();
+			// Signal en local
+			replaced();
+			
+			// Signaler à l'exterieur
+			_onReplaced.dispatch();
 		}
 		
 		/**
@@ -899,6 +916,7 @@ package fr.swapp.graphic.base
 		 */
 		protected function parentStyleChangedHandler ():void
 		{
+			// Actualiser le style
 			updateStyle();
 		}
 		
@@ -1258,7 +1276,7 @@ package fr.swapp.graphic.base
 		/**
 		 * Invalider le style
 		 */
-		public function invalidateStyle (pForce:Boolean = false):void
+		public function invalidateStyle ():void
 		{
 			// Si le style n'est pas déjà invalidé
 			if (!_styleInvalidated)
@@ -1276,8 +1294,12 @@ package fr.swapp.graphic.base
 		 */
 		protected function launchPreparePhase ():void
 		{
-			// Ecouter la sortie de frame
-			addEventListener(Event.EXIT_FRAME, exitHandler);
+			// Si on a un stage et qu'on n'écoute pas déjà la phase de rendu
+			if (stage != null && !hasEventListener(Event.FRAME_CONSTRUCTED))
+			{
+				// Ecouter la sortie de frame
+				addEventListener(Event.FRAME_CONSTRUCTED, constructHandler);
+			}
 		}
 		
 		/**
@@ -1289,7 +1311,7 @@ package fr.swapp.graphic.base
 			if (stage != null)
 			{
 				// Ecouter l'entrée en phase de rendu
-				addEventListener(Event.RENDER, renderHandler);
+				stage.addEventListener(Event.RENDER, renderHandler);
 				
 				// Invalider le stage
 				stage.invalidate();
@@ -1299,16 +1321,13 @@ package fr.swapp.graphic.base
 		/**
 		 * Sortie de frame détéctée
 		 */
-		protected function exitHandler (event:Event):void
+		protected function constructHandler (event:Event):void
 		{
 			// Ne plus écouter les rendus
-			removeEventListener(Event.EXIT_FRAME, exitHandler);
+			removeEventListener(Event.FRAME_CONSTRUCTED, constructHandler);
 			
-			//if (!_disposed)
-			//{
-				// Phase de préparation
-				preparePhase();
-			//}
+			// Phase de préparation
+			preparePhase();
 		}
 		
 		/**
@@ -1317,13 +1336,10 @@ package fr.swapp.graphic.base
 		protected function renderHandler (event:Event):void
 		{
 			// Ne plus écouter les rendus
-			removeEventListener(Event.RENDER, renderHandler);
+			stage.removeEventListener(Event.RENDER, renderHandler);
 			
-			//if (!_disposed)
-			//{
-				// Phase de rendu
-				renderPhase();
-			//}
+			// Phase de rendu
+			renderPhase();
 		}
 		
 		/**
@@ -1380,7 +1396,7 @@ package fr.swapp.graphic.base
 		protected function updateFlow ():void
 		{
 			// Si on n'autorise pas les redraw
-			if (!_allowRedraw)
+			if (!_allowRedraw || _disposed)
 			{
 				// On n'actualise pas
 				return;
@@ -1566,21 +1582,32 @@ package fr.swapp.graphic.base
 		 */
 		public function isVisible ():Boolean
 		{
+			// Si on n'est pas visible
+			if (!_visible)
+				return false;
+			
+			// Si on a un stage
 			if (stage != null)
 			{
+				// Commencer par le parent
 				var parent:ResizableComponent = _watchedParent;
 				
+				// Si le parent ciblé est présent
 				while (parent != null)
 				{
+					// Si ce parent n'est pas visible
 					if (!parent.visible)
 					{
+						// On n'est pas visible
 						return false;
 					}
 					
+					// Cibler le parent du parent
 					parent = parent.parent as ResizableComponent;
 				}
 			}
 			
+			// On est visible
 			return true;
 		}
 		
