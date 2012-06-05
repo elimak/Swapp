@@ -303,7 +303,7 @@ package fr.swapp.graphic.components.text
 		/**
 		 * Invalider le format du texte
 		 */
-		public function invalidateTextFormat (pForce:Boolean = false):void
+		public function invalidateTextFormat ():void
 		{
 			// Si le textFormat n'est pas déjà invalidé
 			if (!_textFormatInvalidated)
@@ -311,19 +311,16 @@ package fr.swapp.graphic.components.text
 				// Signaler que le format est maintenant invalidé
 				_textFormatInvalidated = true;
 				
-				// Relayer l'invalidation
-				invalidate(pForce);
+				// Invalider la position
+				invalidatePosition();
 			}
 		}
 		
 		/**
 		 * Rendu du stage
 		 */
-		override protected function renderHandler (event:Event = null):void
+		override protected function preparePhase ():void
 		{
-			// Ne plus écouter les rendus
-			removeEventListener(Event.RENDER, renderHandler);
-			
 			// Si le style est invalide
 			if (_styleInvalidated)
 			{
@@ -345,17 +342,14 @@ package fr.swapp.graphic.components.text
 			}
 			
 			// Si la position est invalidée
-			if (_invalidated)
+			if (_positionInvalidated)
 			{
 				// Replacer
-				needReplace();
+				replace();
 				
 				// On est valide
-				_invalidated = false;
+				_positionInvalidated = false;
 			}
-			
-			// Redispatcher le render
-			_onRendered.dispatch();
 		}
 	}
 }

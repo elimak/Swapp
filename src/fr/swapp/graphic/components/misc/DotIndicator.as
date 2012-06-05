@@ -269,7 +269,7 @@ package fr.swapp.graphic.components.misc
 			for (var i:int = 0; i < _totalDots; i++) 
 			{
 				// Créer le point
-				dot = new AdvancedBitmap(_dotsBitmapData, BitmapRender.BITMAP_RENDER_MODE);
+				dot = new AdvancedBitmap(_dotsBitmapData, BitmapRender.BITMAP_RENDER);
 				
 				// L'enregistrer dans le vecteur
 				_dots[i] = dot;

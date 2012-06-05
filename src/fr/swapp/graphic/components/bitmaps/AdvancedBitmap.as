@@ -53,15 +53,27 @@ package fr.swapp.graphic.components.bitmaps
 		 */
 		protected var _outlineAlpha						:Number								= 1;
 		
-		/**
-		 * Arrondi des coins (0 pour dessiner un rectangle)
-		 */
-		protected var _borderRadius						:uint								= 0;
 		
 		/**
-		 * Lisser l'image
+		 * Arrondi d'en haut à gauche (0 pour dessiner un rectangle)
 		 */
-		protected var _smoothing							:Boolean							= true;
+		protected var _topLeftRadius					:int;
+		
+		/**
+		 * Arrondi d'en haut à droite (0 pour dessiner un rectangle)
+		 */
+		protected var _topRightRadius					:int;
+		
+		/**
+		 * Arrondi d'en bas à droite (0 pour dessiner un rectangle)
+		 */
+		protected var _bottomRightRadius				:int;
+		
+		/**
+		 * Arrondi d'en bas à gauche (0 pour dessiner un rectangle)
+		 */
+		protected var _bottomLeftRadius					:int;
+		
 		
 		/**
 		 * La matrice de transformation
@@ -123,15 +135,26 @@ package fr.swapp.graphic.components.bitmaps
 		 */
 		protected var _cutThreshold						:uint							= 0x777777;
 		
+		
+		/**
+		 * Lisser l'image
+		 */
+		protected var _smoothing						:Boolean							= true;
+		
 		/**
 		 * Si les bitmaps doivent coller au pixel (uniquement pour les modes de rendu BITMAP_RENDER_MODE et AUTO_SCALE9_RENDER_MODE)
 		 */
-		protected var _pixelSnapping					:Boolean						= true;
+		protected var _pixelSnapping					:String							= PixelSnapping.ALWAYS;
 		
 		/**
 		 * Les bitmaps (1 par coupe)
 		 */
 		protected var _bitmaps							:Vector.<Vector.<Bitmap>>;
+		
+		/**
+		 * Si le dessin est invalidé
+		 */
+		protected var _drawInvalidated					:Boolean						= false;
 		
 		
 		/**
@@ -152,8 +175,11 @@ package fr.swapp.graphic.components.bitmaps
 				// On prépare le scale9 si besoin
 				prepareScale9Mode();
 				
+				// Rendre la position invalide
+				invalidatePosition();
+				
 				// Rendre le dessin invalide
-				invalidate();
+				invalidateDraw();
 			}
 		}
 		
@@ -175,8 +201,11 @@ package fr.swapp.graphic.components.bitmaps
 				// On prépare le scale9 si besoin
 				prepareScale9Mode();
 				
+				// Rendre la position invalide
+				invalidatePosition();
+				
 				// Rendre le dessin invalide
-				invalidate();
+				invalidateDraw();
 			}
 		}
 		
@@ -193,7 +222,7 @@ package fr.swapp.graphic.components.bitmaps
 				_backgroundColor = value;
 				
 				// Rendre le dessin invalide
-				invalidate();
+				invalidateDraw();
 			}
 		}
 		
@@ -210,7 +239,7 @@ package fr.swapp.graphic.components.bitmaps
 				_backgroundAlpha = value;
 				
 				// Rendre le dessin invalide
-				invalidate();
+				invalidateDraw();
 			}
 		}
 		
@@ -227,7 +256,7 @@ package fr.swapp.graphic.components.bitmaps
 				_outlineSize = value;
 				
 				// Rendre le dessin invalide
-				invalidate();
+				invalidateDraw();
 			}
 		}
 		
@@ -244,7 +273,7 @@ package fr.swapp.graphic.components.bitmaps
 				_outlineColor = value;
 				
 				// Rendre le dessin invalide
-				invalidate();
+				invalidateDraw();
 			}
 		}
 		
@@ -261,29 +290,82 @@ package fr.swapp.graphic.components.bitmaps
 				_outlineAlpha = value;
 				
 				// Rendre le dessin invalide
-				invalidate();
+				invalidateDraw();
 			}
 		}
 		
+		
 		/**
-		 * Arrondi des coins (0 pour dessiner un rectangle)
+		 * Arrondi d'en haut à gauche (0 pour dessiner un rectangle)
 		 */
-		public function get borderRadius ():uint { return _borderRadius; }
-		public function set borderRadius (value:uint):void 
+		public function get topLeftRadius ():int { return _topLeftRadius; }
+		public function set topLeftRadius (value:int):void 
 		{
 			// Si c'est différent
-			if (_borderRadius != value)
+			if (_topLeftRadius != value)
 			{
 				// Enregistrer
-				_borderRadius = value;
+				_topLeftRadius = value;
 				
 				// Rendre le dessin invalide
-				invalidate();
+				invalidateDraw();
 			}
 		}
 		
 		/**
-		 * Lisser l'image
+		 * Arrondi d'en haut à droite (0 pour dessiner un rectangle)
+		 */
+		public function get topRightRadius ():int { return _topRightRadius; }
+		public function set topRightRadius (value:int):void 
+		{
+			// Si c'est différent
+			if (_topRightRadius != value)
+			{
+				// Enregistrer
+				_topRightRadius = value;
+				
+				// Rendre le dessin invalide
+				invalidateDraw();
+			}
+		}
+		
+		/**
+		 * Arrondi d'en bas à droite (0 pour dessiner un rectangle)
+		 */
+		public function get bottomRightRadius ():int { return _bottomRightRadius; }
+		public function set bottomRightRadius (value:int):void 
+		{
+			// Si c'est différent
+			if (_bottomRightRadius != value)
+			{
+				// Enregistrer
+				_bottomRightRadius = value;
+				
+				// Rendre le dessin invalide
+				invalidateDraw();
+			}
+		}
+		
+		/**
+		 * Arrondi d'en bas à gauche (0 pour dessiner un rectangle)
+		 */
+		public function get bottomLeftRadius ():int { return _bottomLeftRadius; }
+		public function set bottomLeftRadius (value:int):void 
+		{
+			// Si c'est différent
+			if (_bottomLeftRadius != value)
+			{
+				// Enregistrer
+				_bottomLeftRadius = value;
+				
+				// Rendre le dessin invalide
+				invalidateDraw();
+			}
+		}
+		
+		
+		/**
+		 * Lisser l'image.
 		 */
 		public function get smoothing ():Boolean { return _smoothing; }
 		public function set smoothing (value:Boolean):void 
@@ -294,41 +376,26 @@ package fr.swapp.graphic.components.bitmaps
 				// Enregistrer
 				_smoothing = value;
 				
-				// Appliquer sur le bitmap si on en a un
-				if (_bitmap != null)
-				{
-					_bitmap.smoothing = _smoothing;
-				}
-				else if (_bitmaps.length > 0)
-				{
-					// Parcourir les blocs horizontalement
-					for (var cx:uint = 0; cx < _horizontalSlices; cx++)
-					{
-						// Parcourir les blocs verticalement
-						for (var cy:uint = 0; cy < _verticalSlices; cy++)
-						{
-							// Cibler le bitmap
-							_bitmaps[cx][cy].smoothing = _smoothing;
-						}
-					}
-					}
-				
-				// Rendre le dessin invalide
-				invalidate();
+				// Actualiser les propriétés du bitmap
+				updateBitmapProperties();
 			}
 		}
 		
 		/**
 		 * Si les bitmaps doivent coller au pixel (uniquement pour les modes de rendu BitmapRender.BITMAP_RENDER_MODE et BitmapRender.AUTO_SCALE9_RENDER_MODE)
 		 */
-		public function get pixelSnapping ():Boolean { return _pixelSnapping; }
+		public function get pixelSnapping ():Boolean { return _pixelSnapping == PixelSnapping.ALWAYS; }
 		public function set pixelSnapping (value:Boolean):void
 		{
-			_pixelSnapping = value;
+			// Enregistrer
+			_pixelSnapping = value ? PixelSnapping.ALWAYS : PixelSnapping.NEVER;
+			
+			// Actualiser les propriétés du bitmap
+			updateBitmapProperties();
 		}
 		
 		/**
-		 * Autoriser les dépassements sur les mode INSIDE et OUTSIDE
+		 * Autoriser les dépassements de l'image par rapport aux règles de placement.
 		 */
 		public function get allowOverflow ():Boolean { return _allowOverflow; }
 		public function set allowOverflow (value:Boolean):void 
@@ -340,7 +407,7 @@ package fr.swapp.graphic.components.bitmaps
 				_allowOverflow = value;
 				
 				// Rendre le dessin invalide
-				invalidate();
+				invalidateDraw();
 			}
 		}
 		
@@ -350,19 +417,22 @@ package fr.swapp.graphic.components.bitmaps
 		public function get density ():Number { return _density; }
 		public function set density (value:Number):void
 		{
-			// Si c'est différent
-			if (_density != value)
+			// Si c'est différent et supérieure à 0
+			if (_density != value && value > 0)
 			{
 				// Enregistrer
 				_density = value;
 				
+				// Rendre la position invalide
+				invalidatePosition();
+				
 				// Rendre le dessin invalide
-				invalidate();
+				invalidateDraw();
 			}
 		}
 		
 		/**
-		 * Le décallage horizontal de l'image
+		 * Le décallage horizontal de l'image.
 		 */
 		public function get bitmapHorizontalOffset ():int { return _bitmapHorizontalOffset; }
 		public function set bitmapHorizontalOffset (value:int):void
@@ -374,12 +444,12 @@ package fr.swapp.graphic.components.bitmaps
 				_bitmapHorizontalOffset = value;
 				
 				// Rendre le dessin invalide
-				invalidate();
+				invalidateDraw();
 			}
 		}
 		
 		/**
-		 * Le décallage vertical de l'image
+		 * Le décallage vertical de l'image.
 		 */
 		public function get bitmapVerticalOffset ():int { return _bitmapVerticalOffset; }
 		public function set bitmapVerticalOffset (value:int):void
@@ -391,7 +461,7 @@ package fr.swapp.graphic.components.bitmaps
 				_bitmapVerticalOffset = value;
 				
 				// Rendre le dessin invalide
-				invalidate();
+				invalidateDraw();
 			}
 		}
 		
@@ -401,17 +471,18 @@ package fr.swapp.graphic.components.bitmaps
 		public function get slices ():Rectangle { return _slices; }
 		
 		/**
-		 * Le nombre de tranches horizontales
+		 * Le nombre de tranches horizontales sur le scale9
 		 */
 		public function get horizontalSlices ():uint { return _horizontalSlices; }
 		
 		/**
-		 * Le nombre de tranches verticales
+		 * Le nombre de tranches verticales sur le scale9
 		 */
 		public function get verticalSlices ():uint { return _verticalSlices; }
 		
 		/**
-		 * La couleur limite pour le découpage
+		 * La couleur limite pour le découpage.
+		 * La modification de cette valeur ne redéclanchera pas le découpage.
 		 */
 		public function get cutThreshold ():uint { return _cutThreshold; }
 		public function set cutThreshold (value:uint):void
@@ -437,15 +508,27 @@ package fr.swapp.graphic.components.bitmaps
 			// Supprimer les slices
 			deleteSlices();
 			
-			// Le mode de rendu en dernier pour invalider
+			// Le mode de rendu en dernier pour invalider une première fois
 			renderMode = pRenderMode;
+		}
+		
+		/**
+		 * L'élément est ajouté à la scène
+		 */
+		override protected function addedHandler (event:Event = null):void
+		{
+			// Relayer
+			super.addedHandler(event);
+			
+			// Lancer une première phase de rendu
+			launchRenderPhase();
 		}
 		
 		
 		/**
 		 * Préparer le bitmap pour le mode de rendu bitmap
 		 */
-		public function prepareBitmapMode ():void
+		protected function prepareBitmapMode ():void
 		{
 			// Si on n'est plus en mode bitmap mais qu'il reste un bitmap
 			if (_bitmap != null)
@@ -456,7 +539,7 @@ package fr.swapp.graphic.components.bitmaps
 			}
 			
 			// Si on est en mode de rendu bitmap
-			if (_renderMode == BitmapRender.BITMAP_RENDER_MODE)
+			if (_renderMode == BitmapRender.BITMAP_RENDER)
 			{
 				// On créé le bitmap porteur
 				_bitmap = new Bitmap(_bitmapData, _pixelSnapping ? PixelSnapping.ALWAYS : PixelSnapping.NEVER, _smoothing);
@@ -475,7 +558,7 @@ package fr.swapp.graphic.components.bitmaps
 		/**
 		 * Préparer la découpe pour le scale9
 		 */
-		public function prepareScale9Mode ():void
+		protected function prepareScale9Mode ():void
 		{
 			// Si on est plus en mode scale 9 mais qu'on a encore des slices
 			if (_bitmaps.length > 0)
@@ -485,7 +568,7 @@ package fr.swapp.graphic.components.bitmaps
 			}
 			
 			// Si on est en mode de rendu scale9
-			if (_renderMode == BitmapRender.AUTO_SCALE9_RENDER_MODE)
+			if (_renderMode == BitmapRender.AUTO_SCALE9_RENDER)
 			{
 				// Récupérer automatiquement les coupures depuis l'image source
 				getSlices();
@@ -495,10 +578,16 @@ package fr.swapp.graphic.components.bitmaps
 			}
 		}
 		
+		
+		/******************************************
+					  Méthodes ouvertes
+		 ******************************************/
+		
 		/**
 		 * Définir le décallage du bitmap
 		 * @param	pHorizontalOffset : Le décallage horizontal
 		 * @param	pVerticalOffset : Le décallage vertical
+		 * @return this, méthode chaînable
 		 */
 		public function bitmapOffset (pHorizontalOffset:int, pVerticalOffset:int):AdvancedBitmap
 		{
@@ -507,7 +596,7 @@ package fr.swapp.graphic.components.bitmaps
 			_bitmapVerticalOffset = pVerticalOffset;
 			
 			// Rendre le dessin invalide
-			invalidate();
+			invalidateDraw();
 			
 			// Méthode chaînable
 			return this;
@@ -517,6 +606,7 @@ package fr.swapp.graphic.components.bitmaps
 		 * La couleur de fond
 		 * @param	pBackgroundColor : La couleur (-1 pour transparent)
 		 * @param	pBackgroundAlpha : La transparence du fond
+		 * @return this, méthode chaînable
 		 */
 		public function background (pBackgroundColor:int, pBackgroundAlpha:Number):AdvancedBitmap
 		{
@@ -525,7 +615,7 @@ package fr.swapp.graphic.components.bitmaps
 			_backgroundAlpha = pBackgroundAlpha
 			
 			// Rendre le dessin invalide
-			invalidate();
+			invalidateDraw();
 			
 			// Méthode chaînable
 			return this;
@@ -536,6 +626,7 @@ package fr.swapp.graphic.components.bitmaps
 		 * @param	pOutlineSize : La taille du contour (0 ou NaN pour aucun contour)
 		 * @param	pOutlineColor : La couleur du contour
 		 * @param	pOutlineAlpha : La transparence du contour
+		 * @return this, méthode chaînable
 		 */
 		public function border (pOutlineSize:Number, pOutlineColor:uint = 0, pOutlineAlpha:Number = 1):AdvancedBitmap
 		{
@@ -545,50 +636,129 @@ package fr.swapp.graphic.components.bitmaps
 			_outlineAlpha = pOutlineAlpha;
 			
 			// Rendre le dessin invalide
-			invalidate();
+			invalidateDraw();
 			
 			// Méthode chaînable
 			return this;
 		}
 		
 		/**
-		 * Bordures arrondis
-		 * @param	pRadius
+		 * Bordures arrondies individuelles
+		 * @param	pTopLeftRadius : La taille de l'arrondis du coin d'en haut à gauche
+		 * @param	pTopRightRadius : La taille de l'arrondis du coin d'en haut à droite
+		 * @param	pBottomRightRadius : La taille de l'arrondis du coin d'en bas à droite
+		 * @param	pBottomLeftRadius : La taille de l'arrondis du coin d'en haut à gauche
+		 * @return this, méthode chaînable
 		 */
-		public function radius (pRadius:uint):AdvancedBitmap
+		public function radius (pTopLeftRadius:int, pTopRightRadius:int, pBottomRightRadius:int, pBottomLeftRadius:int):AdvancedBitmap
 		{
 			// Enregistrer
-			_borderRadius = pRadius;
+			_topLeftRadius 		= pTopLeftRadius;
+			_topRightRadius 	= pTopRightRadius;
+			_bottomRightRadius 	= pBottomRightRadius;
+			_bottomLeftRadius 	= pBottomLeftRadius;
 			
 			// Rendre le dessin invalide
-			invalidate();
+			invalidateDraw();
 			
 			// Méthode chaînable
 			return this;
 		}
 		
 		/**
-		 * Rendu du stage
+		 * Appliquer une valeur d'arrondis aux 4 coins.
+		 * @param	pRadius : La taille de l'arrondis de tous les coins
+		 * @return this, méthode chaînable
 		 */
-		override protected function renderHandler (event:Event = null):void
+		public function allRadius (pRadius:int):AdvancedBitmap
 		{
-			// Relayer avant pour avoir les dimensions
-			super.renderHandler();
+			// Enregistrer
+			_topLeftRadius 		= pRadius;
+			_topRightRadius 	= pRadius;
+			_bottomRightRadius 	= pRadius;
+			_bottomLeftRadius 	= pRadius;
+			
+			// Rendre le dessin invalide
+			invalidateDraw();
+			
+			// Méthode chaînable
+			return this;
+		}
+		
+		
+		/******************************************
+						  Phases
+		 ******************************************/
+		
+		/**
+		 * Invalider le dessin
+		 */
+		public function invalidateDraw ():void
+		{
+			trace("INVALIDATE DRAW");
+			// Si le dessin n'est pas déjà invalidé
+			if (!_drawInvalidated)
+			{
+				// Invalider le dessin
+				_drawInvalidated = true;
+				
+				// Lancer la phase de rendu
+				launchRenderPhase();
+			}
+		}
+		
+		/**
+		 * Replacer le composant
+		 */
+		override protected function replace ():void
+		{
+			// Si on est en mode de rendu taille auto, et qu'on a une image
+			if (_renderMode == BitmapRender.AUTO_SIZE_RENDER && _bitmapData != null)
+			{
+				// Appliquer les dimensions de l'image
+				_localWidth = _bitmapData.width / _density;
+				_localHeight = _bitmapData.height / _density;
+			}
+			
+			// Actualiser le flux de positionnement
+			updateFlow();
 			
 			// Actualiser le dessin
-			redraw();
+			invalidateDraw();
 		}
+		
+		/**
+		 * Phase de rendu
+		 */
+		override protected function renderPhase ():void 
+		{
+			// Si le dessin est invalidé
+			if (_drawInvalidated)
+			{
+				// Actualiser le dessin
+				redraw();
+				
+				// Le dessin est valide
+				_drawInvalidated = false;
+			}
+		}
+		
+		
+		/******************************************
+						   Dessin
+		 ******************************************/
 		
 		/**
 		 * Forcer le rafraichissement
 		 */
 		public function redraw ():void
 		{
+			trace("REDRAW", _localWidth, _localHeight);
 			// Virer l'ancienne image
 			graphics.clear();
 			
 			// Si on est en mode de rendu scaleNine
-			if (_renderMode == BitmapRender.AUTO_SCALE9_RENDER_MODE && _bitmapData != null && _slices != null)
+			if (_renderMode == BitmapRender.AUTO_SCALE9_RENDER && _bitmapData != null && _slices != null)
 			{
 				// Les dimensions de l'image avec ou sans les coupures
 				//const imageOffset:uint = (_autoSliced ? 2 : 0);
@@ -638,17 +808,6 @@ package fr.swapp.graphic.components.bitmaps
 			}
 			else
 			{
-				// Si c'est la taille de l'image qui défini la taille du composant
-				if (_renderMode == BitmapRender.AUTO_SIZE_RENDER_MODE && _bitmapData != null)
-				{
-					// On récupère la taille et on l'applique
-					_localWidth = _bitmapData.width / _density;
-					_localHeight = _bitmapData.height / _density;
-					
-					// Actualiser le placement
-					super.needReplace();
-				}
-				
 				// Si on a un bitmap
 				if (_bitmap != null)
 				{
@@ -675,13 +834,21 @@ package fr.swapp.graphic.components.bitmaps
 						
 						// Si on a une couleur de fond
 						// Et si on est sur un mode de rendu ou le contenu peut être plus petit que la zone d'affichage
-						if (_backgroundColor != -1 && _renderMode != BitmapRender.REPEAT_RENDER_MODE && _renderMode != BitmapRender.AUTO_SIZE_RENDER_MODE && _renderMode != BitmapRender.STRECH_RENDER_MODE)
+						if (_backgroundColor != -1 && _renderMode != BitmapRender.REPEAT_RENDER && _renderMode != BitmapRender.AUTO_SIZE_RENDER && _renderMode != BitmapRender.STRECH_RENDER)
 						{
 							// On commence le déssin
 							graphics.beginFill(_backgroundColor, _backgroundAlpha);
 							
-							// Dessiner un rectangle avec ou sans bords arrondis
-							if (_borderRadius == 0)
+							// Si on a des arrondis
+							if (
+									_topLeftRadius != 0
+									||
+									_topRightRadius != 0
+									||
+									_bottomRightRadius != 0
+									||
+									_bottomLeftRadius != 0
+								)
 							{
 								// Sans bords arrondis
 								graphics.drawRect(
@@ -694,12 +861,13 @@ package fr.swapp.graphic.components.bitmaps
 							else
 							{
 								// Avec bords arrondis
-								graphics.drawRoundRect(
+								graphics.drawRoundRectComplex(
 									0,
 									0,
 									_localWidth,
 									_localHeight,
-									_borderRadius, _borderRadius
+									_topLeftRadius, _topRightRadius,
+									_bottomLeftRadius, _bottomRightRadius
 								);
 							}
 							
@@ -709,7 +877,7 @@ package fr.swapp.graphic.components.bitmaps
 						}
 						
 						// On dessiner le bitmap avec la nouvelle matrice
-						graphics.beginBitmapFill(_bitmapData, _matrix, _renderMode == BitmapRender.REPEAT_RENDER_MODE, _smoothing);
+						graphics.beginBitmapFill(_bitmapData, _matrix, _renderMode == BitmapRender.REPEAT_RENDER, _smoothing);
 					}
 					else
 					{
@@ -721,8 +889,16 @@ package fr.swapp.graphic.components.bitmaps
 							graphics.beginFill(_backgroundColor, _backgroundAlpha);
 					}
 					
-					// Dessiner un rectangle avec ou sans bords arrondis
-					if (_borderRadius == 0)
+					// Si on a des arrondis
+					if (
+							_topLeftRadius != 0
+							||
+							_topRightRadius != 0
+							||
+							_bottomRightRadius != 0
+							||
+							_bottomLeftRadius != 0
+						)
 					{
 						// Sans bords arrondis
 						graphics.drawRect(
@@ -735,12 +911,13 @@ package fr.swapp.graphic.components.bitmaps
 					else
 					{
 						// Avec bords arrondis
-						graphics.drawRoundRect(
+						graphics.drawRoundRectComplex(
 							_xDrawDecay,
 							_yDrawDecay,
 							_localWidth - _xDrawDecay * 2,
 							_localHeight - _yDrawDecay * 2,
-							_borderRadius, _borderRadius
+							_topLeftRadius, _topRightRadius,
+							_bottomLeftRadius, _bottomRightRadius
 						);
 					}
 					
@@ -763,22 +940,22 @@ package fr.swapp.graphic.components.bitmaps
 			var verticalScale	:Number	= 1;
 			
 			// Calculer le scale
-			if (_renderMode == BitmapRender.STRECH_RENDER_MODE)
+			if (_renderMode == BitmapRender.STRECH_RENDER)
 			{
 				// Scaler au composant
 				horizontalScale = _localWidth / _bitmapData.width;
 				verticalScale = _localHeight / _bitmapData.height;
 			}
-			else if (_renderMode == BitmapRender.INSIDE_RENDER_MODE || _renderMode == BitmapRender.OUTSIDE_RENDER_MODE)
+			else if (_renderMode == BitmapRender.INSIDE_RENDER || _renderMode == BitmapRender.OUTSIDE_RENDER)
 			{
 				// On applique les 2 dimensions sur le ratio horizontal
 				verticalScale = horizontalScale = _localWidth / _bitmapData.width;
 				
 				// Et on regarde le comportement du ratio vertical
 				if (
-						_renderMode == BitmapRender.INSIDE_RENDER_MODE && _bitmapData.height * verticalScale > _localHeight
+						_renderMode == BitmapRender.INSIDE_RENDER && _bitmapData.height * verticalScale > _localHeight
 						||
-						_renderMode == BitmapRender.OUTSIDE_RENDER_MODE && _bitmapData.height * verticalScale < _localHeight
+						_renderMode == BitmapRender.OUTSIDE_RENDER && _bitmapData.height * verticalScale < _localHeight
 					)
 				{
 					// On appliquer les 2 dimensions sur le ratio vertical
@@ -787,7 +964,7 @@ package fr.swapp.graphic.components.bitmaps
 			}
 			
 			// Appliquer la densité pour ces modes de rendu
-			else if (_renderMode == BitmapRender.AUTO_SIZE_RENDER_MODE || _renderMode == BitmapRender.REPEAT_RENDER_MODE || _renderMode == BitmapRender.NO_SCALE_RENDER_MODE)
+			else if (_renderMode == BitmapRender.AUTO_SIZE_RENDER || _renderMode == BitmapRender.REPEAT_RENDER || _renderMode == BitmapRender.NO_SCALE_RENDER)
 			{
 				horizontalScale = 1 / _density;
 				verticalScale = 1 / _density;
@@ -797,7 +974,7 @@ package fr.swapp.graphic.components.bitmaps
 			_matrix.scale(horizontalScale, verticalScale);
 			
 			// Si on doit centrer
-			if (_renderMode == BitmapRender.CENTER_RENDER_MODE || _renderMode == BitmapRender.INSIDE_RENDER_MODE || _renderMode == BitmapRender.OUTSIDE_RENDER_MODE)
+			if (_renderMode == BitmapRender.CENTER_RENDER || _renderMode == BitmapRender.INSIDE_RENDER || _renderMode == BitmapRender.OUTSIDE_RENDER)
 			{
 				// On centre par rapport aux précédentes modifications du scale
 				_matrix.translate(
@@ -806,7 +983,7 @@ package fr.swapp.graphic.components.bitmaps
 				);
 				
 				// Si on autorise pas les dépassements de dessin de l'image
-				if (_allowOverflow || _renderMode == BitmapRender.INSIDE_RENDER_MODE)
+				if (_allowOverflow || _renderMode == BitmapRender.INSIDE_RENDER)
 				{
 					// On enregistre les dépassements
 					_xDrawDecay = _matrix.tx;
@@ -827,6 +1004,44 @@ package fr.swapp.graphic.components.bitmaps
 				_matrix.translate(_bitmapHorizontalOffset, _bitmapVerticalOffset);
 			}
 		}
+		
+		/**
+		 * Actualiser les propriété d'affichage des bitmaps
+		 */
+		protected function updateBitmapProperties ():void
+		{
+			// Si on est en mode bitmap
+			if (_bitmap != null)
+			{
+				// Appliquer les valeurs sur le seul bitmap
+				_bitmap.smoothing 		= _smoothing;
+				_bitmap.pixelSnapping 	= _pixelSnapping;
+			}
+			else if (_bitmaps.length > 0)
+			{
+				// Parcourir les blocs horizontalement
+				for (var cx:uint = 0; cx < _horizontalSlices; cx++)
+				{
+					// Parcourir les blocs verticalement
+					for (var cy:uint = 0; cy < _verticalSlices; cy++)
+					{
+						// Cibler le bitmap et appliquer les valeurs
+						_bitmaps[cx][cy].smoothing 		= _smoothing;
+						_bitmaps[cx][cy].pixelSnapping 	= _pixelSnapping;
+					}
+				}
+			}
+			else
+			{
+				// Rendre le dessin invalide
+				invalidateDraw();
+			}
+		}
+		
+		
+		/******************************************
+						  Découpe
+		 ******************************************/
 		
 		/**
 		 * Récupérer la position des coupures sur l'image

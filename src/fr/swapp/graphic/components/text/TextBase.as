@@ -69,8 +69,8 @@ package fr.swapp.graphic.components.text
 				// Actualiser l'autosize
 				updateAutoSize();
 				
-				// Invalider
-				invalidate();
+				// Invalider le placement
+				invalidatePosition();
 			}
 		}
 		
@@ -93,8 +93,8 @@ package fr.swapp.graphic.components.text
 				// Actualiser l'autosize
 				updateAutoSize();
 				
-				// Invalider
-				invalidate();
+				// Invalider le placement
+				invalidatePosition();
 			}
 		}
 		
@@ -119,8 +119,8 @@ package fr.swapp.graphic.components.text
 				// Appliquer le texte
 				_textField.text = value;
 				
-				// Invalider
-				invalidate();
+				// Invalider le placement
+				invalidatePosition();
 			}
 		}
 		
@@ -172,8 +172,8 @@ package fr.swapp.graphic.components.text
 				// Enregistrer
 				_textField.embedFonts = value;
 				
-				// Invalider
-				invalidate();
+				// Invalider le placement
+				invalidatePosition();
 			}
 		}
 		
@@ -294,13 +294,14 @@ package fr.swapp.graphic.components.text
 		 */
 		public function text (pValue:String):TextBase
 		{
+			// Si on a une valeur définie et différente
 			if (pValue != null && _textField.text != pValue)
 			{
 				// Appliquer
 				_textField.text = pValue;
 				
-				// Invalider
-				invalidate();
+				// Invalider le placement
+				invalidatePosition();
 			}
 			
 			// Méthode chaînable
@@ -319,8 +320,8 @@ package fr.swapp.graphic.components.text
 				// Appliquer
 				_textField.appendText(pValue);
 				
-				// Invalider
-				invalidate();
+				// Invalider le placement
+				invalidatePosition();
 			}
 			
 			// Méthode chaînable
@@ -333,14 +334,14 @@ package fr.swapp.graphic.components.text
 		 */
 		public function html (pValue:String):TextBase
 		{
-			// Si on a une valeur différente
+			// Si on a une valeur définie et différente
 			if (pValue != null && _textField.htmlText != pValue)
 			{
 				// Appliquer
 				_textField.htmlText = pValue;
 				
-				// Invalider
-				invalidate();
+				// Invalider le placement
+				invalidatePosition();
 			}
 			
 			// Méthode chaînable
@@ -350,7 +351,7 @@ package fr.swapp.graphic.components.text
 		/**
 		 * Besoin d'être replacé
 		 */
-		override protected function needReplace ():void
+		override protected function replace ():void
 		{
 			// Si on est en taille automatique
 			if (_autoSize)

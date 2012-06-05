@@ -53,11 +53,6 @@ package fr.swapp.graphic.base
 		protected var _onStyleChanged				:Signal						= new Signal();
 		
 		/**
-		 * Lors qu'un rendu est terminé
-		 */
-		protected var _onRendered					:Signal						= new Signal();
-		
-		/**
 		 * Lorsque la visibilité de l'élément change
 		 */
 		protected var _onVisibilityChanged			:Signal						= new Signal();
@@ -165,15 +160,17 @@ package fr.swapp.graphic.base
 		 */
 		protected var _clipContent					:Boolean					= false;
 		
+		
 		/**
-		 * Si on doit rafraichir l'affichage
+		 * Si la position est invalidée
 		 */
-		protected var _invalidated					:Boolean					= false;
+		protected var _positionInvalidated			:Boolean					= false;
 		
 		/**
 		 * Si le style est invalidé
 		 */
 		protected var _styleInvalidated				:Boolean					= false;
+		
 		
 		/**
 		 * Si le composant est en rendu bitmap
@@ -184,11 +181,6 @@ package fr.swapp.graphic.base
 		 * Si on autorise le redraw par les enfants
 		 */
 		protected var _allowRedraw					:Boolean					= true;
-		
-		/**
-		 * Si l'invalidate est forcé
-		 */
-		protected var _forceInvalidate				:Boolean					= false;
 		
 		/**
 		 * Le nom du style associé
@@ -218,7 +210,7 @@ package fr.swapp.graphic.base
 		
 		
 		/**
-		 * Les anciennes valeurs pour détécter les changements
+		 * Les anciennes valeurs pour détécter les changements.
 		 */
 		private var _oldWidth						:Number						= 0;
 		private var _oldHeight						:Number						= 0;
@@ -247,18 +239,12 @@ package fr.swapp.graphic.base
 		/**
 		 * Le signal du redimensionnement
 		 */
-		public function get onResized ():Signal
-		{
-			return _onResized;
-		}
+		public function get onResized ():Signal { return _onResized; }
 		
 		/**
 		 * Le signal du repositionnement
 		 */
-		public function get onReplaced ():Signal
-		{
-			return _onReplaced;
-		}
+		public function get onReplaced ():Signal { return _onReplaced; }
 		
 		/**
 		 * La largeur en passant par la superclasse
@@ -290,8 +276,8 @@ package fr.swapp.graphic.base
 				// Enregistrer la nouvelle valeur
 				_localWidth = value;
 				
-				// Invalider
-				invalidate();
+				// Invalider la position
+				invalidatePosition();
 			}
 		}
 		
@@ -307,8 +293,8 @@ package fr.swapp.graphic.base
 				// Enregistrer la nouvelle valeur
 				_localHeight = value;
 				
-				// Invalider
-				invalidate();
+				// Invalider la position
+				invalidatePosition();
 			}
 		}
 		
@@ -324,8 +310,8 @@ package fr.swapp.graphic.base
 				// Enregistrer la nouvelle valeur
 				_minWidth = value;
 				
-				// Invalider
-				invalidate();
+				// Invalider la position
+				invalidatePosition();
 			}
 		}
 		
@@ -341,8 +327,8 @@ package fr.swapp.graphic.base
 				// Enregistrer la nouvelle valeur
 				_minHeight = value;
 				
-				// Invalider
-				invalidate();
+				// Invalider la position
+				invalidatePosition();
 			}
 		}
 		
@@ -358,8 +344,8 @@ package fr.swapp.graphic.base
 				// Enregistrer la nouvelle valeur
 				_maxWidth = value;
 				
-				// Invalider
-				invalidate();
+				// Invalider la position
+				invalidatePosition();
 			}
 		}
 		
@@ -375,20 +361,10 @@ package fr.swapp.graphic.base
 				// Enregistrer la nouvelle valeur
 				_maxHeight = value;
 				
-				// Invalider
-				invalidate();
+				// Invalider la position
+				invalidatePosition();
 			}
 		}
-		
-		/**
-		 * La largeur totale du composant (avec les marges, ne peut pas être NaN)
-		 */
-		public function get totalWidth ():Number { return _leftMargin + _localWidth + _rightMargin };
-		
-		/**
-		 * La hauteur totale du composant (avec les marges, ne peut pas être NaN)
-		 */
-		public function get totalHeight ():Number { return _topMargin + _localHeight + _bottomMargin };
 		
 		/**
 		 * Position absolue par rapport au haut (peut être NaN)
@@ -402,8 +378,8 @@ package fr.swapp.graphic.base
 				// Enregistrer la nouvelle valeur
 				_top = value;
 				
-				// Invalider
-				invalidate();
+				// Invalider la position
+				invalidatePosition();
 			}
 		}
 		
@@ -419,8 +395,8 @@ package fr.swapp.graphic.base
 				// Enregistrer la nouvelle valeur
 				_right = value;
 				
-				// Invalider
-				invalidate();
+				// Invalider la position
+				invalidatePosition();
 			}
 		}
 		
@@ -436,8 +412,8 @@ package fr.swapp.graphic.base
 				// Enregistrer la nouvelle valeur
 				_bottom = value;
 				
-				// Invalider
-				invalidate();
+				// Invalider la position
+				invalidatePosition();
 			}
 		}
 		
@@ -453,8 +429,8 @@ package fr.swapp.graphic.base
 				// Enregistrer la nouvelle valeur
 				_left = value;
 				
-				// Invalider
-				invalidate();
+				// Invalider la position
+				invalidatePosition();
 			}
 		}
 		
@@ -470,8 +446,8 @@ package fr.swapp.graphic.base
 				// Enregistrer la nouvelle valeur
 				_horizontalCenter = value;
 				
-				// Invalider
-				invalidate();
+				// Invalider la position
+				invalidatePosition();
 			}
 		}
 		
@@ -487,8 +463,8 @@ package fr.swapp.graphic.base
 				// Enregistrer la nouvelle valeur
 				_verticalCenter = value;
 				
-				// Invalider
-				invalidate();
+				// Invalider la position
+				invalidatePosition();
 			}
 		}
 		
@@ -499,7 +475,8 @@ package fr.swapp.graphic.base
 		public function set horizontalOffset (value:Number):void 
 		{
 			// Si la valeur est différente
-			if (value != _horizontalOffset)
+			// Et si la valeur est réelle
+			if (value != _horizontalOffset && (value >= 0 || value < 0))
 			{
 				// Enregistrer la nouvelle valeur
 				_horizontalOffset = value;
@@ -522,7 +499,8 @@ package fr.swapp.graphic.base
 		public function set verticalOffset (value:Number):void 
 		{
 			// Si la valeur est différente
-			if (value != _verticalOffset)
+			// Et si la valeur est réelle
+			if (value != _verticalOffset && (value >= 0 || value < 0))
 			{
 				// Enregistrer la nouvelle valeur
 				_verticalOffset = value;
@@ -550,8 +528,8 @@ package fr.swapp.graphic.base
 				// Enregistrer la nouvelle valeur
 				_topMargin = value;
 				
-				// Invalider
-				invalidate();
+				// Invalider la position
+				invalidatePosition();
 			}
 		}
 		
@@ -567,8 +545,8 @@ package fr.swapp.graphic.base
 				// Enregistrer la nouvelle valeur
 				_rightMargin = value;
 				
-				// Invalider
-				invalidate();
+				// Invalider la position
+				invalidatePosition();
 			}
 		}
 		
@@ -584,8 +562,8 @@ package fr.swapp.graphic.base
 				// Enregistrer la nouvelle valeur
 				_bottomMargin = value;
 				
-				// Invalider
-				invalidate();
+				// Invalider la position
+				invalidatePosition();
 			}
 		}
 		
@@ -601,8 +579,8 @@ package fr.swapp.graphic.base
 				// Enregistrer la nouvelle valeur
 				_leftMargin = value;
 				
-				// Invalider
-				invalidate();
+				// Invalider la position
+				invalidatePosition();
 			}
 		}
 		
@@ -618,10 +596,20 @@ package fr.swapp.graphic.base
 				// Enregistrer la nouvelle valeur
 				_clipContent = value;
 				
-				// Invalider
-				invalidate();
+				// Invalider la position
+				invalidatePosition();
 			}
 		}
+		
+		/**
+		 * La largeur totale du composant (avec les marges, ne peut pas être NaN)
+		 */
+		public function get totalWidth ():Number { return _leftMargin + _localWidth + _rightMargin };
+		
+		/**
+		 * La hauteur totale du composant (avec les marges, ne peut pas être NaN)
+		 */
+		public function get totalHeight ():Number { return _topMargin + _localHeight + _bottomMargin };
 		
 		/**
 		 * Si le composant est en rendu bitmap
@@ -677,6 +665,28 @@ package fr.swapp.graphic.base
 					// Et on le place
 					_backgroundImage.place(0, 0, 0, 0).into(this, "background", 0);
 				}
+			}
+		}
+		
+		/**
+		 * Whether or not the display object is visible. Display objects that are not visible
+		 * are disabled. For example, if visible=false for an InteractiveObject instance,
+		 * it cannot be clicked.
+		 * @langversion	3.0
+		 * @playerversion	Flash 9
+		 * @playerversion	Lite 4
+		 */
+		override public function get visible ():Boolean { return super.visible; }
+		override public function set visible (value:Boolean):void
+		{
+			// Si c'est différent
+			if (value != super.visible)
+			{
+				// Enregistrer
+				super.visible = value;
+				
+				// Dispatcher le changement
+				_onVisibilityChanged.dispatch();
 			}
 		}
 		
@@ -744,46 +754,20 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
+		 * Si l'élément a été disposé
+		 */
+		public function get disposed ():Boolean { return _disposed; }
+		
+		/**
 		 * Le style a changé
 		 */
 		public function get onStyleChanged ():Signal { return _onStyleChanged; }
-		
-		/**
-		 * Lors qu'un rendu est terminé
-		 */
-		public function get onRendered ():Signal { return _onRendered; }
-		
-		/**
-		 * Whether or not the display object is visible. Display objects that are not visible
-		 * are disabled. For example, if visible=false for an InteractiveObject instance,
-		 * it cannot be clicked.
-		 * @langversion	3.0
-		 * @playerversion	Flash 9
-		 * @playerversion	Lite 4
-		 */
-		override public function get visible ():Boolean { return super.visible; }
-		override public function set visible (value:Boolean):void
-		{
-			// Si c'est différent
-			if (value != super.visible)
-			{
-				// Enregistrer
-				super.visible = value;
-				
-				// Dispatcher le changement
-				_onVisibilityChanged.dispatch();
-			}
-		}
 		
 		/**
 		 * Lorsque la visibilité de l'élément change
 		 */
 		public function get onVisibilityChanged ():Signal { return _onVisibilityChanged; }
 		
-		/**
-		 * Si l'élément a été disposé
-		 */
-		public function get disposed ():Boolean { return _disposed; }
 		
 		
 		/**
@@ -794,6 +778,10 @@ package fr.swapp.graphic.base
 			
 		}
 		
+		
+		/******************************************
+				Initialisation / Destruction
+		 ******************************************/
 		
 		/**
 		 * Initialisation du composant
@@ -807,8 +795,8 @@ package fr.swapp.graphic.base
 				if (_watchedParent != null)
 				{
 					// On n'écoute plus les changements
-					_watchedParent.onResized.remove(parentResizedHandler);
 					_watchedParent.onReplaced.remove(parentReplacedHandler);
+					_watchedParent.onResized.remove(parentResizedHandler);
 					_watchedParent.onStyleChanged.remove(parentStyleChangedHandler);
 					_watchedParent.onVisibilityChanged.remove(parentVisibilityChangedHandler);
 				}
@@ -817,17 +805,84 @@ package fr.swapp.graphic.base
 				_watchedParent = (parent as ResizableComponent);
 				
 				// On écoute les changements
-				_watchedParent.onResized.add(parentResizedHandler);
 				_watchedParent.onReplaced.add(parentReplacedHandler);
+				_watchedParent.onResized.add(parentResizedHandler);
 				_watchedParent.onStyleChanged.add(parentStyleChangedHandler);
 				_watchedParent.onVisibilityChanged.add(parentVisibilityChangedHandler);
 			}
 			
-			// Invalider
-			invalidate(true);
-			
 			// Relayer
 			super.addedHandler(event);
+		}
+		
+		/**
+		 * Destruction du composant
+		 */
+		override protected function removedHandler (event:Event):void
+		{
+			// Si on a déjà été disposé
+			if (_disposed)
+			{
+				// C'est un problème
+				Log.error("Multiple dispose detected in ResizableComponent");
+			}
+			else
+			{
+				// Ne plus écouter les phases
+				removeEventListener(Event.RENDER, renderHandler);
+				removeEventListener(Event.EXIT_FRAME, exitHandler);
+				
+				// On est disposé
+				_disposed = true;
+				
+				// Supprimer tous les listeners
+				_onResized.removeAll();
+				_onReplaced.removeAll();
+				_onStyleChanged.removeAll();
+				_onVisibilityChanged.removeAll();
+				
+				// Supprimer les signaux
+				_onResized = null;
+				_onReplaced = null;
+				_onStyleChanged = null;
+				_onVisibilityChanged = null;
+				
+				if (_watchedParent != null && _watchedParent.onResized == null)
+				{
+					trace("		STRANGE PARENT", this, parent, parent.stage, wrapper.phase);
+					
+					_watchedParent = null;
+					return;
+				}
+				
+				// On n'écoute plus le parent
+				if (_watchedParent != null)
+				{
+					_watchedParent.onResized.remove(parentResizedHandler);
+					_watchedParent.onReplaced.remove(parentReplacedHandler);
+					_watchedParent.onStyleChanged.remove(parentStyleChangedHandler);
+					_watchedParent.onVisibilityChanged.remove(parentVisibilityChangedHandler);
+				}
+				
+				_watchedParent = null;
+				
+				// Relayer
+				super.removedHandler(event);
+			}
+		}
+		
+		
+		/******************************************
+					   Parent observé
+		 ******************************************/
+		
+		/**
+		 * Le parent a changé de position
+		 */
+		protected function parentReplacedHandler ():void
+		{
+			// Replacer
+			replace();
 		}
 		
 		/**
@@ -835,15 +890,8 @@ package fr.swapp.graphic.base
 		 */
 		protected function parentResizedHandler ():void
 		{
-			needReplace();
-		}
-		
-		/**
-		 * Le parent a changé de position
-		 */
-		protected function parentReplacedHandler ():void
-		{
-			//invalidate();
+			// Replacer
+			replace();
 		}
 		
 		/**
@@ -851,7 +899,6 @@ package fr.swapp.graphic.base
 		 */
 		protected function parentStyleChangedHandler ():void
 		{
-			//invalidateStyle();
 			updateStyle();
 		}
 		
@@ -860,10 +907,17 @@ package fr.swapp.graphic.base
 		 */
 		protected function parentVisibilityChangedHandler ():void
 		{
-			// Signaler
+			// Signaler en local
 			visibilityChanged();
+			
+			// Signaler à l'extérieur
 			_onVisibilityChanged.dispatch();
 		}
+		
+		
+		/******************************************
+					  Méthodes ouvertes
+		 ******************************************/
 		
 		/**
 		 * Définir la taille du composant.
@@ -881,8 +935,8 @@ package fr.swapp.graphic.base
 			if (pHeight >= 0)
 				_localHeight = pHeight;
 			
-			// Invalider
-			invalidate();
+			// Invalider la position
+			invalidatePosition();
 			
 			// Méthode chaînable
 			return this;
@@ -895,6 +949,7 @@ package fr.swapp.graphic.base
 		 * @param	pRight : Le décallage depuis la droite
 		 * @param	pBottom : Le décallage depuis le bas
 		 * @param	pLeft : Le décallage depuis la gauche
+		 * @return this, méthode chaînable
 		 */
 		public function place (pTop:Number = NaN, pRight:Number = NaN, pBottom:Number = NaN, pLeft:Number = NaN):ResizableComponent
 		{
@@ -904,8 +959,8 @@ package fr.swapp.graphic.base
 			_bottom = pBottom;
 			_left = pLeft;
 			
-			// Invalider
-			invalidate();
+			// Invalider la position
+			invalidatePosition();
 			
 			// Méthode chaînable
 			return this;
@@ -917,6 +972,7 @@ package fr.swapp.graphic.base
 		 * @param	pTop : Le décallage depuis le haut
 		 * @param	pWidth : Largeur
 		 * @param	pHeight : Hauteur
+		 * @return this, méthode chaînable
 		 */
 		public function rectPlace (pLeft:Number = NaN, pTop:Number = NaN, pWidth:Number = 0, pHeight:Number = 0):ResizableComponent
 		{
@@ -926,8 +982,8 @@ package fr.swapp.graphic.base
 			_localWidth = pWidth;
 			_localHeight = pHeight;
 			
-			// Invalider
-			invalidate();
+			// Invalider la position
+			invalidatePosition();
 			
 			// Méthode chaînable
 			return this;
@@ -950,8 +1006,15 @@ package fr.swapp.graphic.base
 			if (pVerticalOffset >= 0 || pVerticalOffset < 0)
 				_verticalOffset = pVerticalOffset;
 			
-			// Invalider
-			invalidate();
+			// Placer
+			x = _horizontalOffset + _leftMargin;
+			y = _verticalOffset + _topMargin;
+			
+			// Signaler
+			replaced();
+			
+			// Dispatcher
+			_onReplaced.dispatch();
 			
 			// Méthode chaînable
 			return this;
@@ -974,8 +1037,8 @@ package fr.swapp.graphic.base
 			if (pMinHeight >= 0 || pMinHeight < 0)
 				_minHeight = Math.max(0, pMinHeight);
 			
-			// Invalider
-			invalidate();
+			// Invalider la position
+			invalidatePosition();
 			
 			// Méthode chaînable
 			return this;
@@ -998,8 +1061,8 @@ package fr.swapp.graphic.base
 			if (pMaxHeight >= 0 || pMaxHeight < 0)
 				_maxHeight = Math.max(0, pMaxHeight);
 			
-			// Invalider
-			invalidate();
+			// Invalider la position
+			invalidatePosition();
 			
 			// Méthode chaînable
 			return this;
@@ -1021,8 +1084,8 @@ package fr.swapp.graphic.base
 			_bottomMargin = pBottomMargin;
 			_leftMargin = pLeftMargin;
 			
-			// Invalider
-			invalidate();
+			// Invalider la position
+			invalidatePosition();
 			
 			// Méthode chaînable
 			return this;
@@ -1041,8 +1104,8 @@ package fr.swapp.graphic.base
 			_horizontalCenter = pHorizontalCenter;
 			_verticalCenter = pVerticalCenter;
 			
-			// Invalider
-			invalidate();
+			// Invalider la position
+			invalidatePosition();
 			
 			// Méthode chaînable
 			return this;
@@ -1081,28 +1144,114 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * Invalider ce composant pour qu'il soit redessiner à la prochaine frame.
-		 * @param	pForce : Force le rafraichissement, même si allowRedraw est à false
+		 * Passer ce composant en bitmap
+		 * @param	pMatrixScale : Le scale de la matrix (NaN pour ignorer)
+		 * @param	pMatrix : La matrice pour le cacheAsBitmap (si différent de null, le scale sera ignoré)
+		 * @param	pAllowRedraw : Si on doit bloquer le rafraichissement des enfants pour éviter les redraw
+		 * @return this, méthode chaînable
 		 */
-		public function invalidate (pForce:Boolean = false):void
+		public function flatten (pMatrixScale:Number = NaN, pMatrix:Matrix = null, pAllowRedraw:Boolean = true):ResizableComponent
 		{
-			// Si on n'est pas déjà invalidé et si on a un stage
-			if (!_invalidated && stage != null)
+			// Si on va interdire les redraw
+			if (!pAllowRedraw)
 			{
-				// On est invalidé
-				_invalidated = true;
+				// Invalider la position
+				invalidatePosition();
 				
-				// Si on force
-				if (pForce)
-				{
-					_forceInvalidate = true;
-				}
+				// Interdire les redraw
+				_allowRedraw = false;
+			}
+			
+			// Appliquer le cacheAsBitmap
+			cacheAsBitmap = true;
+			
+			// Si on a une matrice
+			if (pMatrix != null)
+			{
+				// On l'appliquer
+				cacheAsBitmapMatrix = pMatrix;
+			}
+			
+			// Sinon si on a un scale
+			else if (pMatrixScale > 0)
+			{
+				// On applique ce scale
+				cacheAsBitmapMatrix = new Matrix(pMatrixScale, 0, 0, pMatrixScale);
+			}
+			
+			// Méthode chaînable
+			return this;
+		}
+		
+		/**
+		 * Ne plus passer ce composant en bitmap
+		 * @return this, méthode chaînable
+		 */
+		public function unflatten ():ResizableComponent
+		{
+			// Virer le cacheAsBitmap
+			cacheAsBitmap = false;
+			cacheAsBitmapMatrix = null;
+			
+			// Si les redraw étaient interdits
+			if (!_allowRedraw)
+			{
+				// Réautoriser les redraw
+				_allowRedraw = true;
 				
-				// Ecouter les rendus
-				addEventListener(Event.RENDER, renderHandler);
+				// Invalider la position
+				invalidatePosition();
+			}
+			
+			// Méthode chaînable
+			return this;
+		}
+		
+		/**
+		 * Si le composant est interactif
+		 * @return this, méthode chaînable
+		 */
+		public function interactive (pValue:Boolean):ResizableComponent
+		{
+			// Appliquer
+			mouseEnabled = pValue;
+			mouseChildren = pValue;
+			
+			// Méthode chaînable
+			return this;
+		}
+		
+		/**
+		 * Spécifier un style
+		 * @return this, méthode chaînable
+		 */
+		public function style (pStyleName:String):ResizableComponent
+		{
+			// Appliquer le style
+			styleName = pStyleName;
+			
+			// Chaînable
+			return this;
+		}
+		
+		
+		/******************************************
+						Invalidation
+		 ******************************************/
+		
+		/**
+		 * Invalider la position
+		 */
+		public function invalidatePosition ():void
+		{
+			// Si la position n'a pas déjà été invalidée
+			if (!_positionInvalidated)
+			{
+				// On invalide la position
+				_positionInvalidated = true;
 				
-				// Invalider le stage
-				stage.invalidate();
+				// Lancer la phase de préparation
+				launchPreparePhase();
 			}
 		}
 		
@@ -1117,41 +1266,71 @@ package fr.swapp.graphic.base
 				// On invalide le style
 				_styleInvalidated = true;
 				
-				// Et tout le reste
-				invalidate(pForce);
+				// Lancer la phase de préparation
+				launchPreparePhase();
 			}
 		}
 		
 		/**
-		 * Forcer un rendu
-		 * @param	pRenderStyle : Forcer aussi un rendu du style
+		 * Lancer la phase de préparation
 		 */
-		public function render (pRenderStyle:Boolean = false):void
+		protected function launchPreparePhase ():void
 		{
-			Log.warning("Direct render on ResizableComponent.");
-			
-			// Tout invalider
-			_invalidated = true;
-			_forceInvalidate = true;
-			
-			// Si on doit aussi invalider le style
-			if (pRenderStyle)
-			{
-				_styleInvalidated = true;
-			}
-			
-			// Faire un rendu directement
-			renderHandler();
+			// Ecouter la sortie de frame
+			addEventListener(Event.EXIT_FRAME, exitHandler);
 		}
 		
 		/**
-		 * Rendu du stage
+		 * Lancer la phase de rendu
 		 */
-		protected function renderHandler (event:Event = null):void
+		protected function launchRenderPhase ():void
+		{
+			// Si on a un stage
+			if (stage != null)
+			{
+				// Ecouter l'entrée en phase de rendu
+				addEventListener(Event.RENDER, renderHandler);
+				
+				// Invalider le stage
+				stage.invalidate();
+			}
+		}
+		
+		/**
+		 * Sortie de frame détéctée
+		 */
+		protected function exitHandler (event:Event):void
+		{
+			// Ne plus écouter les rendus
+			removeEventListener(Event.EXIT_FRAME, exitHandler);
+			
+			//if (!_disposed)
+			//{
+				// Phase de préparation
+				preparePhase();
+			//}
+		}
+		
+		/**
+		 * Phase de rendu détéctée
+		 */
+		protected function renderHandler (event:Event):void
 		{
 			// Ne plus écouter les rendus
 			removeEventListener(Event.RENDER, renderHandler);
 			
+			//if (!_disposed)
+			//{
+				// Phase de rendu
+				renderPhase();
+			//}
+		}
+		
+		/**
+		 * Phase de préparation des données d'affichage
+		 */
+		protected function preparePhase ():void
+		{
 			// Si le style est invalide
 			if (_styleInvalidated)
 			{
@@ -1163,23 +1342,33 @@ package fr.swapp.graphic.base
 			}
 			
 			// Si la position est invalidée
-			if (_invalidated)
+			if (_positionInvalidated)
 			{
 				// Replacer
-				needReplace();
+				replace();
 				
 				// On est valide
-				_invalidated = false;
+				_positionInvalidated = false;
 			}
-			
-			// Redispatcher le render
-			_onRendered.dispatch();
 		}
 		
 		/**
-		 * Le composant a besoin d'être replacé
+		 * Phase de rendu de l'affichage
 		 */
-		protected function needReplace ():void
+		protected function renderPhase ():void
+		{
+			
+		}
+		
+		
+		/******************************************
+						 Placement
+		 ******************************************/
+		
+		/**
+		 * Replacer le composant
+		 */
+		protected function replace ():void
 		{
 			// Actualiser selon le flux
 			updateFlow();
@@ -1190,9 +1379,10 @@ package fr.swapp.graphic.base
 		 */
 		protected function updateFlow ():void
 		{
-			// Si on n'autorise pas les redraw et qu'on n'est pas en forcé
-			if (!_allowRedraw && !_forceInvalidate)
+			// Si on n'autorise pas les redraw
+			if (!_allowRedraw)
 			{
+				// On n'actualise pas
 				return;
 			}
 			
@@ -1315,105 +1505,25 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * Passer ce composant en bitmap
-		 * @param	pMatrixScale : Le scale de la matrix (NaN pour ignorer)
-		 * @param	pMatrix : La matrice pour le cacheAsBitmap (si différent de null, le scale sera ignoré)
-		 * @param	pAllowRedraw : Si on doit bloquer le rafraichissement des enfants pour éviter les redraw
-		 * @return this, méthode chaînable
+		 * Le composant est replacé
 		 */
-		public function flatten (pMatrixScale:Number = NaN, pMatrix:Matrix = null, pAllowRedraw:Boolean = true):ResizableComponent
+		protected function replaced ():void
 		{
-			// Si on va interdire les redraw
-			if (!pAllowRedraw)
-			{
-				// Invalider et forcer
-				invalidate(true);
-				
-				// Interdire les redraw
-				_allowRedraw = false;
-			}
 			
-			// Appliquer le cacheAsBitmap
-			cacheAsBitmap = true;
-			
-			// Si on a une matrice
-			if (pMatrix != null)
-			{
-				// On l'appliquer
-				cacheAsBitmapMatrix = pMatrix;
-			}
-			
-			// Sinon si on a un scale
-			else if (pMatrixScale > 0)
-			{
-				// On applique ce scale
-				cacheAsBitmapMatrix = new Matrix(pMatrixScale, 0, 0, pMatrixScale);
-			}
-			
-			// Méthode chaînable
-			return this;
 		}
 		
 		/**
-		 * Ne plus passer ce composant en bitmap
-		 * @return this, méthode chaînable
+		 * Le composant est redimentionné
 		 */
-		public function unflatten ():ResizableComponent
+		protected function resized ():void
 		{
-			// Virer le cacheAsBitmap
-			cacheAsBitmap = false;
-			cacheAsBitmapMatrix = null;
 			
-			// Si les redraw étaient interdits
-			if (!_allowRedraw)
-			{
-				// Réautoriser les redraw
-				_allowRedraw = true;
-				
-				// Invalider
-				invalidate();
-			}
-			
-			// Méthode chaînable
-			return this;
 		}
 		
-		/**
-		 * Si le composant est interactif
-		 */
-		public function interactive (pValue:Boolean):ResizableComponent
-		{
-			// Appliquer
-			mouseEnabled = pValue;
-			mouseChildren = pValue;
-			
-			// Méthode chaînable
-			return this;
-		}
 		
-		/**
-		 * Supprimer le fond
-		 */
-		public function removeBackgroundImage ():void
-		{
-			if (_backgroundImage != null)
-			{
-				_backgroundImage.into(null);
-				_backgroundImage = null;
-			}
-		}
-		
-		/**
-		 * Spécifier un style
-		 */
-		public function style (pStyleName:String):ResizableComponent
-		{
-			// Appliquer le style
-			styleName = pStyleName;
-			
-			// Chaînable
-			return this;
-		}
+		/******************************************
+						    Style
+		 ******************************************/
 		
 		/**
 		 * Actualiser le style
@@ -1438,85 +1548,17 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * Destruction du composant
+		 * Le composant a reçu un nouveau style
 		 */
-		override protected function removedHandler (event:Event):void
-		{
-			// Si on a déjà été disposé
-			if (_disposed)
-			{
-				// C'est un problème
-				Log.error("Multiple dispose detected in ResizableComponent");
-			}
-			else
-			{
-				// On est disposé
-				_disposed = true;
-				
-				// Supprimer tous les listeners
-				_onResized.removeAll();
-				_onReplaced.removeAll();
-				_onStyleChanged.removeAll();
-				_onRendered.removeAll();
-				_onVisibilityChanged.removeAll();
-				
-				// Supprimer les signaux
-				_onResized = null;
-				_onReplaced = null;
-				_onStyleChanged = null
-				_onRendered = null;
-				_onVisibilityChanged = null;
-				
-				// Ne plus écouter les rendus
-				removeEventListener(Event.RENDER, renderHandler);
-				
-				if (_watchedParent != null && _watchedParent.onResized == null)
-				{
-					trace("		STRANGE PARENT", this, parent, parent.stage, wrapper.phase);
-					
-					_watchedParent = null;
-					return;
-				}
-				
-				// On n'écoute plus le parent
-				if (_watchedParent != null)
-				{
-					_watchedParent.onResized.remove(parentResizedHandler);
-					_watchedParent.onReplaced.remove(parentReplacedHandler);
-					_watchedParent.onStyleChanged.remove(parentStyleChangedHandler);
-					_watchedParent.onVisibilityChanged.remove(parentVisibilityChangedHandler);
-				}
-				
-				_watchedParent = null;
-				
-				// Relayer
-				super.removedHandler(event);
-			}
-		}
-		
-		/**
-		 * Le composant est replacé
-		 */
-		protected function replaced ():void
+		protected function styleInjected ():void
 		{
 			
 		}
 		
-		/**
-		 * Le composant est redimentionné
-		 */
-		protected function resized ():void
-		{
-			
-		}
 		
-		/**
-		 * Le composant à changé de visibilité
-		 */
-		protected function visibilityChanged ():void
-		{
-			
-		}
+		/******************************************
+						Visibilité
+		 ******************************************/
 		
 		/**
 		 * Savoir si cet élément est visible.
@@ -1543,9 +1585,9 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * Le composant a reçu un nouveau style
+		 * Le composant à changé de visibilité
 		 */
-		protected function styleInjected ():void
+		protected function visibilityChanged ():void
 		{
 			
 		}

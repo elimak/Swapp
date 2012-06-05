@@ -10,23 +10,23 @@ package fr.swapptesting.virtuallist
 	import fr.swapp.core.log.TraceLogger;
 	import fr.swapp.graphic.base.ResizableComponent;
 	import fr.swapp.graphic.base.StageWrapper;
-	import fr.swapp.graphic.components.lists.AVirtualList;
-	import fr.swapp.graphic.components.lists.FreeVirtualList;
-	import fr.swapp.graphic.components.lists.IVirtualListDelegate;
+	//import fr.swapp.graphic.components.lists.AVirtualList;
+	//import fr.swapp.graphic.components.lists.FreeVirtualList;
+	//import fr.swapp.graphic.components.lists.IVirtualListDelegate;
 	import fr.swapp.graphic.components.misc.BorderComponent;
-	import fr.swapp.graphic.components.lists.StepVirtualList;
+	//import fr.swapp.graphic.components.lists.StepVirtualList;
 	import fr.swapp.touch.emulator.MouseToTouchEmulator;
 	
 	/**
 	 * ...
 	 * @author ZoulouX
 	 */
-	public class VirtualListTest extends Document implements IVirtualListDelegate
+	public class VirtualListTest extends Document// implements IVirtualListDelegate
 	{
 		protected var _wrapper:StageWrapper;
 		protected var _container:ResizableComponent;
-		protected var _freeList:FreeVirtualList;
-		protected var _stepList:StepVirtualList;
+		//protected var _freeList:FreeVirtualList;
+		//protected var _stepList:StepVirtualList;
 		
 		public function VirtualListTest()
 		{
@@ -88,7 +88,7 @@ package fr.swapptesting.virtuallist
 				element.into(null);
 			});
 		}
-		
+		/*
 		public function getVListFirstElementIndex(pTarget:AVirtualList):int
 		{
 			return 0;
@@ -139,6 +139,6 @@ package fr.swapptesting.virtuallist
 				//return 200;
 				return 0;
 			}
-		}
+		}*/
 	}
 }
