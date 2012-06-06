@@ -5,6 +5,7 @@ package fr.swapptesting.virtuallist
 	import flash.events.MouseEvent;
 	import flash.ui.Multitouch;
 	import flash.ui.MultitouchInputMode;
+	import flash.utils.setTimeout;
 	import fr.swapp.core.entries.Document;
 	import fr.swapp.core.log.Log;
 	import fr.swapp.core.log.TraceLogger;
@@ -30,12 +31,18 @@ package fr.swapptesting.virtuallist
 		
 		public function VirtualListTest()
 		{
-			addEventListener(Event.ENTER_FRAME, enterFrameHandler);
+			
 		}
 		
 		override public function init():void
 		{
 			// DEBUG : Passer le listMovedHandler en phase de rendu
+			
+			setTimeout(start, 1);
+		}
+		
+		public function start ():void
+		{
 			
 			MouseToTouchEmulator.auto(stage);
 			
@@ -50,16 +57,16 @@ package fr.swapptesting.virtuallist
 			_freeList = new FreeVirtualList(this, AVirtualList.VERTICAL_ORIENTATION);
 			_freeList.clipContent = true;
 			_freeList.dragAllowOppositeDirection = true;
-			//_freeList.place(150, 0, 0, 0).into(_container);
-			_freeList.place(0, 0, 0, 0).into(_container);
+			_freeList.place(150, 0, 0, 0).into(_container);
+			//_freeList.place(0, 0, 0, 0).into(_container);
 			
-			//_stepList = new StepVirtualList(this, AVirtualList.HORIZONTAL_ORIENTATION);
-			//_stepList.clipContent = true;
+			_stepList = new StepVirtualList(this, AVirtualList.HORIZONTAL_ORIENTATION);
+			_stepList.clipContent = true;
 			//_stepList.place(0, 0, NaN, 0).size(NaN, 150).into(_container);
-			//_stepList.container.place(0, 10, 0, 10);
+			_stepList.container.place(0, 10, 0, 10);
 			//_stepList.elementsOverLoad = 2;
 			
-			(new BorderComponent(0xFF0000, 2)).place(0, 0, 0, 0).into(_wrapper);
+			//(new BorderComponent(0xFF0000, 2)).place(0, 0, 0, 0).into(_wrapper);
 			(new BorderComponent(0x000000, 1)).place(0, 0, 0, 0).into(_container);
 			//(new BorderComponent(0x00FF00, 1)).place(0, 0, 0, 0).into(_freeList);
 			//(new BorderComponent(0x0000FF, 1)).place(0, 0, 0, 0).into(_stepList);
@@ -76,13 +83,6 @@ package fr.swapptesting.virtuallist
 			//firstRender();
 			
 			//stage.addEventListener(MouseEvent.CLICK, firstRender);
-		}
-		
-		protected var _frame:int;
-		
-		protected function enterFrameHandler (event:Event):void 
-		{
-			//trace("---- " + (_frame ++));
 		}
 		
 		protected function firstRender (event:Event = null):void

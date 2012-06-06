@@ -94,15 +94,6 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * Ce composant est redimensionné
-		 */
-		override protected function resized ():void
-		{
-			// Forcer le rendu du container
-			//_container.render();
-		}
-		
-		/**
 		 * Le container est redimensionné
 		 */
 		protected function containerResized ():void

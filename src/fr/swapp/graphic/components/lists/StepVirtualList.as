@@ -57,6 +57,7 @@ package fr.swapp.graphic.components.lists
 		public function get animationDuration ():Number { return _animationDuration; }
 		public function set animationDuration (value:Number):void
 		{
+			// Enregistrer
 			_animationDuration = value;
 		}
 		
@@ -66,6 +67,7 @@ package fr.swapp.graphic.components.lists
 		public function get animationEase ():Function { return _animationEase; }
 		public function set animationEase (value:Function):void
 		{
+			// Enregistrer
 			_animationEase = value;
 		}
 		
@@ -75,6 +77,7 @@ package fr.swapp.graphic.components.lists
 		public function get velocityAnimationBreak ():Number { return _velocityAnimationBreak; }
 		public function set velocityAnimationBreak (value:Number):void
 		{
+			// Enregistrer
 			_velocityAnimationBreak = value;
 		}
 		
@@ -84,6 +87,7 @@ package fr.swapp.graphic.components.lists
 		public function get velocityStepLimit ():int { return _velocityStepLimit; }
 		public function set velocityStepLimit (value:int):void
 		{
+			// Enregistrer
 			_velocityStepLimit = value;
 		}
 		
@@ -93,10 +97,13 @@ package fr.swapp.graphic.components.lists
 		public function get selectedIndex ():int { return _selectedIndex; }
 		public function set selectedIndex (value:int):void
 		{
+			// Enregistrer
 			_selectedIndex = value;
 			
+			// Annuler la vélocité
 			_velocity = 0;
 			
+			// Replacer directement la liste
 			replaceList(true);
 		}
 		
@@ -104,10 +111,6 @@ package fr.swapp.graphic.components.lists
 		 * Lorsque l'index change
 		 */
 		public function get onIndexChange ():Signal { return _onIndexChange; }
-		public function set onIndexChange (value:Signal):void
-		{
-			_onIndexChange = value;
-		}
 		
 		
 		/**

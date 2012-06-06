@@ -14,16 +14,6 @@ package fr.swapp.graphic.components.lists
 	public class FreeVirtualList extends AVirtualList
 	{
 		/**
-		 * L'index en début de liste
-		 */
-		protected var _firstIndex					:int;
-		
-		/**
-		 * L'index en find de liste
-		 */
-		protected var _lastIndex					:int;
-		
-		/**
 		 * L'inertie (1 infinie, 0 aucune)
 		 */
 		protected var _inertia						:Number						= .93;
@@ -32,17 +22,6 @@ package fr.swapp.graphic.components.lists
 		 * Le frein
 		 */
 		protected var _breakForce					:Number						= .15;
-		
-		
-		/**
-		 * L'index de début de liste
-		 */
-		public function get firstIndex ():uint { return _firstIndex; }
-		
-		/**
-		 * L'index de fin de liste
-		 */
-		public function get lastIndex ():uint { return _lastIndex; }
 		
 		
 		/**
@@ -74,7 +53,7 @@ package fr.swapp.graphic.components.lists
 		 */
 		protected function enterFrameHandler (event:Event):void
 		{
-			trace("-");
+			//trace("-");
 			
 			// Le déplacement n'est pas vérouillé par un drag
 			if (!_dragLocked)
@@ -244,13 +223,13 @@ package fr.swapp.graphic.components.lists
 		/**
 		 * Déstruction
 		 */
-		override public function dispose ():void
+		override protected function removedHandler (event:Event):void
 		{
 			// Désactiver les listeners
 			removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
 			
 			// Relayer
-			super.dispose();
+			super.removedHandler(event);
 		}
 	}
 }

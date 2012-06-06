@@ -690,6 +690,9 @@ package fr.swapp.graphic.base
 				// Enregistrer
 				_visible = value;
 				
+				// Appliquer
+				super.visible = value;
+				
 				// Invalider la position
 				invalidatePosition();
 				

@@ -39,7 +39,6 @@ package fr.swapp.graphic.components.lists
 				_contentSizeVar			: "width",
 				_contentTotalSizeVar	: "totalWidth",
 				_deltaTouchVar			: "pXDelta",
-				_scaleVar				: "scaleX",
 				_dragDirection			: "horizontal",
 				_placementVar1			: "top",
 				_placementVar2			: "bottom",
@@ -51,7 +50,6 @@ package fr.swapp.graphic.components.lists
 				_contentSizeVar			: "height",
 				_contentTotalSizeVar	: "totalHeight",
 				_deltaTouchVar			: "pYDelta",
-				_scaleVar				: "scaleY",
 				_dragDirection			: "vertical",
 				_placementVar1			: "left",
 				_placementVar2			: "right",
@@ -100,11 +98,6 @@ package fr.swapp.graphic.components.lists
 		 * La propriété de delta sur les dragEvents pour cette orientation
 		 */
 		protected var _deltaTouchVar				:String						= "";
-		
-		/**
-		 * La propriété pour le scale
-		 */
-		protected var _scaleVar						:String						= ""
 		
 		/**
 		 * La direction a vérifier sur les dragEvents
@@ -169,11 +162,6 @@ package fr.swapp.graphic.components.lists
 		protected var _mouseWheelEnabled			:Boolean;
 		
 		/**
-		 * Si on a besoin de vérifier les dépassements à la prochaine itération
-		 */
-		//protected var _needReplaceCheck				:Boolean;
-		
-		/**
 		 * La vélocité du mouvement de la liste
 		 */
 		protected var _velocity						:Number						= 0;
@@ -184,14 +172,14 @@ package fr.swapp.graphic.components.lists
 		protected var _velocityOutBreak				:Number						= 1.4;
 		
 		/**
-		 * Ne jamais masquer les éléments
-		 */
-		protected var _neverHide					:Boolean					= false;
-		
-		/**
 		 * Ne jamais supprimer les éléments
 		 */
 		protected var _neverRemove					:Boolean					= false;
+		
+		/**
+		 * Autoriser la suppression d'élément pendant le déplacement de la liste
+		 */
+		protected var _allowRemoveWhileDragging		:Boolean					= true;
 		
 		/**
 		 * Pool d'objets
@@ -204,14 +192,14 @@ package fr.swapp.graphic.components.lists
 		protected var _moved						:Boolean					= false;
 		
 		/**
-		 * Le premier dispatch par élément
-		 */
-		protected var _firstResizeByElement			:Dictionary					= new Dictionary(true);
-		
-		/**
 		 * Si la liste est invalidée
 		 */
-		protected var _listInvalidated				:Boolean;
+		protected var _listInvalidated				:Boolean					= true;
+		
+		/**
+		 * Si le placement des éléments est invalidé
+		 */
+		protected var _elementsPositionInvalidated	:Boolean;
 		
 		
 		/**
@@ -253,6 +241,7 @@ package fr.swapp.graphic.components.lists
 		public function get orientation ():String { return _orientation; }
 		public function set orientation (value:String):void 
 		{
+			// Si ce n'est pas la première fois qu'on définie une orientation
 			if (_orientation != "")
 				throw new GraphicalError("AVirtualList.orientation", "Can't change orientation.");
 			
@@ -326,23 +315,6 @@ package fr.swapp.graphic.components.lists
 		}
 		
 		/**
-		 * Ne jamais masquer les éléments
-		 */
-		public function get neverHide ():Boolean { return _neverHide; }
-		public function set neverHide (value:Boolean):void
-		{
-			// Si c'est différent
-			if (_neverHide != value)
-			{
-				// Enregistrer
-				_neverHide = value;
-				
-				// Invalider la liste
-				invalidateList();
-			}
-		}
-		
-		/**
 		 * Ne jamais supprimer les éléments
 		 */
 		public function get neverRemove ():Boolean { return _neverRemove; }
@@ -353,6 +325,23 @@ package fr.swapp.graphic.components.lists
 			{
 				// Enregistrer
 				_neverRemove = value;
+				
+				// Invalider la liste
+				invalidateList();
+			}
+		}
+		
+		/**
+		 * Autoriser la suppression d'élément pendant le déplacement de la liste
+		 */
+		public function get allowRemoveWhileDragging ():Boolean { return _allowRemoveWhileDragging; }
+		public function set allowRemoveWhileDragging (value:Boolean):void
+		{
+			// Si c'est différent
+			if (_allowRemoveWhileDragging != value)
+			{
+				// Enregistrer
+				_allowRemoveWhileDragging = value;
 				
 				// Invalider la liste
 				invalidateList();
@@ -375,6 +364,7 @@ package fr.swapp.graphic.components.lists
 				invalidateList();
 			}
 		}
+		
 		
 		
 		/**
@@ -448,6 +438,23 @@ package fr.swapp.graphic.components.lists
 		}
 		
 		/**
+		 * Invalider la position des éléments.
+		 * Tous les éléments seront replacés en phase de préparation.
+		 */
+		public function invalidateElementsPosition ():void
+		{
+			// Si le positionnement n'est pas déjà invalidé
+			if (!_elementsPositionInvalidated)
+			{
+				// On l'invalide
+				_elementsPositionInvalidated = true;
+				
+				// Invalider la liste aussi
+				invalidateList();
+			}
+		}
+		
+		/**
 		 * Rendu
 		 */
 		override protected function preparePhase ():void
@@ -459,10 +466,21 @@ package fr.swapp.graphic.components.lists
 			if (_listInvalidated)
 			{
 				// La liste est validée
+				// Cette variable doit être avant updateList car updateList peut s'invalider.
 				_listInvalidated = false;
 				
 				// Acutaliser la liste
 				updateList();
+			}
+			
+			// Si la position des éléments est invalidée
+			if (_elementsPositionInvalidated)
+			{
+				// Replacer les éléments
+				replaceElements();
+				
+				// Le placement est valide
+				_elementsPositionInvalidated = false;
 			}
 		}
 		
@@ -568,10 +586,24 @@ package fr.swapp.graphic.components.lists
 		 */
 		override protected function elementResized ():void
 		{
-			trace("ELEMENT RESIZED");
-			
-			//return;
-			
+			// Invalider le placement des éléments
+			invalidateElementsPosition();
+		}
+		
+		/**
+		 * Le contenu a été redimensionné
+		 */
+		override protected function containerResized ():void
+		{
+			// Invalider le placement des éléments
+			invalidateElementsPosition();
+		}
+		
+		/**
+		 * Replacer tous les éléments de la liste
+		 */
+		protected function replaceElements ():void
+		{
 			// Compter le nombre d'éléments
 			const total:int = _elements.length;
 			
@@ -588,16 +620,8 @@ package fr.swapp.graphic.components.lists
 					// Cibler notre élément
 					element = _elements[i];
 					
-					// Si c'est le premier placement de cet élément, on ne le prend pas en compte car on vient de le placer. (C'est le premier invalidate qui fait passer dans cette boucle)
-					// Sinon si on a une taille différente de celle que l'on connaissait, meaculpa.
-					if (element in _firstResizeByElement && _firstResizeByElement[element] == element[_contentTotalSizeVar])
-					{
-						//trace("NOT THIS ONE BITCH", element.index);
-						delete _firstResizeByElement[element];
-					}
-					
-					// Sinon placer selon la taille estimée
-					else if (i > 0)
+					// Placer selon la taille estimée
+					if (i > 0)
 					{
 						// Sinon on place par rapport à l'ancien élément
 						element[_positionVar] = lastElement[_positionVar] + lastElement[_contentTotalSizeVar];
@@ -610,18 +634,6 @@ package fr.swapp.graphic.components.lists
 			
 			// Replacer la liste
 			replaceList(true);
-			
-			// La liste a bougé
-			//updateList(false);
-		}
-		
-		/**
-		 * Un élément est supprimé de la liste
-		 */
-		override protected function elementRemoved (pElement:ResizableComponent):void
-		{
-			// Le supprimer du dictionnaire
-			delete _firstResizeByElement[pElement];
 		}
 		
 		/**
@@ -664,9 +676,6 @@ package fr.swapp.graphic.components.lists
 						}
 					}
 					
-					// Enregistrer la taille de l'élément
-					_firstResizeByElement[element] = element[_contentTotalSizeVar];
-					
 					// On l'ajoute
 					addElement(element, pToIndex);
 					
@@ -681,20 +690,6 @@ package fr.swapp.graphic.components.lists
 			{
 				return null;
 			}
-		}
-		
-		/**
-		 * Le contenu a été redimensionné
-		 */
-		override protected function containerResized ():void
-		{
-			trace("CONTAINER RESIZED", wrapper.phase);
-			
-			// Actualiser la liste
-			updateList();
-			
-			// Replacer
-			replaceList(true);
 		}
 		
 		/**
@@ -806,8 +801,8 @@ package fr.swapp.graphic.components.lists
 					// Vérifier si cet élément dépasse de la liste
 					if  (
 							// On supprime rien si on est en déplacement
-							//!_dragLocked
-							//&&
+							(!_dragLocked || _allowRemoveWhileDragging)
+							&&
 							// On ne supprime pas si on ne doit jamais supprimer
 							!_neverRemove
 							&&
@@ -1030,7 +1025,7 @@ package fr.swapp.graphic.components.lists
 							{
 								surelyDeleteElement(element);
 							}
-							else if (!_neverHide)
+							else
 							{
 								element.visible = false;
 							}
@@ -1082,7 +1077,6 @@ package fr.swapp.graphic.components.lists
 			removeEventListener(TouchEvent.TOUCH_TAP, tapAndClickHandler, true);
 			
 			// Supprimer les références
-			_firstResizeByElement = null;
 			_delegate = null;
 			
 			// Supprimer les signaux

@@ -596,7 +596,7 @@ package fr.swapp.graphic.components.bitmaps
 		 * @param	pBackgroundAlpha : La transparence du fond
 		 * @return this, méthode chaînable
 		 */
-		public function background (pBackgroundColor:int, pBackgroundAlpha:Number):AdvancedBitmap
+		public function background (pBackgroundColor:int, pBackgroundAlpha:Number = 1):AdvancedBitmap
 		{
 			// Enregistrer
 			_backgroundColor = pBackgroundColor;
