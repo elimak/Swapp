@@ -27,7 +27,7 @@ package fr.swapp.graphic.components.lists
 		/**
 		 * Le easing de l'animation
 		 */
-		protected var _animationEase						:Function				= Quad.easeOut
+		protected var _animationEase						:Function				= Quad.easeOut;
 		
 		/**
 		 * Le taux de modification de durée de l'animation par rapport à la vélocity (0 pour ne pas prendre en compte la vélocité)
@@ -156,7 +156,7 @@ package fr.swapp.graphic.components.lists
 		 */
 		override public function touchDragLock (pTarget:DisplayObject):void
 		{
-			// On stoppe la tween
+			// On stoppe la tween en cours
 			if (_currentScrollTween != null)
 			{
 				_currentScrollTween.kill();
@@ -219,7 +219,10 @@ package fr.swapp.graphic.components.lists
 				replaceList(false);
 				
 				// On applique cette vélocité au scroll
-				currentScroll += _velocity;
+				_container[_positionVar] += _velocity;
+				
+				// Actualiser
+				updateList();
 				
 				// Si la vélocité a changé
 				if (currentVelocity != _velocity)
@@ -231,6 +234,20 @@ package fr.swapp.graphic.components.lists
 			
 			// Autoriser les dispatch parent
 			return false;
+		}
+		
+		/**
+		 * Actualiser la liste
+		 */
+		override protected function updateList ():void
+		{
+			//trace("UDPATE LIST");
+			
+			// Construire les nouveaux éléments dont on a besoin pour remplir la liste
+			buildElements();
+			
+			// Signaler qu'on a bougé
+			_onListMoved.dispatch();
 		}
 		
 		/**
@@ -278,7 +295,7 @@ package fr.swapp.graphic.components.lists
 				}
 				
 				// Calculer le décallage par rapport à la moitié
-				var offset:Number = _container[_contentSizeVar] / 2 - _typicalElementSize / 2;
+				var offset:Number = this[_contentSizeVar] / 2 - _typicalElementSize / 2;
 				
 				// La destination
 				var destination:Number;
@@ -329,6 +346,7 @@ package fr.swapp.graphic.components.lists
 					// Si l'index est différent
 					if (_selectedIndex != newIndex)
 					{
+						trace(newIndex);
 						// Enregistrer le nouvel index
 						_selectedIndex = newIndex;
 						

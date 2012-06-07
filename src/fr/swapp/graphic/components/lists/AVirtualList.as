@@ -820,6 +820,7 @@ package fr.swapp.graphic.components.lists
 							(element.index != _lastElementIndex || element[_positionVar] >= endLimit)
 						)
 					{
+						trace("DELETE", element.index);
 						// Effacer l'élément en faisant attention au pooling
 						surelyDeleteElement(element);
 						
@@ -864,6 +865,7 @@ package fr.swapp.graphic.components.lists
 						// Si ce dernier est disponible
 						if (element != null)
 						{
+							trace("CREATE FIRST", element.index);
 							// Placer cet élément sous l'élément de l'index suivant
 							element[_positionVar] = relativeElement[_positionVar] - element[_contentTotalSizeVar];
 							
@@ -889,6 +891,7 @@ package fr.swapp.graphic.components.lists
 						// Si ce dernier est disponible
 						if (element != null)
 						{
+							trace("CREATE LAST", element.index);
 							// Placer cet élément sous l'élément de l'index suivant
 							element[_positionVar] = relativeElement[_positionVar] + relativeElement[_contentTotalSizeVar];
 							

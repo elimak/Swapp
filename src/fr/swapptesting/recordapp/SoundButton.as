@@ -6,10 +6,16 @@ package fr.swapptesting.recordapp
 	import com.greensock.TweenMax;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.events.TouchEvent;
+	import flash.filesystem.File;
+	import flash.filesystem.FileStream;
 	import flash.media.Microphone;
 	import flash.media.Sound;
+	import flash.media.SoundChannel;
+	import flash.net.FileReference;
 	import flash.net.SharedObject;
 	import flash.utils.ByteArray;
+	import fr.kikko.lab.ShineMP3Encoder;
 	import fr.swapp.graphic.base.ResizableComponent;
 	import fr.swapp.graphic.components.bitmaps.AdvancedBitmap;
 	import fr.swapp.graphic.components.text.Input;
@@ -62,11 +68,14 @@ package fr.swapptesting.recordapp
 		
 		protected var _recording					:Boolean;
 		
-		protected var _player						:WavSound;
+		//protected var _player						:WavSound;
 		
-		protected var _channel						:WavSoundChannel;
+		//protected var _channel						:WavSoundChannel;
+		protected var _channel						:SoundChannel;
 		protected var _playing						:Boolean;
 		protected var _audioSettings				:AudioSetting;
+		protected var _encoder:ShineMP3Encoder;
+		protected var _sound:Sound;
 		
 		
 		/**
@@ -119,7 +128,7 @@ package fr.swapptesting.recordapp
 			else if (_sharedObject.data[pIndex].data != null)
 			{
 				// Préparer le son avec les données qu'on a sauvegardé
-				prepareSound(_sharedObject.data[pIndex].data);
+				//prepareSound(_sharedObject.data[pIndex].data);
 			}
 		}
 		
@@ -162,12 +171,14 @@ package fr.swapptesting.recordapp
 			
 			// Le bouton de lecture
 			_playButton = new ResizableComponent();
+			_playButton.mouseChildren = false;
 			_playButton.style("playButton");
 			_playButton.size(_localWidth, _localHeight).into(this);
 			_playButton.backgroundImage.offset( -_localWidth / 2, -_localHeight / 2);
 			
 			// Le container de la partie d'enregistrement
 			_recordContainer = new ResizableComponent();
+			_recordContainer.mouseChildren = false;
 			_recordContainer.style("recordContainer");
 			_recordContainer.size(_localWidth, _localHeight).into(this);
 			_recordContainer.backgroundImage.offset( -_localWidth / 2, -_localHeight / 2);
@@ -184,8 +195,8 @@ package fr.swapptesting.recordapp
 			
 			
 			// TEMP
-			_playButton.addEventListener(MouseEvent.CLICK, clickHandler);
-			_recordContainer.addEventListener(MouseEvent.CLICK, clickHandler);
+			addEventListener(TouchEvent.TOUCH_BEGIN, touchDownHandler);
+			//_recordContainer.addEventListener(TouchEvent.TOUCH_BEGIN, touchDownHandler);
 			
 			
 			
@@ -205,7 +216,7 @@ package fr.swapptesting.recordapp
 			
 			if (_playing && _channel != null)
 			{
-				trace(_channel.leftPeak, _channel.rightPeak, _channel.position);
+				//trace(_channel.leftPeak, _channel.rightPeak, _channel.position);
 				
 				/*if (_channel.position == 0)
 				{
@@ -219,76 +230,78 @@ package fr.swapptesting.recordapp
 			_recordContainer.visible = (_recordContainer.rotationX > 90);
 		}
 		
-		protected function clickHandler (event:MouseEvent):void 
+		protected function touchDownHandler (event:TouchEvent):void 
 		{
-			if (event.currentTarget == _recordContainer)
+			if (event.target == _recordContainer)
 			{
 				_recording ? stopRecording() : startRecording();
 			}
-			else if (event.currentTarget == _playButton)
+			else if (event.target == _playButton)
 			{
-				/*TweenMax.fromTo(_playButton, .5, {
-					glowFilter: {
-						color: 0xFFFFFF,
-						alpha: 1,
-						blurX: 20,
-						blurY: 20
-					}
+				TweenMax.fromTo(_playButton, .4, {
+					alpha: .5
 				}, {
-					glowFilter: {
-						color: 0xFFFFFF,
-						alpha: 0,
-						blurX: 2,
-						blurY: 2,
-						remove: true
-					}
-				});*/
+					alpha: 1
+				});
 				
-				//startPlaying();
-				
-				//var sound:Sound = new Sound();
-				//sound.loadPCMFromByteArray
+				startPlaying();
 			}
 		}
 		
 		
+		protected function encodeRecord (pData:ByteArray):void
+		{
+			_recordContainer.alpha = 0.5;
+			
+			_encoder = new ShineMP3Encoder(pData);
+			_encoder.addEventListener(Event.COMPLETE, encodingCompleteHandler);
+			_encoder.start();
+		}
+		
 		protected function prepareSound (pData:ByteArray):void
 		{
-			_player = new WavSound(pData, _audioSettings);
 			
-			_sharedObject.data[index].data = pData;
+		}
+		
+		protected function encodingCompleteHandler (event:Event):void
+		{
+			trace("encodingCompleteHandler");
 			
-			//_sharedObject.flush();
+			_recordContainer.alpha = 0.75;
 			
-			//pData.position = 0;
-			//Sound.
-			//var sound:Sound = new Sound()
-			//sound.loadPCMFromByteArray(pData, pData.bytesAvailable / 8, "float", false, 22050);
-			//sound.play();
+			_encoder.mp3Data.position = 0;
+			
+			_sound = new Sound();
+			_sound.addEventListener(Event.COMPLETE, soundLoadCompleteHandler);
+			_sound.loadCompressedDataFromByteArray(_encoder.mp3Data, _encoder.mp3Data.length);
+		}
+		
+		protected function soundLoadCompleteHandler (event:Event):void
+		{
+			trace("soundLoadCompleteHandler");
+			
+			_recordContainer.alpha = 1;
 		}
 		
 		protected function startPlaying ():void
 		{
 			trace("startPlaying");
 			
-			if (_player != null)
+			if (_channel != null)
 			{
-				// Arrêter le son courrant
-				if (_playing && _channel != null)
-				{
-					_channel.stop();
-				}
-				
-				_playing = true;
-				
-				//_channel = _player.play(600);
-				_channel = _player.play();
+				_channel.stop();
+			}
+			
+			if (_sound != null)
+			{
+				_channel = _sound.play();
+				_channel.addEventListener(Event.SOUND_COMPLETE, soundPlayCompleteHandler);
 			}
 		}
 		
-		protected function channelEndHandler (event:Event):void
+		protected function soundPlayCompleteHandler (event:Event):void
 		{
-			trace("channelEndHandler");
+			trace("soundPlayCompleteHandler");
 			
 			_playing = false;
 			_channel = null;

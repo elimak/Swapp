@@ -54,15 +54,15 @@ package fr.swapptesting.virtuallist
 			
 			Log.addLogger(new TraceLogger());
 			
-			_freeList = new FreeVirtualList(this, AVirtualList.VERTICAL_ORIENTATION);
-			_freeList.clipContent = true;
-			_freeList.dragAllowOppositeDirection = true;
-			_freeList.place(150, 0, 0, 0).into(_container);
+			//_freeList = new FreeVirtualList(this, AVirtualList.VERTICAL_ORIENTATION);
+			//_freeList.clipContent = true;
+			//_freeList.dragAllowOppositeDirection = true;
+			//_freeList.place(150, 0, 0, 0).into(_container);
 			//_freeList.place(0, 0, 0, 0).into(_container);
 			
 			_stepList = new StepVirtualList(this, AVirtualList.HORIZONTAL_ORIENTATION);
 			_stepList.clipContent = true;
-			//_stepList.place(0, 0, NaN, 0).size(NaN, 150).into(_container);
+			_stepList.place(0, 0, NaN, 0).size(NaN, 150).into(_container);
 			_stepList.container.place(0, 10, 0, 10);
 			//_stepList.elementsOverLoad = 2;
 			
@@ -134,7 +134,7 @@ package fr.swapptesting.virtuallist
 			}
 			else if (pIndex >= getVListFirstElementIndex(pTarget) && pIndex <= getVListLastElementIndex(pTarget))
 			{
-				return new StepListElement();
+				return new StepListElement(pIndex);
 			}
 			
 			return null;

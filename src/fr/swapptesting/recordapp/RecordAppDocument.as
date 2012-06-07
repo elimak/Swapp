@@ -15,6 +15,7 @@ package fr.swapptesting.recordapp
 	import fr.swapp.graphic.base.ResizableComponent;
 	import fr.swapp.graphic.base.StageWrapper;
 	import fr.swapp.graphic.components.bitmaps.AdvancedBitmap;
+	import fr.swapp.touch.emulator.MouseToTouchEmulator;
 	import fr.swapp.utils.DisplayObjectUtils;
 	import org.as3wavsound.sazameki.core.AudioSetting;
 	import org.as3wavsound.WavSound;
@@ -49,7 +50,7 @@ package fr.swapptesting.recordapp
 			
 			_encoder = new WaveEncoder(1);
 			
-			_recorder = new MicRecorder(_encoder, mic, 50, 44, 0, 400000);
+			_recorder = new MicRecorder(_encoder, mic, 50, 44, 0, 100000);
 			
 			_audioSettings = new AudioSetting(1, 44100, 16);
 			
@@ -67,6 +68,8 @@ package fr.swapptesting.recordapp
 		
 		protected function setupWrapper ():void
 		{
+			MouseToTouchEmulator.auto(stage);
+			
 			// Créer le wrapper
 			_wrapper = new StageWrapper(stage);
 			

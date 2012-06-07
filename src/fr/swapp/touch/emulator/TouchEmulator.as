@@ -27,6 +27,12 @@ package fr.swapp.touch.emulator
 		public static const VERTICAL_DIRECTION				:String						= "vertical";
 		public static const UNKNOW_DIRECTION				:String						= "unknow";
 		
+		/**
+		 * La sensibilité des dragging sans vitesse.
+		 * C'est à dire le nombre de frame sans que le touch bouge qui vont passer avant qu'un touch sans vitesse ne soit dispatché.
+		 * 4 par défaut.
+		 */
+		public static var noVellocityDraggingThreshold		:uint						= 4;
 		
 		/**
 		 * La liste des émulateurs attachés au containers
@@ -160,6 +166,11 @@ package fr.swapp.touch.emulator
 		 * Le délais de détéction entre TAP et DOUBLE_TAP, en ms. Par défaut 0 pour ne pas décaller le dispatch des taps.
 		 */
 		protected var _doubleTapDelay						:int						= 0;
+		
+		/**
+		 * Le buffer de dragging sans vitesse
+		 */
+		protected var _draggingNoMoveBuffer					:int;
 		
 		
 		
@@ -352,10 +363,10 @@ package fr.swapp.touch.emulator
 				_rootStage.removeEventListener(TouchEvent.TOUCH_END, touchEndHandler);
 				
 				// Purger les deltas si on en a
-				//if (_deltas[event.touchPointID].x != 0 || _deltas[event.touchPointID].y != 0)
-				//{
-					//enterFrameHandler();
-				//}
+				if (_deltas[event.touchPointID].x != 0 || _deltas[event.touchPointID].y != 0)
+				{
+					dispatchDragging();
+				}
 				
 				// Dispatcher le dévérouillage du drag
 				dispatchDragUnlock();
@@ -438,13 +449,6 @@ package fr.swapp.touch.emulator
 			
 			// Enregistrer le nouvel event
 			_events[event.touchPointID] = event;
-			
-			// Si c'est le dernier point enregistré
-			//if (_pointsIds[_totalPoints - 1] == event.touchPointID)
-			//{
-				// On dispatche le dragging
-				//dispatchDragging();
-			//}
 		}
 		
 		/**
@@ -562,6 +566,29 @@ package fr.swapp.touch.emulator
 						_deltas[pointID].x = 0;
 						_deltas[pointID].y = 0;
 					}
+				}
+				
+				// Stopper le dispatch des dragging sans vélocité
+				if (
+						// Si on n'a pas de vitesse
+						// C'est peut être que le touch n'a pas été dispatché
+						xDelta == 0
+						&&
+						yDelta == 0
+						
+						// Alors on décalle le buffer d'une frame
+						// Et si notre buffer ne dépasse pas la limite
+						&&
+						(_draggingNoMoveBuffer ++ <= noVellocityDraggingThreshold)
+					)
+				{
+					// On ne dispatch pas
+					return;
+				}
+				else
+				{
+					// Sinon, plus de buffer
+					_draggingNoMoveBuffer = 0;
 				}
 				
 				// Dispatcher
