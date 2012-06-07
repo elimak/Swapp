@@ -1,6 +1,5 @@
 # Swapp
 ## Mobile AS3 Framework
-
 ---
 
 * [Project page](http://swapp.lahautesociete.com/)
