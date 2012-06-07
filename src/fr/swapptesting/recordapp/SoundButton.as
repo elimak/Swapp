@@ -7,6 +7,7 @@ package fr.swapptesting.recordapp
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.media.Microphone;
+	import flash.media.Sound;
 	import flash.net.SharedObject;
 	import flash.utils.ByteArray;
 	import fr.swapp.graphic.base.ResizableComponent;
@@ -14,6 +15,7 @@ package fr.swapptesting.recordapp
 	import fr.swapp.graphic.components.text.Input;
 	import fr.swapp.graphic.components.text.Label;
 	import fr.swapp.utils.DisplayObjectUtils;
+	import org.as3wavsound.sazameki.core.AudioSetting;
 	import org.as3wavsound.WavSound;
 	import org.as3wavsound.WavSoundChannel;
 	import org.bytearray.micrecorder.MicRecorder;
@@ -64,6 +66,7 @@ package fr.swapptesting.recordapp
 		
 		protected var _channel						:WavSoundChannel;
 		protected var _playing						:Boolean;
+		protected var _audioSettings				:AudioSetting;
 		
 		
 		/**
@@ -88,9 +91,10 @@ package fr.swapptesting.recordapp
 		 * Le constructeur
 		 * @param	pIndex : L'index du son
 		 * @param	pRecorder : L'enregistreur audio
+		 * @param	pAudioSettings : Les paramètres de lecture
 		 * @param	pSharedObject : L'objet partagé pour enregistrer les données
 		 */
-		public function SoundButton (pIndex:int, pRecorder:MicRecorder, pSharedObject:SharedObject)
+		public function SoundButton (pIndex:int, pRecorder:MicRecorder, pAudioSettings:AudioSetting, pSharedObject:SharedObject)
 		{
 			// Activer les styles
 			_styleEnabled = true;
@@ -98,20 +102,25 @@ package fr.swapptesting.recordapp
 			// Enregistrer l'index
 			_index = pIndex;
 			
-			// Enregistrer le recorder et le sharedObject
+			// Enregistrer le recorder,, les paramètres de lecture et le sharedObject
 			_recorder = pRecorder;
 			_sharedObject = pSharedObject;
+			_audioSettings = pAudioSettings
 			
-			/*
 			// Si ce bouton n'a pas de données
-			if (_sharedObject.data == null)
+			if (!(pIndex in _sharedObject.data))
 			{
 				// On créé l'entrée par défaut
 				_sharedObject.data[pIndex] = {
 					name: "Sound " + pIndex,
 					data: null
 				};
-			}*/
+			}
+			else if (_sharedObject.data[pIndex].data != null)
+			{
+				// Préparer le son avec les données qu'on a sauvegardé
+				prepareSound(_sharedObject.data[pIndex].data);
+			}
 		}
 		
 		/**
@@ -140,7 +149,7 @@ package fr.swapptesting.recordapp
 			// Le label
 			_nameLabel = new Input(false);
 			_nameLabel.style("name");
-			_nameLabel.text(_index .toString(10));
+			_nameLabel.text(_sharedObject.data[index].name);
 			_nameLabel.editable = false;
 			_nameLabel.place(-25, 4, NaN, 3).size(NaN, 20).offset( -_localWidth / 2, -_localHeight / 2);
 			_nameLabel.into(this);
@@ -191,12 +200,18 @@ package fr.swapptesting.recordapp
 		{
 			if (_recording)
 			{
-				_recordContainer.backgroundImage.backgroundColor = 0xFFFF + (0xFF * _recorder.microphone.activityLevel / 100 * 255) << 8;
+				_recordContainer.backgroundImage.backgroundColor = (_recorder.microphone.activityLevel / 100 * 0xFF) << 8 + 0xFFFF;
 			}
 			
 			if (_playing && _channel != null)
 			{
-				trace(_channel.position);
+				trace(_channel.leftPeak, _channel.rightPeak, _channel.position);
+				
+				/*if (_channel.position == 0)
+				{
+					_playing = false;
+					_channel = null;
+				}*/
 			}
 			
 			// La visibilité des zones selon le mode
@@ -212,7 +227,7 @@ package fr.swapptesting.recordapp
 			}
 			else if (event.currentTarget == _playButton)
 			{
-				TweenMax.fromTo(_playButton, .5, {
+				/*TweenMax.fromTo(_playButton, .5, {
 					glowFilter: {
 						color: 0xFFFFFF,
 						alpha: 1,
@@ -227,18 +242,30 @@ package fr.swapptesting.recordapp
 						blurY: 2,
 						remove: true
 					}
-				});
+				});*/
 				
-				startPlaying();
+				//startPlaying();
+				
+				//var sound:Sound = new Sound();
+				//sound.loadPCMFromByteArray
 			}
 		}
 		
 		
 		protected function prepareSound (pData:ByteArray):void
 		{
-			_player = new WavSound(pData);
+			_player = new WavSound(pData, _audioSettings);
+			
+			_sharedObject.data[index].data = pData;
+			
+			//_sharedObject.flush();
+			
+			//pData.position = 0;
+			//Sound.
+			//var sound:Sound = new Sound()
+			//sound.loadPCMFromByteArray(pData, pData.bytesAvailable / 8, "float", false, 22050);
+			//sound.play();
 		}
-		
 		
 		protected function startPlaying ():void
 		{
@@ -247,13 +274,14 @@ package fr.swapptesting.recordapp
 			if (_player != null)
 			{
 				// Arrêter le son courrant
-				if (_playing)
+				if (_playing && _channel != null)
 				{
-					stopPlaying();
+					_channel.stop();
 				}
 				
 				_playing = true;
 				
+				//_channel = _player.play(600);
 				_channel = _player.play();
 			}
 		}
@@ -290,14 +318,14 @@ package fr.swapptesting.recordapp
 			_recorder.record();
 			
 			// Notifier l'enregistrement par le bouton
-			TweenMax.to(_recordContainer, .5, {
+			/*TweenMax.to(_recordContainer, .5, {
 				glowFilter: {
 					color: 0xFF3333,
 					alpha: 1,
 					blurX: 20,
 					blurY: 20
 				}
-			});
+			});*/
 		}
 		
 		protected function stopRecording ():void
@@ -315,7 +343,7 @@ package fr.swapptesting.recordapp
 			_recordContainer.invalidateStyle();
 			
 			// Ne plus notifier l'enregistrement par le bouton
-			TweenMax.to(_recordContainer, .5, {
+			/*TweenMax.to(_recordContainer, .5, {
 				glowFilter: {
 					color: 0xFF3333,
 					alpha: 0,
@@ -323,7 +351,7 @@ package fr.swapptesting.recordapp
 					blurY: 0,
 					remove: true
 				}
-			});
+			});*/
 		}
 		
 		/**
@@ -345,6 +373,9 @@ package fr.swapptesting.recordapp
 				// Stopper le son
 				stopPlaying();
 			}
+			
+			// Enregistrer le nom
+			_sharedObject.data[index].name = _nameLabel.value;
 			
 			// Le label devient éditable en mode enregistrement
 			_nameLabel.editable = _recordMode;

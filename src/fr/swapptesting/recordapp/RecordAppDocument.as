@@ -7,6 +7,11 @@ package fr.swapptesting.recordapp
 	import flash.net.NetStream;
 	import flash.net.SharedObject;
 	import fr.swapp.core.entries.Document;
+	import fr.swapp.graphic.base.ResizableComponmport flash.media.Microphone;
+	import flash.net.NetConnection;
+	import flash.net.NetStream;
+	import flash.net.SharedOfr.swapp.utils.DisplayObjectUtilsnet.SharedObject;
+	import fr.swapp.core.entries.Document;
 	import fr.swapp.graphic.base.ResizableComponent;
 	import fr.swapp.graphic.base.StageWrapper;
 	import fr.swapp.graphic.components.bitmaps.AdvancedBitmap;
@@ -14,49 +19,32 @@ package fr.swapptesting.recordapp
 	import org.as3wavsound.sazameki.core.AudioSetting;
 	import org.as3wavsound.WavSound;
 	import org.as3wavsound.WavSoundChannel;
-	import org.bytearray.micrecorder.encoder.WaveEncoder;
-	import org.bytearray.micrecorder.MicRecorder;
-	
-	/**
-	 * @author ZoulouX
-	 */
-	public class RecordAppDocument extends Document
-	{
-		protected var _wrapper:StageWrapper;
-		protected var _encoder:WaveEncoder;
-		protected var _recording:Boolean;
-		protected var _recorder:MicRecorder;
-		protected var _player:WavSound;
-		protected var _channel:WavSoundChannel;
-		protected var _background:AdvancedBitmap;
+	import org.bytearray.micrecorder.encoer:MicRecorder;
 		protected var _soundButton:SoundButton;
 		protected var _sharedObject:SharedObject;
 		protected var _titleBar:ResizableComponent;
 		protected var _buttons:Vector.<SoundButton>;
 		protected var _changeModeButton:ResizableComponent;
-		
-		
-		public function RecordAppDocument ()
-		{
-			
-		}
-		
-		override public function init ():void
-		{
-			_encoder = new WaveEncoder(1);
-			
-			var mic:Microphone
+		protected var _audioSettings:AudioSettingrapper:StageWrapper;
+		protected var _encoder:WaveEncoder;
+		protected var _recording:Boolean;
+		protected var _recovar mic:Microphone;
 			
 			if (Microphone.names.length > 1)
 				mic = Microphone.getMicrophone(1);
 			else
 				mic = Microphone.getMicrophone();
 			
-			mic.rate = 22;
+			mic.rate = 44;
 			mic.setSilenceLevel(0, 0);
 			mic.setUseEchoSuppression(false);
 			
-			_recorder = new MicRecorder(_encoder, mic, 100, 22, 0, 4000);
+			_encoder = new WaveEncoder(1);
+			
+			_recorder = new MicRecorder(_encoder, mic, 50, 44, 0, 400000);
+			
+			_audioSettings = new AudioSetting(1, 44100, 16);
+			
 			_sharedObject = SharedObject.getLocal("records");
 			
 			setupUI();
@@ -108,7 +96,7 @@ package fr.swapptesting.recordapp
 				},
 				"SoundButton .recordContainer" : {
 					backgroundImage: {
-						background: [0x0000FF],
+						background: [0x222222],
 						allRadius: [5]
 					}
 				},
@@ -155,24 +143,24 @@ package fr.swapptesting.recordapp
 			var i:int;
 			var j:int;
 			
-			var horizontalMargin:int = - 100;
-			var verticalMargin:int = - 100;
+			var horizontalMargin	:int = - 100;
+			var verticalMargin		:int = - 100;
 			
-			var columnWidth:int = (stage.stageWidth - horizontalMargin) / (totalColumns + 1);
-			var columnHeight:int = (stage.stageHeight - verticalMargin - _titleBar.height) / (totalRows + 1);
+			var columnWidth			:int = (stage.stageWidth - horizontalMargin) / (totalColumns + 1);
+			var columnHeight		:int = (stage.stageHeight - verticalMargin - _titleBar.height) / (totalRows + 1);
 			
-			// Colonnes
-			for (i = 0; i < totalColumns; i++) 
+			// Lignes
+			for (i = 0; i < totalRows; i++) 
 			{
-				// Lignes
-				for (j = 0; j < totalRows; j++) 
+				// Colonnes
+				for (j = 0; j < totalColumns; j++) 
 				{
 					// Créer le bouton
-					button = new SoundButton(index ++, _recorder, _sharedObject);
+					button = new SoundButton(index ++, _recorder, _audioSettings, _sharedObject);
 					
 					// Le placer
-					button.horizontalOffset = columnWidth * (i + 1) + horizontalMargin / 2;
-					button.verticalOffset = columnHeight * (j + 1) + _titleBar.height + verticalMargin / 2;
+					button.horizontalOffset = columnWidth * (j + 1) + horizontalMargin / 2;
+					button.verticalOffset = columnHeight * (i + 1) + _titleBar.height + verticalMargin / 2;
 					
 					// Ajouter à la scène
 					button.into(_wrapper);
@@ -191,6 +179,9 @@ package fr.swapptesting.recordapp
 		 */
 		protected function changeModeClickHandler (event:MouseEvent):void 
 		{
+			// Flusher les données
+			_sharedObject.flush();
+			
 			var buttonMode:SoundButton;
 			var i:int = _buttons.length;
 			
