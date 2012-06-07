@@ -7,10 +7,10 @@ package fr.swapptesting.recordapp
 	import flash.net.NetStream;
 	import flash.net.SharedObject;
 	import fr.swapp.core.entries.Document;
-	import fr.swapp.graphic.base.ResizableComponmport flash.media.Microphone;
+	import fr.swapp.graphic.base.ResizableComponent
+	import flash.media.Microphone;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
-	import flash.net.SharedOfr.swapp.utils.DisplayObjectUtilsnet.SharedObject;
 	import fr.swapp.core.entries.Document;
 	import fr.swapp.graphic.base.ResizableComponent;
 	import fr.swapp.graphic.base.StageWrapper;
@@ -19,16 +19,24 @@ package fr.swapptesting.recordapp
 	import org.as3wavsound.sazameki.core.AudioSetting;
 	import org.as3wavsound.WavSound;
 	import org.as3wavsound.WavSoundChannel;
-	import org.bytearray.micrecorder.encoer:MicRecorder;
+	import org.bytearray.micrecorder.encoder.WaveEncoder;
+	import org.bytearray.micrecorder.MicRecorder;
+	
+	public class RecordAppDocument extends Document
+	{
 		protected var _soundButton:SoundButton;
 		protected var _sharedObject:SharedObject;
 		protected var _titleBar:ResizableComponent;
 		protected var _buttons:Vector.<SoundButton>;
 		protected var _changeModeButton:ResizableComponent;
-		protected var _audioSettings:AudioSettingrapper:StageWrapper;
+		protected var _audioSettings:AudioSetting
+		protected var _wrapper:StageWrapper;
 		protected var _encoder:WaveEncoder;
-		protected var _recording:Boolean;
-		protected var _recovar mic:Microphone;
+		protected var _recorder:MicRecorder;
+		
+		public function RecordAppDocument ()
+		{
+			var mic:Microphone;
 			
 			if (Microphone.names.length > 1)
 				mic = Microphone.getMicrophone(1);
