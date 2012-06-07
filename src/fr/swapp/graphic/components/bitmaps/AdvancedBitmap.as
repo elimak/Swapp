@@ -840,16 +840,6 @@ package fr.swapp.graphic.components.bitmaps
 									_bottomLeftRadius != 0
 								)
 							{
-								// Sans bords arrondis
-								graphics.drawRect(
-									0,
-									0,
-									_localWidth,
-									_localHeight
-								);
-							}
-							else
-							{
 								// Avec bords arrondis
 								graphics.drawRoundRectComplex(
 									0,
@@ -858,6 +848,16 @@ package fr.swapp.graphic.components.bitmaps
 									_localHeight,
 									_topLeftRadius, _topRightRadius,
 									_bottomLeftRadius, _bottomRightRadius
+								);
+							}
+							else
+							{
+								// Sans bords arrondis
+								graphics.drawRect(
+									0,
+									0,
+									_localWidth,
+									_localHeight
 								);
 							}
 							
@@ -890,16 +890,6 @@ package fr.swapp.graphic.components.bitmaps
 							_bottomLeftRadius != 0
 						)
 					{
-						// Sans bords arrondis
-						graphics.drawRect(
-							_xDrawDecay,
-							_yDrawDecay,
-							_localWidth - _xDrawDecay * 2,
-							_localHeight - _yDrawDecay * 2
-						);
-					}
-					else
-					{
 						// Avec bords arrondis
 						graphics.drawRoundRectComplex(
 							_xDrawDecay,
@@ -908,6 +898,16 @@ package fr.swapp.graphic.components.bitmaps
 							_localHeight - _yDrawDecay * 2,
 							_topLeftRadius, _topRightRadius,
 							_bottomLeftRadius, _bottomRightRadius
+						);
+					}
+					else
+					{
+						// Sans bords arrondis
+						graphics.drawRect(
+							_xDrawDecay,
+							_yDrawDecay,
+							_localWidth - _xDrawDecay * 2,
+							_localHeight - _yDrawDecay * 2
 						);
 					}
 					

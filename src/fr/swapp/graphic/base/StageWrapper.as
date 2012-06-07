@@ -190,6 +190,9 @@ package fr.swapp.graphic.base
 			// Ecouter lorsque le style change
 			_styleCentral.onStyleChanged.add(invalidateStyle);
 			
+			// Activer les styles sur ce container
+			_styleEnabled = true;
+			
 			// Initialiser le redimensionnement automatique au DPI
 			initDPIWrapper();
 			

@@ -124,6 +124,16 @@ package fr.swapp.graphic.components.text
 				Log.warning("Input is always selectable");
 		}
 		
+		/**
+		 * Si le texte est éditable
+		 */
+		public function get editable ():Boolean { return _textField.type == TextFieldType.INPUT; }
+		public function set editable (value:Boolean):void 
+		{
+			_textField.type = (value ? TextFieldType.INPUT : TextFieldType.DYNAMIC);
+			_textField.selectable = value;
+		}
+		
 		
 		/**
 		 * Le constructeur
@@ -307,7 +317,7 @@ package fr.swapp.graphic.components.text
 		/**
 		 * Besoin d'être replacé
 		 */
-		override protected function needReplace ():void
+		override protected function replace ():void
 		{
 			// Retour au flux
 			updateFlow();

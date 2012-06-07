@@ -5,6 +5,8 @@
 	import flash.display.FrameLabel;
 	import flash.display.MovieClip;
 	import flash.geom.Matrix;
+	import flash.geom.PerspectiveProjection;
+	import flash.geom.Point;
 	
 	/**
 	 * Classe utilitaire de gestion des DisplayObjects.
@@ -213,6 +215,26 @@
 			// Réappliquer la position
 			pDisplayObject.x = x;
 			pDisplayObject.y = y;
+		}
+		
+		/**
+		 * Définir rapidement une projection 3D sur un objet.
+		 * @param	pTarget : L'objet en question
+		 * @param	pX : La position X du point de fuite
+		 * @param	pY : La position Y du point de fuite
+		 * @param	pFieldOfView : L'angle de vision (entre 0 et 180 non compris)
+		 */
+		public static function quickProjection (pTarget:DisplayObject, pX:Number = 0, pY:Number = 0, pFieldOfView:Number = 70):void
+		{
+			// Créer l'objet de configuration de la projection
+			var perspectiveProjection:PerspectiveProjection = new PerspectiveProjection();
+			
+			// Définir le point de fuite et l'angle de vision
+			perspectiveProjection.projectionCenter = new Point(pX, pY);
+			perspectiveProjection.fieldOfView = pFieldOfView;
+			
+			// Appliquer cette configuration sur l'objet
+			pTarget.transform.perspectiveProjection = perspectiveProjection;
 		}
 	}
 }

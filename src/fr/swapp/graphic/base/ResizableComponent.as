@@ -822,21 +822,12 @@ package fr.swapp.graphic.base
 				_watchedParent.onVisibilityChanged.add(parentVisibilityChangedHandler);
 			}
 			
-			// Invalider le rendu
-			//launchRenderPhase();
-			
-			// Invalider une première fois
-			//invalidatePosition();
-			//invalidateStyle();
-			//launchPreparePhase();
-			//preparePhase();
-			
-			// Relayer
-			super.addedHandler(event);
-			
 			// Préparer le rendu et rafraichir
 			preparePhase();
 			renderPhase();
+			
+			// Relayer
+			super.addedHandler(event);
 		}
 		
 		/**
@@ -1250,6 +1241,10 @@ package fr.swapp.graphic.base
 		{
 			// Appliquer le style
 			styleName = pStyleName;
+			
+			// Si les styles sont désactivés, on les active
+			if (!_styleEnabled)
+				_styleEnabled = true;
 			
 			// Chaînable
 			return this;

@@ -192,8 +192,6 @@ package fr.swapp.graphic.styles
 		 */
 		public function getSelectorsFromSignature (pSignature:Vector.<String>):Vector.<String>
 		{
-			trace("getSelectorsFromSignature", pSignature);
-			
 			// La liste des sélécteurs que l'on va retourner
 			var validSelectors:Vector.<String> = new Vector.<String>;
 			
@@ -374,7 +372,6 @@ package fr.swapp.graphic.styles
 					{
 						Log.warning("Property \"" + property + "\" not found when applying style \"" + (pTarget is IStylable ? pTarget.styleName : "unknow") + "\" in \"" + pTarget + "\"");
 					}
-					
 				}
 			}
 		}
