@@ -128,7 +128,7 @@ package fr.swapptesting.recordapp
 			else if (_sharedObject.data[pIndex].data != null)
 			{
 				// Préparer le son avec les données qu'on a sauvegardé
-				//prepareSound(_sharedObject.data[pIndex].data);
+				prepareSound(_sharedObject.data[pIndex].data);
 			}
 		}
 		
@@ -258,11 +258,6 @@ package fr.swapptesting.recordapp
 			_encoder.start();
 		}
 		
-		protected function prepareSound (pData:ByteArray):void
-		{
-			
-		}
-		
 		protected function encodingCompleteHandler (event:Event):void
 		{
 			trace("encodingCompleteHandler");
@@ -271,9 +266,17 @@ package fr.swapptesting.recordapp
 			
 			_encoder.mp3Data.position = 0;
 			
+			//
+			_sharedObject.data[_index].data = _encoder.mp3Data;
+			
+			prepareSound(_encoder.mp3Data);
+		}
+		
+		protected function prepareSound (pData:ByteArray):void
+		{
 			_sound = new Sound();
 			_sound.addEventListener(Event.COMPLETE, soundLoadCompleteHandler);
-			_sound.loadCompressedDataFromByteArray(_encoder.mp3Data, _encoder.mp3Data.length);
+			_sound.loadCompressedDataFromByteArray(pData, pData.length);
 		}
 		
 		protected function soundLoadCompleteHandler (event:Event):void
@@ -295,7 +298,11 @@ package fr.swapptesting.recordapp
 			if (_sound != null)
 			{
 				_channel = _sound.play();
-				_channel.addEventListener(Event.SOUND_COMPLETE, soundPlayCompleteHandler);
+				
+				if (_channel != null)
+				{
+					_channel.addEventListener(Event.SOUND_COMPLETE, soundPlayCompleteHandler);
+				}
 			}
 		}
 		
@@ -349,8 +356,8 @@ package fr.swapptesting.recordapp
 			// Arrêter l'enregistrement
 			_recorder.stop();
 			
-			// Créer le player avec le son enregistré
-			prepareSound(_recorder.output);
+			// Encoder le son
+			encodeRecord(_recorder.output);
 			
 			// Remettre le bouton dans son état visuel normal
 			_recordContainer.invalidateStyle();

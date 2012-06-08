@@ -54,7 +54,7 @@ package fr.swapptesting.recordapp
 			
 			_audioSettings = new AudioSetting(1, 44100, 16);
 			
-			_sharedObject = SharedObject.getLocal("records");
+			_sharedObject = SharedObject.getLocal("set-0");
 			
 			setupUI();
 		}
@@ -157,8 +157,8 @@ package fr.swapptesting.recordapp
 			var horizontalMargin	:int = - 100;
 			var verticalMargin		:int = - 100;
 			
-			var columnWidth			:int = (stage.stageWidth - horizontalMargin) / (totalColumns + 1);
-			var columnHeight		:int = (stage.stageHeight - verticalMargin - _titleBar.height) / (totalRows + 1);
+			var columnWidth			:int = (_wrapper.width - horizontalMargin) / (totalColumns + 1);
+			var columnHeight		:int = (_wrapper.height - verticalMargin - _titleBar.height) / (totalRows + 1);
 			
 			// Lignes
 			for (i = 0; i < totalRows; i++) 
@@ -182,7 +182,7 @@ package fr.swapptesting.recordapp
 			}
 			
 			// Centrer la perspective
-			DisplayObjectUtils.quickProjection(_wrapper, stage.stageWidth / 2, stage.stageHeight / 2, 40);
+			DisplayObjectUtils.quickProjection(_wrapper, _wrapper.width / 2, _wrapper.height / 2, 40);
 		}
 		
 		/**
