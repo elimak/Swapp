@@ -20,21 +20,6 @@ package fr.swapp.graphic.base
 	public class StageWrapper extends ResizableComponent 
 	{
 		/**
-		 * Associer les stages aux wrappers
-		 */
-		protected static const __stages							:Dictionary 				= new Dictionary();
-		
-		/**
-		 * Récupérer un wrapper par rapport à uns tage
-		 * @param	pForStage
-		 * @return
-		 */
-		public static function getInstance (pForStage:Stage):StageWrapper
-		{
-			return __stages[pForStage];
-		}
-		
-		/**
 		 * Si les composants seront redimensionnés automatiquement selon le DPI
 		 */
 		protected var _autoDPIOnMobileAndTablets				:Boolean;
@@ -53,16 +38,6 @@ package fr.swapp.graphic.base
 		 * Le DPI de base pour la conversion sur PC / MAC
 		 */
 		protected var _baseDPIForComputers						:uint;
-		
-		/**
-		 * Le signal pour remonter en haut
-		 */
-		protected var _onGotoTop								:Signal					= new Signal();
-		
-		/**
-		 * Le stage associé au wrapper
-		 */
-		protected var _stage									:Stage;
 		
 		/**
 		 * Le ratio appliqué après le DPI auto
@@ -91,11 +66,6 @@ package fr.swapp.graphic.base
 		
 		
 		/**
-		 * Le signal pour remonter en haut
-		 */
-		public function get onGotoTop ():Signal { return _onGotoTop; }
-		
-		/**
 		 * Le ratio appliqué après le DPI auto
 		 */
 		public function get ratio ():Number { return _ratio; }
@@ -121,68 +91,34 @@ package fr.swapp.graphic.base
 		
 		
 		/**
-		 * Le constructeur du wrapper de composants. Les redimensionnements / rotations du stage seront écoutées automatiquement.
-		 * @param	pStage : Le stage sur lequel seront mappés les composants. Pour supprimer cet élément il suffit de faire stage.removeChild(StageWrapper).
+		 * Le constructeur du wrapper de composants.
+		 * Les redimensionnements / rotations du stage seront écoutées automatiquement.
 		 * @param	pStageSizeForCenterAlign : Si ce point n'est pas null, le stage sera aligné par le centre. Les valeurs x et y du point doivent alors correspondrent à la taille du stage à la compilation (pour l'algo de centrage)
-		 * @param	pAt : L'étage de l'ajout (-1 pour ajouter en haut, par défaut)
-		 * @param	pAutoDPIOnMobileAndTablets : Si on doit convertir les dimensions des composants automatiquement sur les mobiles et les tablettes (pas de changement sur PC et MAC)
-		 * @param	pBaseDPIForPhones : Le DPI de base pour la conversion des dimensions sur mobile (163 par défaut, définition d'un iPhone 3GS)
-		 * @param	pBaseDPIForTablets : Le DPI de base pour la conversion des dimensions sur tablette (132, la définition d'un iPad 1/2)
-		 * @param	pBaseDPIForComputers : Le DPI de base pour la conversion des dimensions sur PC / MAC (72 par défaut)
 		 */
-		public function StageWrapper (pStage:Stage, pStageSizeForCenterAlign:Point = null, pAt:int = -1, pAutoDPIOnMobileAndTablets:Boolean = true, pBaseDPIForPhones:uint = EnvUtils.IPHONE_CLASSIC_DPI, pBaseDPIForTablets:uint = EnvUtils.IPAD_CLASSIC_DPI, pBaseDPIForComputers:uint = EnvUtils.COMPUTER_DPI)
+		public function StageWrapper (pStageSizeForCenterAlign:Point = null)
 		{
-			// Enregistrer le stage
-			_stage = pStage;
-			
-			// Enregistrer le wrapper dans le dico
-			__stages[stage] = this;
-			
-			// Si on a un point pour le centrage
-			_stageSizeForCenterAlign = pStageSizeForCenterAlign;
-			
-			// Si on a pas de stage par défaut
-			if (wrapper == null)
-			{
-				// On le défini
-				wrapper = this;
-			}
-			
-			// Alignement
-			if (_stageSizeForCenterAlign == null)
-			{
-				_stage.align = StageAlign.TOP_LEFT;
-			}
-			
-			// Ne jamais redimensionner l'UI
-			_stage.scaleMode = StageScaleMode.NO_SCALE;
-			
-			// Enregistrer les réglages du DPI
-			_autoDPIOnMobileAndTablets 	= pAutoDPIOnMobileAndTablets;
-			_baseDPIForPhones 			= pBaseDPIForPhones;
-			_baseDPIForTablets 			= pBaseDPIForTablets;
-			_baseDPIForComputers 		= pBaseDPIForComputers;
-			
-			// Ajouter
-			if (pAt == -1)
-				_stage.addChild(this);
-			else
-				_stage.addChildAt(this, pAt);
-			
-			// Ne plus écouter les redimentionnements
-			_stage.addEventListener(Event.RESIZE, stageResizedHandler);
-			
-			// Ecouter les changements de dimensions sur le clavier virtuel
-			_stage.addEventListener(SoftKeyboardEvent.SOFT_KEYBOARD_ACTIVATE, stageResizedHandler);
-			_stage.addEventListener(SoftKeyboardEvent.SOFT_KEYBOARD_ACTIVATING, stageResizedHandler);
-			_stage.addEventListener(SoftKeyboardEvent.SOFT_KEYBOARD_DEACTIVATE, stageResizedHandler);
-			
-			// Définir un nom pour le debug
+			// Essayer de définir un nom pour le debug
 			try
 			{
 				name = "StageWrapper";
 			}
 			catch (e:Error) { }
+			
+			// Si on a un point pour le centrage
+			_stageSizeForCenterAlign = pStageSizeForCenterAlign;
+			
+			// Initialiser le manager de styles
+			initStyleCentral();
+			
+			// Relayer
+			super();
+		}
+		
+		/**
+		 * Initialiser le manager de styles
+		 */
+		protected function initStyleCentral():void 
+		{
 			
 			// Créer le centre de gestion des styles
 			_styleCentral = new StyleCentral();
@@ -192,31 +128,87 @@ package fr.swapp.graphic.base
 			
 			// Activer les styles sur ce container
 			_styleEnabled = true;
+		}
+		
+		/**
+		 * Le composant est ajouté
+		 */
+		override protected function addedHandler (event:Event = null):void
+		{
+			// Ne jamais redimensionner l'UI
+			stage.scaleMode = StageScaleMode.NO_SCALE;
 			
-			// Initialiser le redimensionnement automatique au DPI
-			initDPIWrapper();
+			// Si on a pas de stage par défaut dans la classe ResizableComponent
+			if (ResizableComponent.wrapper == null)
+			{
+				// On le défini
+				ResizableComponent.wrapper = this;
+			}
+			
+			// Alignement
+			if (_stageSizeForCenterAlign == null)
+			{
+				stage.align = StageAlign.TOP_LEFT;
+			}
 			
 			// Replacer
 			stageResizedHandler();
 			
-			// Ecouter le rendu du stage
-			_stage.addEventListener(Event.ENTER_FRAME, stageRenderHandler);
-			_stage.addEventListener(Event.RENDER, stageRenderHandler);
+			// Ecouter les phases
+			stage.addEventListener(Event.ENTER_FRAME, phaseHandler);
+			stage.addEventListener(Event.RENDER, phaseHandler);
+			
+			// Ecouter les redimentionnements
+			stage.addEventListener(Event.RESIZE, stageResizedHandler);
+			
+			// Ecouter les changements de dimensions sur le clavier virtuel
+			//_stage.addEventListener(SoftKeyboardEvent.SOFT_KEYBOARD_ACTIVATE, stageResizedHandler);
+			//_stage.addEventListener(SoftKeyboardEvent.SOFT_KEYBOARD_ACTIVATING, stageResizedHandler);
+			//_stage.addEventListener(SoftKeyboardEvent.SOFT_KEYBOARD_DEACTIVATE, stageResizedHandler);
+			
+			// Relayer
+			super.addedHandler(event);
 		}
 		
 		/**
-		 * Rendu du stage
+		 * Phase en cours
 		 */
-		protected function stageRenderHandler (event:Event):void
+		protected function phaseHandler (event:Event):void
 		{
+			// On est en phase de rendu
 			if (event.type == Event.RENDER)
 			{
 				_phase = 1;
 			}
+			
+			// On est en phase de pré-rendu
 			else if (_phase != 0)
 			{
 				_phase = 0;
 			}
+		}
+		
+		
+		/**
+		 * Configurer le mode multi DPI automatique
+		 * @param	pAutoDPIOnMobileAndTablets : Si on doit convertir les dimensions des composants automatiquement sur les mobiles et les tablettes (pas de changement sur PC et MAC)
+		 * @param	pBaseDPIForPhones : Le DPI de base pour la conversion des dimensions sur mobile (163 par défaut, définition d'un iPhone 3GS)
+		 * @param	pBaseDPIForTablets : Le DPI de base pour la conversion des dimensions sur tablette (132, la définition d'un iPad 1/2)
+		 * @param	pBaseDPIForComputers : Le DPI de base pour la conversion des dimensions sur PC / MAC (72 par défaut)
+		 */
+		public function setAutoDPI (pAutoDPIOnMobileAndTablets:Boolean = true, pBaseDPIForPhones:uint = EnvUtils.IPHONE_CLASSIC_DPI, pBaseDPIForTablets:uint = EnvUtils.IPAD_CLASSIC_DPI, pBaseDPIForComputers:uint = EnvUtils.COMPUTER_DPI):StageWrapper
+		{
+			// Enregistrer les réglages du DPI
+			_autoDPIOnMobileAndTablets 	= pAutoDPIOnMobileAndTablets;
+			_baseDPIForPhones 			= pBaseDPIForPhones;
+			_baseDPIForTablets 			= pBaseDPIForTablets;
+			_baseDPIForComputers 		= pBaseDPIForComputers;
+			
+			// Initialiser le wrapper de DPI
+			initDPIWrapper();
+			
+			// Retourner this
+			return this;
 		}
 		
 		/**
@@ -264,7 +256,7 @@ package fr.swapp.graphic.base
 		protected function stageResizedHandler (event:Event = null):void 
 		{
 			// Le stage a été redimentionné
-			if (_stage.stageWidth > 0 && _stage.stageHeight > 0)
+			if (stage.stageWidth > 0 && stage.stageHeight > 0)
 			{
 				// Décallage du clavier
 				/*
@@ -302,15 +294,15 @@ package fr.swapp.graphic.base
 				{
 					// On récupère la taille et on applique la modification du scale
 					size(
-						int(_stage.stageWidth / scaleX + .5),
-						int(_stage.stageHeight / scaleY + .5)
+						int(stage.stageWidth / scaleX + .5),
+						int(stage.stageHeight / scaleY + .5)
 						//int((_stage.stageHeight - keyboardOffset) / scaleY + .5)
 					);
 				}
 				else
 				{
 					// On applique directement
-					size(_stage.stageWidth, _stage.stageHeight);
+					size(stage.stageWidth, stage.stageHeight);
 					//size(_stage.stageWidth, _stage.stageHeight - keyboardOffset);
 				}
 			}
@@ -319,34 +311,27 @@ package fr.swapp.graphic.base
 		/**
 		 * La destruction du composant
 		 */
-		override public function dispose ():void
+		override protected function removedHandler (event:Event):void 
 		{
 			// Ne plus écouter le redimensionnement du stage
-			_stage.removeEventListener(Event.RESIZE, stageResizedHandler);
+			stage.removeEventListener(Event.RESIZE, stageResizedHandler);
 			
-			// Ne plus écouter le rendu du stage
-			_stage.removeEventListener(Event.ENTER_FRAME, stageRenderHandler);
-			_stage.removeEventListener(Event.RENDER, stageRenderHandler);
+			// Ne plus écouter les phases
+			stage.removeEventListener(Event.ENTER_FRAME, phaseHandler);
+			stage.removeEventListener(Event.RENDER, phaseHandler);
 			
 			// Ne plus écouter le clavier virtuel
-			_stage.removeEventListener(SoftKeyboardEvent.SOFT_KEYBOARD_ACTIVATE, stageResizedHandler);
-			_stage.removeEventListener(SoftKeyboardEvent.SOFT_KEYBOARD_ACTIVATING, stageResizedHandler);
-			_stage.removeEventListener(SoftKeyboardEvent.SOFT_KEYBOARD_DEACTIVATE, stageResizedHandler);
+			//_stage.removeEventListener(SoftKeyboardEvent.SOFT_KEYBOARD_ACTIVATE, stageResizedHandler);
+			//_stage.removeEventListener(SoftKeyboardEvent.SOFT_KEYBOARD_ACTIVATING, stageResizedHandler);
+			//_stage.removeEventListener(SoftKeyboardEvent.SOFT_KEYBOARD_DEACTIVATE, stageResizedHandler);
 			
 			// Virer le styleCentral
 			_styleCentral.dispose();
 			_styleCentral.onStyleChanged.remove(invalidateStyle);
 			_styleCentral = null;
 			
-			// Virer la référence au stage
-			_stage = null;
-			
-			// Virer du dico
-			__stages[stage] = null;
-			delete __stages[stage];
-			
 			// Relayer la destruction
-			super.dispose();
+			super.removedHandler(event);
 		}
 	}
 }
