@@ -1,6 +1,5 @@
 # Swapp
-## Mobile AS3 Framework
----
+## MVC AS3 Framework and other Air stuff
 
 * [Project page](http://swapp.lahautesociete.com/)
 * [API Reference](http://swapp.lahautesociete.com/api/)
