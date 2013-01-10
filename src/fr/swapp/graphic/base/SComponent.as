@@ -1252,7 +1252,7 @@ package fr.swapp.graphic.base
 		{
 			if (_disposed)
 			{
-				trace("FUU");
+				trace("FUU disposed object is disposed");
 			}
 			
 			// Minimiser / maximiser les valeurs

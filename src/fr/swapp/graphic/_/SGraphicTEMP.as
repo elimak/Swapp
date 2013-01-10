@@ -1,9 +1,10 @@
 package fr.swapp.graphic.base
 {
 	import flash.geom.Matrix;
-	import flash.geom.Point;
+	import starling.display.Graphics;
 	import starling.display.Image;
-	import starling.display.Quad;
+	import starling.display.materials.IMaterial;
+	import starling.display.materials.TextureMaterial;
 	import starling.textures.Texture;
 	
 	/**
@@ -14,17 +15,12 @@ package fr.swapp.graphic.base
 		/**
 		 * If draw is out of date
 		 */
-		protected var _drawInvalidated					:Boolean 							= true;
+		protected var _drawInvalidated					:Boolean 			= true;
 		
 		/**
 		 * Texture to draw
 		 */
 		protected var _texture							:Texture;
-		
-		/**
-		 * Quad showing the background
-		 */
-		protected var _quad								:Quad;
 		
 		/**
 		 * Image showing the texture
@@ -47,9 +43,41 @@ package fr.swapp.graphic.base
 		protected var _backgroundAlpha					:Number								= 1;
 		
 		/**
-		 * Type of background gradient (look AGradientType
+		 * Border size in pixels
 		 */
-		protected var _backgroundGradientType			:String;
+		protected var _borderSize						:Number								= 0;
+		
+		/**
+		 * Border color
+		 */
+		protected var _borderColor						:uint								= 0x000000;
+		
+		/**
+		 * Border opacity
+		 */
+		protected var _borderAlpha						:Number								= 1;
+		
+		
+		/**
+		 * Top left border radius
+		 */
+		protected var _topLeftRadius					:int;
+		
+		/**
+		 * Top right border radius
+		 */
+		protected var _topRightRadius					:int;
+		
+		/**
+		 * Bottom right border radius
+		 */
+		protected var _bottomRightRadius				:int;
+		
+		/**
+		 * Bottom left border radius
+		 */
+		protected var _bottomLeftRadius					:int;
+		
 		
 		/**
 		 * Transformation matrix for texture
@@ -89,7 +117,7 @@ package fr.swapp.graphic.base
 		/**
 		 * Smooth the texture
 		 */
-		protected var _smoothing						:Boolean							= true;
+		protected var _smoothing						:Boolean						= true;
 		
 		
 		
@@ -102,36 +130,18 @@ package fr.swapp.graphic.base
 			// Si c'est différent
 			if (value != _texture)
 			{
-				// Si on n'a plus de texture
-				if (_texture != null && value == null)
-				{
-					// Supprimer l'image
-					removeChild(_image);
-					
-					// La disposer
-					_image.dispose();
-					_image = null;
-				}
-				
-				// Si on n'avait pas de texture et qu'on en a une
-				else if (_texture == null && value != null)
-				{
-					// On créé l'image
-					_image = new Image(value);
-					
-					// Et on l'ajoute
-					addChild(_image);
-				}
-				
-				// Sinon
-				else
-				{
-					// On réutilise l'image
-					_image.texture = value;
-				}
-				
 				// Enregistrer la texture
 				_texture = value;
+				
+				// Convertir en material
+				if (_texture == null)
+				{
+					_material = null;
+				}
+				else
+				{
+					_material = new TextureMaterial(_texture);
+				}
 				
 				// Actualiser les propriétés du bitmap
 				updateTextureProperties();
@@ -195,6 +205,126 @@ package fr.swapp.graphic.base
 			{
 				// Enregistrer
 				_backgroundAlpha = value;
+				
+				// Rendre le dessin invalide
+				invalidateDraw();
+			}
+		}
+		
+		/**
+		 * La taille du contour (0 pour pas de contour)
+		 */
+		public function get borderSize ():Number { return _borderSize; }
+		public function set borderSize (value:Number):void 
+		{
+			// Si c'est différent
+			if (_borderSize != value)
+			{
+				// Enregistrer
+				_borderSize = value;
+				
+				// Rendre le dessin invalide
+				invalidateDraw();
+			}
+		}
+		
+		/**
+		 * La couleur du contour (noir par défaut)
+		 */
+		public function get borderColor ():uint { return _borderColor; }
+		public function set borderColor (value:uint):void 
+		{
+			// Si c'est différent
+			if (_borderColor != value)
+			{
+				// Enregistrer
+				_borderColor = value;
+				
+				// Rendre le dessin invalide
+				invalidateDraw();
+			}
+		}
+		
+		/**
+		 * L'alpha du contour
+		 */
+		public function get borderAlpha ():Number { return _borderAlpha; }
+		public function set borderAlpha (value:Number):void 
+		{
+			// Si c'est différent
+			if (_borderAlpha != value)
+			{
+				// Enregistrer
+				_borderAlpha = value;
+				
+				// Rendre le dessin invalide
+				invalidateDraw();
+			}
+		}
+		
+		
+		/**
+		 * Arrondi d'en haut à gauche (0 pour dessiner un rectangle)
+		 */
+		public function get topLeftRadius ():int { return _topLeftRadius; }
+		public function set topLeftRadius (value:int):void 
+		{
+			// Si c'est différent
+			if (_topLeftRadius != value)
+			{
+				// Enregistrer
+				_topLeftRadius = value;
+				
+				// Rendre le dessin invalide
+				invalidateDraw();
+			}
+		}
+		
+		/**
+		 * Arrondi d'en haut à droite (0 pour dessiner un rectangle)
+		 */
+		public function get topRightRadius ():int { return _topRightRadius; }
+		public function set topRightRadius (value:int):void 
+		{
+			// Si c'est différent
+			if (_topRightRadius != value)
+			{
+				// Enregistrer
+				_topRightRadius = value;
+				
+				// Rendre le dessin invalide
+				invalidateDraw();
+			}
+		}
+		
+		/**
+		 * Arrondi d'en bas à droite (0 pour dessiner un rectangle)
+		 */
+		public function get bottomRightRadius ():int { return _bottomRightRadius; }
+		public function set bottomRightRadius (value:int):void 
+		{
+			// Si c'est différent
+			if (_bottomRightRadius != value)
+			{
+				// Enregistrer
+				_bottomRightRadius = value;
+				
+				// Rendre le dessin invalide
+				invalidateDraw();
+			}
+		}
+		
+		/**
+		 * Arrondi d'en bas à gauche (0 pour dessiner un rectangle)
+		 */
+		public function get bottomLeftRadius ():int { return _bottomLeftRadius; }
+		public function set bottomLeftRadius (value:int):void 
+		{
+			// Si c'est différent
+			if (_bottomLeftRadius != value)
+			{
+				// Enregistrer
+				_bottomLeftRadius = value;
 				
 				// Rendre le dessin invalide
 				invalidateDraw();
@@ -290,6 +420,11 @@ package fr.swapp.graphic.base
 			}
 		}
 		
+		/**
+		 * Graphics API
+		 */
+		public function get graphics ():Graphics { return _graphics; }
+		
 		
 		/**
 		 * Constructor.
@@ -302,8 +437,19 @@ package fr.swapp.graphic.base
 		 */
 		public function SGraphic (pTexture:Texture = null, pRenderMode:String = null, pDensity:Number = 1)
 		{
+			// Initialiser l'API graphique qui est vitale pour cette classe
+			initGraphics();
+			
 			// Enregistrer la texture
 			image(pTexture, pRenderMode, pDensity);
+		}
+		
+		/**
+		 * Init Graphics API
+		 */
+		protected function initGraphics ():void
+		{
+			_graphics = new Graphics(this);
 		}
 		
 		
@@ -321,14 +467,14 @@ package fr.swapp.graphic.base
 		 */
 		public function image (pTexture:Texture = null, pRenderMode:String = null, pDensity:Number = 1):void
 		{
-			// Enregistrer le mode de rendu
-			_renderMode = pRenderMode;
+			// Enregistrer la texture
+			texture = pTexture;
 			
 			// Enregistrer la densité
 			_density = pDensity;
 			
-			// Définir la texture par son setter pour tout invalider et définir le besoin d'une image ou non
-			texture = pTexture;
+			// Le mode de rendu en dernier pour invalider une première fois
+			renderMode = pRenderMode;
 		}
 		
 		/**
@@ -369,6 +515,70 @@ package fr.swapp.graphic.base
 			return this;
 		}
 		
+		/**
+		 * Set a border to this component.
+		 * @param	pBorderSize : Size of the border in px (0 to ignore)
+		 * @param	pBorderColor : Border color
+		 * @param	pBorderAlpha : Border opacity
+		 * @return this, méthode chaînable
+		 */
+		public function border (pBorderSize:Number, pBorderColor:uint = 0, pBorderAlpha:Number = 1):SGraphic
+		{
+			// Enregistrer
+			_borderSize = pBorderSize;
+			_borderColor = pBorderColor;
+			_borderAlpha = pBorderAlpha;
+			
+			// Rendre le dessin invalide
+			invalidateDraw();
+			
+			// Méthode chaînable
+			return this;
+		}
+		
+		/**
+		 * Individual border radius.
+		 * @param	pTopLeftRadius : Top left border radius (0 to draw square)
+		 * @param	pTopRightRadius : Top right border radius (0 to draw square)
+		 * @param	pBottomRightRadius : Bottom right border radius (0 to draw square)
+		 * @param	pBottomLeftRadius : Bottom left border radius (0 to draw square)
+		 * @return this
+		 */
+		public function radius (pTopLeftRadius:int, pTopRightRadius:int, pBottomRightRadius:int, pBottomLeftRadius:int):SGraphic
+		{
+			// Enregistrer
+			_topLeftRadius 		= pTopLeftRadius;
+			_topRightRadius 	= pTopRightRadius;
+			_bottomRightRadius 	= pBottomRightRadius;
+			_bottomLeftRadius 	= pBottomLeftRadius;
+			
+			// Rendre le dessin invalide
+			invalidateDraw();
+			
+			// Méthode chaînable
+			return this;
+		}
+		
+		/**
+		 * Set all border radius in one call.
+		 * @param	pRadius : Size of all border radius (0 to draw square)
+		 * @return this
+		 */
+		public function allRadius (pRadius:int):SGraphic
+		{
+			// Enregistrer
+			_topLeftRadius 		= pRadius;
+			_topRightRadius 	= pRadius;
+			_bottomRightRadius 	= pRadius;
+			_bottomLeftRadius 	= pRadius;
+			
+			// Rendre le dessin invalide
+			invalidateDraw();
+			
+			// Méthode chaînable
+			return this;
+		}
+		
 		
 		/******************************************
 						  Phases
@@ -396,8 +606,8 @@ package fr.swapp.graphic.base
 				_localHeight = _texture.height / _density;
 			}
 			
-			// Relayer pour actualiser le flux de positionnement
-			super.replace();
+			// Actualiser le flux de positionnement
+			updateFlow();
 			
 			// Actualiser le dessin
 			invalidateDraw();
@@ -434,115 +644,116 @@ package fr.swapp.graphic.base
 		 */
 		public function redraw ():void
 		{
+			// Virer l'ancienne image
+			graphics.clear();
+			
 			// Si on a des dimensions
 			if (_localWidth > 0 && _localHeight > 0)
 			{
-				// Si on a un fond
-				if (_quad != null)
+				// Si on a un contour
+				if (_borderSize > 0)
 				{
-					// Appliquer les dimensions du composant sur le quad
-					_quad.width = _localWidth;
-					_quad.height = _localHeight;
-					
-					//if (_backgroundGradient)
-					{
-						
-					}
-					//_quad.
+					// On dessine le contour
+					_graphics.lineStyle(_borderSize, _borderColor, _borderAlpha);
 				}
 				
-				// Si on a une image
-				if (_image != null)
+				// Si on a un bitmapData
+				if (_texture != null)
 				{
 					// Actualiser la matrice
 					updateMatrix();
 					
-					// Si on est en repeat / stretch / outside sans overflow
-					if (_renderMode == SRenderMode.REPEAT || _renderMode == SRenderMode.STRECH || (_renderMode == SRenderMode.OUTSIDE && !_allowOverflow))
+					// Si on a une couleur de fond
+					// Et si on est sur un mode de rendu ou le contenu peut être plus petit que la zone d'affichage
+					if (_backgroundColor != -1 && _renderMode != SRenderMode.REPEAT && _renderMode != SRenderMode.AUTO_SIZE && _renderMode != SRenderMode.STRECH)
 					{
-						// Appliquer les dimensions du composant sur l'image
-						_image.x = 0;
-						_image.y = 0;
-						_image.width = _localWidth;
-						_image.height = _localHeight;
+						// On commence le déssin
+						graphics.beginFill(_backgroundColor, _backgroundAlpha);
 						
-						// Le point qui va être utilisé pour positionner les 4 points UV de l'image
-						var point:Point = new Point();
-						
-						// L'itérateur du point
-						var i:uint;
-						
-						// Si on est en repeat
-						if (_renderMode == SRenderMode.REPEAT)
+						// Si on a des arrondis
+						if (
+								_topLeftRadius != 0
+								||
+								_topRightRadius != 0
+								||
+								_bottomRightRadius != 0
+								||
+								_bottomLeftRadius != 0
+							)
 						{
-							// Parcourir les 4 points de l'image
-							for (i = 0; i < 4; i ++)
-							{
-								// Placer le point selon la matrice
-								point.x = - _matrix.tx / _texture.width + ((i == 1 || i == 3) ? _matrix.a : 0);
-								point.y = - _matrix.ty / _texture.height + ((i == 2 || i == 3) ? _matrix.d : 0);
-								
-								// Appliquer cette position sur l'image
-								_image.setTexCoords(i, point);
-							}
+							// Avec bords arrondis
+							graphics.drawRoundRectComplex(
+								0,
+								0,
+								_localWidth,
+								_localHeight,
+								_topLeftRadius, _topRightRadius,
+								_bottomLeftRadius, _bottomRightRadius
+							);
+						}
+						else
+						{
+							// Sans bords arrondis
+							graphics.drawRect(
+								0,
+								0,
+								_localWidth,
+								_localHeight
+							);
 						}
 						
-						// Si on est en outside
-						else if (_renderMode == SRenderMode.OUTSIDE)
-						{
-							// TODO : Corriger le placement du mode outside
-							// TODO : Ajoute un mode de rendu qui permet de déplacement l'image dans le composant (ex : photo multitouch)
-							
-							// Parcourir les 4 points de l'image
-							for (i = 0; i < 4; i ++)
-							{
-								//
-								var a:Number = - _matrix.tx / _texture.width / 2;
-								var b:Number = _matrix.tx / _texture.width / 2 + 1;
-								var c:Number = - _matrix.ty / _texture.height / 2;
-								var d:Number = _matrix.ty / _texture.height / 2 + 1;
-								
-								if (i == 0)
-								{
-									point.x = a;
-									point.y = c;
-								}
-								else if (i == 1)
-								{
-									point.x = b;
-									point.y = c;
-								}
-								else if (i == 2)
-								{
-									point.x = a;
-									point.y = d;
-								}
-								else if (i == 3)
-								{
-									point.x = b;
-									point.y = d;
-								}
-								
-								// Placer le point selon la matrice
-								//point.x = - _matrix.tx + ((i == 1 || i == 3) ? _matrix.a : 0);
-								//point.y = - _matrix.ty + ((i == 2 || i == 3) ? _matrix.d : 0);
-								
-								// Appliquer cette position sur l'image
-								_image.setTexCoords(i, point);
-							}
-						}
+						// Arrêter le style de trait et le remplissage couleur
+						graphics.lineStyle(NaN);
+						graphics.endFill();
 					}
-					else
-					{
-						// Appliquer simplement la transformation calculée
-						_image.transformationMatrix = _matrix;
-					}
+					
+					// On dessiner le bitmap avec la nouvelle matrice
+					graphics.beginMaterialFill(_material, _matrix);
 				}
 				else
 				{
 					// Sinon on n'a pas de dépassement
 					_xDrawDecay = _yDrawDecay = 0;
+					
+					// Démarrer le dessin avec une couleur pleine
+					if (_backgroundColor != -1)
+						graphics.beginFill(_backgroundColor, _backgroundAlpha);
 				}
+				
+				// Si on a des arrondis
+				if (
+						_topLeftRadius != 0
+						||
+						_topRightRadius != 0
+						||
+						_bottomRightRadius != 0
+						||
+						_bottomLeftRadius != 0
+					)
+				{
+					// Avec bords arrondis
+					graphics.drawRoundRectComplex(
+						_xDrawDecay,
+						_yDrawDecay,
+						_localWidth - _xDrawDecay * 2,
+						_localHeight - _yDrawDecay * 2,
+						_topLeftRadius, _topRightRadius,
+						_bottomLeftRadius, _bottomRightRadius
+					);
+				}
+				else
+				{
+					// Sans bords arrondis
+					graphics.drawRect(
+						_xDrawDecay,
+						_yDrawDecay,
+						_localWidth - _xDrawDecay * 2,
+						_localHeight - _yDrawDecay * 2
+					);
+				}
+				
+				// Terminer le dessin
+				graphics.endFill();
 			}
 		}
 		
@@ -583,17 +794,10 @@ package fr.swapp.graphic.base
 			}
 			
 			// Appliquer la densité pour ces modes de rendu
-			else if (_renderMode == SRenderMode.AUTO_SIZE || _renderMode == SRenderMode.NO_SCALE)
+			else if (_renderMode == SRenderMode.AUTO_SIZE || _renderMode == SRenderMode.REPEAT || _renderMode == SRenderMode.NO_SCALE)
 			{
 				horizontalScale = 1 / _density;
 				verticalScale = 1 / _density;
-			}
-			
-			// Appliquer la densité spéciale du mode repeat
-			else if (_renderMode == SRenderMode.REPEAT)
-			{
-				horizontalScale = _localWidth / _texture.width;
-				verticalScale = _localHeight / _texture.height;
 			}
 			
 			// Appliquer le scale

@@ -58,7 +58,7 @@
     <element path="lib\code\shineMP3_alchemy.swc" />
     <element path="lib\dependences\as3-signals-v0.8.swc" />
     <element path="lib\dependences\greensock.swc" />
-    <element path="lib\dependences\Starling-Extension-Graphics.swc" />
+    <element path="lib\dependences\starling.swc" />
   </libraryPaths>
   <!-- External Libraries -->
   <externalLibraryPaths>

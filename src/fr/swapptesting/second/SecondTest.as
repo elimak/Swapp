@@ -5,6 +5,7 @@ package fr.swapptesting.second
 	import flash.events.Event;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
+	import flash.utils.getTimer;
 	import fr.swapp.graphic.base.SComponent;
 	import fr.swapp.graphic.base.SGraphic;
 	import fr.swapp.graphic.base.SRenderMode;
@@ -17,6 +18,8 @@ package fr.swapptesting.second
 	 */
 	public class SecondTest extends Sprite
 	{
+		private var _frame:int;
+		private var _c2:SGraphic;
 		[Embed(source="../../../../lib/images/z.jpg")]
 		public static const ExBitmap:Class
 		
@@ -45,56 +48,28 @@ package fr.swapptesting.second
 		protected function wrapperReadyHandler ():void
 		{
 			_component = new SComponent();
-			_component.place(100, 100, 100, 100).into(_wrapper.root, "component");
+			_component.place(200, 200, 200, 200).into(_wrapper.root, "component");
 			
 			var texture:Texture = Texture.fromBitmap(new ExBitmap, false);
 			
-			texture.repeat = false;
-			
-			_image = new Image(texture);
-			_component.addChild(_image);
-			
-			_image.x = 200;
-			_image.y = 200;
-			_image.width = 400;
-			_image.height = 200;
+			texture.repeat = true;
 			
 			addEventListener(Event.ENTER_FRAME, enterFrameHandler);
-			/*
 			
-			_c1 = new SGraphic(texture, SRenderMode.CENTER, 1);
-			_c1.border(1);
-			//_c1.allRadius(20);
+			_c1 = new SGraphic(texture, SRenderMode.OUTSIDE, 1);
+			_c1.allowOverflow = true;
+			_c1.alpha = 0.5;
 			_c1.place(0, 0, 0, 0).into(_component, "c1");
-			*/
 			
-			
-			/*
-			for (var i:int = 0; i & lt; 4; i++) 
-			{ 
-				p = mStarfield1.getTexCoords(i);
-				p.x += mMousePos.x * .00002;
-				p.y += mMousePos.y * .00002;
-				mStarfield1.setTexCoords(i, p);
-				p = mStarfield2.getTexCoords(i);
-				p.x += mMousePos.x * .00004;
-				p.y += mMousePos.y * .00004;
-				mStarfield2.setTexCoords(i, p);
-			}
-			*/
+			_c2 = new SGraphic(texture, SRenderMode.OUTSIDE, 1);
+			_c2.allowOverflow = false;
+			_c1.alpha = 0.5;
+			_c2.place(0, 0, 0, 0).into(_component, "c2");
 		}
 		
 		protected function enterFrameHandler(e:Event):void 
 		{
-			var p:Point;
-			for (var i:int = 0; i < 4; i++) 
-			{ 
-				p = _image.getTexCoords(i);
-				p.x += (stage.stageWidth - mouseX / 2) * .00002 * i;
-				p.y += (stage.stageHeight - mouseY / 2)* .00002 * i;
-				_image.setTexCoords(i, p);
-			}
+			//_c1.bitmapOffset(_frame ++, _frame / 10);
 		}
-		
 	}
 }
