@@ -65,6 +65,7 @@
 		 */
 		public static const IPAD_1_DEVICE				:String				= "iPad1,1";
 		public static const IPAD_2_DEVICE				:String				= "iPad2,";
+		public static const IPAD_3_DEVICE				:String				= "iPad3,";
 		
 		/**
 		 * Récupérer la version du player

@@ -50,10 +50,18 @@
 			return int(pStart + Math.random() * (pEnd - pStart));
 		}
 		
+		/**
+		 * Arrondir un nombre avec le nombre de décimales voulues.
+		 * @param	pNumber : Le nombre à arriondir
+		 * @param	pDecimal : Le nombre de décimales
+		 * @return : Le nombre arrondi à la décimale voulue.
+		 */
 		public static function fixed (pNumber:Number, pDecimal:int = 2):Number
 		{
+			// Ajouter le nombre de zeros pour ne plus avoir de décimales
 			const pow:uint = Math.pow(10, pDecimal);
 			
+			// Arrondir et décaller la virgule
 			return int(pNumber * pow + .5) / pow;
 		}
 	}

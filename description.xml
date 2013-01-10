@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+<application xmlns="http://ns.adobe.com/air/application/3.5">
+	<!-- 
+	AIR options:
+	http://livedocs.adobe.com/flex/3/html/File_formats_1.html#1043413
+	
+	AIR mobile options:
+	http://help.adobe.com/en_US/air/build/WSfffb011ac560372f-5d0f4f25128cc9cd0cb-7ffe.html
+	
+	Android manifest documentation:
+	http://developer.android.com/guide/topics/manifest/manifest-intro.html
+	-->
+	
+	<!-- ID de l'appli de type bundle name (com.example.app) -->
+	<id>fr.swapp.sample</id>
+	
+	<!-- Version de l'appli (en 3 parties obligatoirement), dernière partie incrémentée automatiquement  -->
+	<versionNumber>0.1.78</versionNumber>
+	
+	<!-- Nom de fichier a l'export -->
+	<filename>Swapp</filename>
+	
+	<!-- Nom de l'application (affiché) -->
+	<name>Swapp</name>
+	
+	<!-- Informations de description additionnelles (pour l'installeur de air) -->
+	<description>
+		<!--
+		<text xml:lang="en">English App description goes here</text>
+		<text xml:lang="fr">French App description goes here</text>
+		<text xml:lang="ja">Japanese App description goes here</text>
+		-->
+	</description>
+	
+	<!-- Copyright -->
+	<copyright></copyright>
+
+	<!-- Publisher ID. Used if you're updating an application created prior to 1.5.3 -->
+	<!-- <publisherID></publisherID> -->
+	
+	<!-- Les profiles supportés par l'application -->
+	<!-- We recommend omitting the supportedProfiles element, -->
+	<!-- which in turn permits your application to be deployed to all -->
+	<!-- devices supported by AIR. If you wish to restrict deployment -->
+	<!-- (i.e., to only mobile devices) then add this element and list -->
+	<!-- only the profiles which your application does support. -->
+	<supportedProfiles>mobileDevice extendedDesktop</supportedProfiles>
+	
+	<!-- The subpath of the standard default installation location to use. Optional. -->
+	<!-- <installFolder></installFolder> -->
+
+	<!-- The subpath of the Programs menu to use. (Ignored on operating systems without a Programs menu.) Optional. -->
+	<!-- <programMenuFolder></programMenuFolder> -->
+	
+	<!-- Whether the application handles the update when a user double-clicks an update version
+	of the AIR file (true), or the default AIR application installer handles the update (false).
+	Optional. Default false. -->
+	<!-- <customUpdateUI></customUpdateUI> -->
+	
+	<!-- Whether the application can be launched when the user clicks a link in a web browser. Optional. Default false. -->
+	<!--<allowBrowserInvocation>true</allowBrowserInvocation>-->
+
+	<!-- Listing of file types for which the application can register. Optional. -->
+	
+	<!--<fileTypes>-->
+		<!-- Defines one file type. Optional. -->
+		<!--<fileType>-->
+			
+			<!-- The name that the system displays for the registered file type. Required. -->
+			<!--<name></name>-->
+			
+			<!-- The extension to register. Required. -->
+			<!--<extension></extension>-->
+			
+			<!-- The description of the file type. Optional. -->
+			<!-- <description></description> -->
+			
+			<!-- The MIME content type. -->
+			<!-- <contentType></contentType> -->
+			
+			<!-- The icon to display for the file type. Optional. -->
+			<!--<icon>
+				<image16x16>icons/icon-16.png</image16x16>
+				<image32x32>icons/icon-32.png</image32x32>
+				<image48x48>icons/icon-48.png</image48x48>
+				<image128x128>icons/icon-128.png</image128x128>
+			</icon>
+			-->
+		<!--</fileType>-->
+	<!--</fileTypes>-->
+	
+	<!--
+		Les icones de l'app :
+		Taille d’icône		Plate-forme
+		29x29				iOS
+		36x36				Android
+		48x48				Android, iOS
+		57x57				iOS
+		72x72				Android, iOS
+		114x114				iOS
+		512 x 512			iOS (uniquement pour iTunes store)
+	-->
+	<icon>
+		<!--
+		<image16x16>icon-16.png</image16x16>
+		<image32x32>icon-32.png</image32x32>
+		<image36x36>icon-36.png</image36x36> 
+		<image48x48>icon-48.png</image48x48>
+		<image57x57>icon-57.png</image57x57/>
+		<image72x72>icon-72.png</image72x72>
+		<image114x114>icon-114.png</image114x114>
+		<image128x128>icon-128.png</image128x128>
+		-->
+		<image72x72>icon-72.png</image72x72>
+		<image114x114>icon-114.png</image114x114>
+		<image128x128>icon-128.png</image128x128>
+		<image512x512>icon-512.png</image512x512>
+	</icon>
+	
+	<!--
+		Les splashs screens doivent être inclus à la racine de l'appli :
+		
+		Type classique : basename + urischeme + orientation + scale + device + .png
+							1			2			3			4		5
+		
+		1: Doit être "Default" ou l'ID de l'app
+		2: l'URI a laquelle répond l'app (ne pas inclure si pas de fonctionnement par URI)
+		3: Orientation du device au lancement ("-Portrait", "-PortraitUpsideDown", "-Landscape", "-LandscapeLeft", "-LandscapeRight")
+		4: Scale du device (@2x pour du retina)
+		5: Le nom du device ("~ipad" ou "~iphone")
+		
+		Exemples :
+		File name						Image size		Usage
+		Default.png						320 x 480		iPhone, standard resolution
+		Default@2x.png					640 x 960		iPhone, high resolution
+		Default-Portrait.png			768 x 1004		iPad, portrait orientation
+		Default-PortraitUpsideDown.png	768 x 1004		iPad, upside down portrait orientation
+		Default-Landscape.png			1024 x 748		iPad, left landscape orientation
+		Default-LandscapeRight.png		1024 x 748		iPad, right landscape orientation
+		Default-example.png				320 x 480		example:// URL on standard iPhone
+		Default-example@2x.png			640 x 960		example:// URL on high-resolution iPhone
+		Default-example~ipad.png		768 x 1004		example:// URL on iPad in portrait orientations
+		Default-example-Landscape.png	1024 x 748		example:// URL on iPad in landscape orientations
+		
+		Plus dinfos:
+		Adobe: http://help.adobe.com/en_US/air/build/WS901d38e593cd1bac1e63e3d129907d2886-8000.html
+		Apple: http://developer.apple.com/library/ios/#DOCUMENTATION/iPhone/Conceptual/iPhoneOSProgrammingGuide/App-RelatedResources/App-RelatedResources.html#//apple_ref/doc/uid/TP40007072-CH6-SW12
+	-->
+	
+	<!-- Paramètres globaux -->
+	<initialWindow>
+		<!-- A partir de maintenant c'est pour desktop et mobile -->
+		
+			<!-- Nom du fichier SWF principal (depuis le dossier bin) -->
+			<content>Swapp.swf</content>
+			
+			<!-- Mode de rendu (GPU pour une composition via le GPU, CPU pour rendu et composition via CPU -->
+			<renderMode>direct</renderMode>
+		
+		<!-- A partir de maintenant c'est pour mobile -->
+		
+			<!-- Aspect de l'application sur mobile -->
+			<!--<aspectRatio>landscape</aspectRatio>-->
+			<fullScreen>false</fullScreen>
+			<autoOrients>true</autoOrients>
+			
+			<!-- Gestion du clavier virtuel -->
+			<!--<softKeyboardBehavior>none</softKeyboardBehavior>--><!-- Pas de déplacement de l'application -->
+			<!--<softKeyboardBehavior>pan</softKeyboardBehavior>--><!-- Gestion automatique -->
+		
+		<!-- A partir de maintenant c'est pour desktop -->
+		
+			<!-- The type of system chrome to use (either "standard" or "none"). Optional. Default standard. -->
+			<!-- <systemChrome></systemChrome> -->
+			
+			<!-- The title of the main window. Optional. -->
+			<!--<title></title>-->
+			
+			<!-- Whether the window is transparent. Only applicable when systemChrome is none. Optional. Default false. -->
+			<!-- <transparent></transparent> -->
+			
+			<!-- Whether the window is initially visible. Optional. Default false. -->
+			<!--<visible>true</visible>-->
+			
+			<!-- Whether the user can minimize the window. Optional. Default true. -->
+			<!-- <minimizable></minimizable> -->
+			
+			<!-- Whether the user can maximize the window. Optional. Default true. -->
+			<!-- <maximizable>true</maximizable> -->
+			
+			<!-- Whether the user can resize the window. Optional. Default true. -->
+			<!-- <resizable>true</resizable> -->
+			
+			<!-- The window's initial width in pixels. Optional. -->
+			<!-- <width></width> -->
+			
+			<!-- The window's initial height in pixels. Optional. -->
+			<!-- <height></height> -->
+			
+			<!-- The window's initial x position. Optional. -->
+			<!-- <x></x> -->
+			
+			<!-- The window's initial y position. Optional. -->
+			<!-- <y></y> -->
+			
+			<!-- The window's minimum size, specified as a width/height pair in pixels, such as "400 200". Optional. -->
+			<!-- <minSize></minSize> -->
+			
+			<!-- The window's initial maximum size, specified as a width/height pair in pixels, such as "1600 1200". Optional. -->
+			<!-- <maxSize></maxSize> -->
+	</initialWindow>
+	
+	<!-- Paramètres iOS -->
+	<iPhone>
+		<!-- Si défini sur high, le stage aura la définition totale sur un écran rétina (sinon il aura la définition d'un écran non rétina -->
+		<requestedDisplayResolution>high</requestedDisplayResolution>
+		
+		<!-- Les infos additionnelles pour iOS -->
+		<InfoAdditions>
+			<![CDATA[
+				<!-- Types de devices acceptés (obligatoire) -->
+				<key>UIDeviceFamily</key><array>
+					<string>1</string><!-- iPhone / iPod -->
+					<string>2</string><!-- iPad -->
+				</array>
+				
+				<!-- Enlever le reflet dégueulasse ajouté sur l'icone par iOS -->
+				<key>UIPrerenderedIcon</key> 
+				<true/>
+				
+				<!-- Type de la barre de l'OS si on est pas en fullscreen -->
+				<key>UIStatusBarStyle</key>
+				<string>UIStatusBarStyleDefault</string><!-- Barre grise -->
+				<!--<string>UIStatusBarStyleBlackOpaque</string>--><!-- Barre noire opaque -->
+				<!--<string>UIStatusBarStyleBlackTranslucent</string>--><!-- Barre noire avec alpha 50% -->
+				
+				<!-- Si on a besoin du wifi, même en veille -->
+				<!--
+				<key>UIRequiresPersistentWiFi</key>
+				<string>YES</string>
+				-->
+				
+				<!-- Si on autorise le multitâche -->
+				<key>UIApplicationExitsOnSuspend</key>
+				<string>YES</string>
+				
+				<!-- Hardware nécessaire pour l'app -->
+				<!--
+				<key>UIRequiredDeviceCapabilities</key><array>
+					<string>microphone</string>
+					<string>gps</string>
+					<string>camera-flash</string>
+					<string>telephony</string>
+					<string>wifi</string>
+					<string>sms</string>
+					<string>still-camera</string>
+					<string>auto-focus-camera</string>
+					<string>front-facing-camera</string>
+					<string>video-camera</string>
+					<string>accelerometer</string>
+					<string>location-services</string>
+				</array>
+				-->
+				
+				<!-- Scheme URI personnalisés (intercéption des liens example://) -->
+				<!--
+				<key>CFBundleURLTypes</key><array>
+					<dict>
+						<key>CFBundleURLSchemes</key><array>
+							<string>example</string>
+						</array>
+						<key>CFBundleURLName</key>
+						<string>com.example.app</string>
+					</dict> 
+				</array>
+				-->
+			]]>
+		</InfoAdditions>
+	</iPhone>
+	
+	<!-- Paramètres Android -->
+	<android>
+		
+		<!-- Les infos additionnelles pour Android -->
+        <manifestAdditions>
+			<![CDATA[
+				<manifest>
+					<uses-permission android:name="android.permission.INTERNET" />
+				</manifest>
+				<!-- Propriété de permissions de l'application (ce noeud doit toujours être en premier) -->
+				<!--
+				<manifest android:installLocation="preferExternal">
+					<uses-permission android:name="android.permission.INTERNET" />
+					<application android:allowClearUserData="true" android:enabled="true" android:persistent="true" />
+				</manifest>
+				-->
+				
+				<!-- Les types d'écrans supportés -->
+				<!--
+				<supports-screens android:smallScreens="false" android:normalScreens="false" android:xlargeScreens="true" />
+				-->
+			]]>
+		</manifestAdditions>
+	</android>
+</application>

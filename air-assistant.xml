@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<data>
+	<!-- Le dossier des binaires compilés de l'app (relatif, pas de slash) -->
+	<appDir>bin</appDir>
+
+	<!-- Le dossier de sortie des binaires packés de l'app (relatif, pas de slash) -->
+	<outDir>dist</outDir>
+	
+	<!-- Adresse vers le Flex SDK (antislash à la fin) -->
+	<flexSDKDir>C:\Frameworks\air\AIR3.5-FLEX4.6.0\</flexSDKDir>
+	
+	<!-- Adresse vers la machine Java (chemin complet vers java.exe ou juste "java" si défini dans le PATH) -->
+	<javaMachine>java</javaMachine>
+	<!--<javaMachine>C:\Program Files (x86)\Java\jre6\bin\java.exe</javaMachine>-->
+	
+	<!-- Dossiers inclus à la racine lors de la compilation (ex, dossier des icones et des splash) -->
+	<includeFolders>
+		<item>lib/icons/</item><!-- Inclus le contenu du dossier icons à la racine -->
+		<!--<item parent="bin">icons</item>--><!-- Inclus le dossier icons à la racine de l'application -->
+	</includeFolders>
+	
+	<!-- Le fichier de description XML par défaut -->
+	<description>description.xml</description>
+	
+	<!-- Paramètres pour le packing et la simulation -->
+	<outputs>
+		
+		<!-- Simulations de l'application -->
+		<simulation>
+			
+			<!-- Balise pour simuler sur un device (nom obligatoire pour l'interface) -->
+			<device name="iPhone">
+				<!--
+					La taille de l'écran pour les simulations (optionnel)
+					La balise screenSize peut être personnalisé selon ce pattern :
+					- widthXheight:fullscreenWidthXfullscreenHeight ex: 640x920:640x960
+					plus d'infos sur http://help.adobe.com/en_US/air/build/WSfffb011ac560372f-6fa6d7e0128cca93d31-8000.html
+				-->
+				<screenSize>iPhone</screenSize>
+				
+				<!-- Le fichier description particulier (optionnel si défini à la racine) -->
+				<!--<description></description>-->
+			</device>
+			<device name="iPad" defaultCommand="true">
+				<screenSize>iPad</screenSize>
+			</device>
+			<device name="Asus Transformer">
+				<screenSize>752x1280:800x1280</screenSize><!-- Le barre de menu d'android mesure 48px -->
+			</device>
+			<device name="Android Galaxy S">
+				<screenSize>SamsungGalaxyS</screenSize>
+			</device>
+			<device name="Android NexusOne">
+				<screenSize>NexusOne</screenSize>
+			</device>
+			<device name="Desktop">
+			</device>
+		</simulation>
+		
+		<!-- Packings de debug -->
+		<debug>
+			<!-- Le chemin vers le fichier mobileprovision de "debug" (uniquement pour iOS) -->
+			<profile>B:\Perso\Alexis\certificates\provision\LHSDev.mobileprovision</profile>
+			
+			<!-- Le chemin vers le certificat de "debug" et son mot de passe -->
+			<ios>
+				<certificat>B:\Perso\Alexis\certificates\p12\Certificate-lhs-development.p12</certificat>
+				<certificatPassword>lhspower</certificatPassword>
+			</ios>
+			<android>
+				<certificat>B:\Perso\Alexis\certificates\p12\Certificate-lhs-development.p12</certificat>
+				<certificatPassword>lhspower</certificatPassword>
+			</android>
+			<air>
+				<certificat></certificat>
+				<certificatPassword></certificatPassword>
+			</air>
+			<windows>
+				<certificat></certificat>
+				<certificatPassword></certificatPassword>
+			</windows>
+			
+			<!-- Les targets selon les plateformes -->
+			<platforms>
+				<!-- Balise pour déployer pour une plateforme (nom obligatoire pour l'interface) -->
+				<platform name="iOS speed debugging">
+					<!-- 
+						Les types de packing "debug" pour iOS
+						Plus d'infos sur :
+						- http://help.adobe.com/en_US/air/build/WS901d38e593cd1bac1e63e3d128cdca935b-8000.html#WS901d38e593cd1bac1e63e3d128cdca935b-7fff
+						- http://help.adobe.com/en_US/air/build/WS901d38e593cd1bac35eb7b4e12cddc5fbbb-8000.html
+					-->
+					
+					<!--<target>ipa-debug</target>--><!-- Compilation du code, connexion au debugger -->
+					<!--<target>ipa-test</target>--><!-- Compilation du code, pas de debugger -->
+					<target>ipa-debug-interpreter</target><!-- Code interprêté (compilation rapide, code lent), connexion au debugger -->
+					<!--<target>ipa-test-interpreter</target>--><!-- Code interprêté (compilation rapide, code lent), pas de debugger -->
+					
+					<!-- Le fichier XML de description de l'application (optionnel si défini à la racine) -->
+					<!--<description></description>-->
+					
+					<!-- Le dossier vers les Native Extensions (optionnel, avec un slash à la fin) -->
+					<!--<nativeExtensions></nativeExtensions>-->
+					
+					<!-- Les paramètres additionnelles (séparer avec des espaces) -->
+					<!--<additionalCommands><![CDATA[]]></additionalCommands>-->
+					
+					<!-- Commandes exécutées après la compilation (placer des \n pour faire une nouvelle commande) -->
+					<!--<afterCommands><![CDATA[]]></afterCommands>-->
+				</platform>
+				<platform name="iOS speed test" defaultCommand="true">
+					<target>ipa-test-interpreter</target>
+					<debugger>false</debugger>
+				</platform>
+				<platform name="iOS debug">
+					<target>ipa-debug</target>
+				</platform>
+				<platform name="iOS test">
+					<target>ipa-test</target>
+					<debugger>false</debugger>
+				</platform>
+				<platform name="iOS ad-hoc debug">
+					<target>ipa-ad-hoc</target>
+					<debugger>false</debugger>
+				</platform>
+				
+				<platform name="Android debug and push to device">
+					<!-- Les types de packing "debug" pour Android -->
+					<target>apk-debug</target><!-- Compilation debug pour l'émulateur Android et les devices -->
+					<!--<target>apk-emulator</target>--><!-- Compilation pour l'emulateur Android, sans debug -->
+					<!--<target>apk-profile</target>--><!-- Compilation pour le profiling de performances et de ressources mémoires -->
+					
+					<!-- Si l'application doit être testé direcement sur le device branché en USB (ne gère qu'un seul device pour l'instant) -->
+					<pushToDevice>true</pushToDevice>
+					
+					<!--<nativeExtensions></nativeExtensions>-->
+					<!--<description></description>-->
+					<!--<additionalCommands><![CDATA[]]></additionalCommands>-->
+				</platform>
+				<platform name="Android test and push to device">
+					<target>apk-debug</target>
+					<pushToDevice>true</pushToDevice>
+					<debugger>false</debugger>
+				</platform>
+				<platform name="Android debug">
+					<!-- Les types de packing "debug" pour Android -->
+					<target>apk-debug</target><!-- Compilation debug pour l'émulateur Android et les devices -->
+					<!--<target>apk-emulator</target>--><!-- Compilation pour l'emulateur Android, sans debug -->
+					<!--<target>apk-profile</target>--><!-- Compilation pour le profiling de performances et de ressources mémoires -->
+				</platform>
+				<platform name="Android test">
+					<target>apk-debug</target><!-- Compilation debug pour l'émulateur Android et les devices -->
+					<debugger>false</debugger><!-- Ne se connectera pas au debugger Flex -->
+				</platform>
+			</platforms>
+		</debug>
+		
+		<!-- Packings de production -->
+		<production>
+			<!-- Le chemin vers le fichier mobileprovision de "debug" (uniquement pour iOS) -->
+			<profile>C:\Users\alexis.LAHAUTESOCIETE\Dropbox\Certificats\Dev\LaHauteSocieteProvision.mobileprovision</profile>
+			
+			<!-- Le chemin vers le certificat de "debug" et son mot de passe -->
+			<ios>
+				<certificat>C:\Users\alexis.LAHAUTESOCIETE\Dropbox\Certificats\Dev\iOsTeamDev.p12</certificat>
+				<certificatPassword>azertyuiop</certificatPassword>
+			</ios>
+			<android>
+				<certificat>C:\Users\alexis.LAHAUTESOCIETE\Dropbox\Certificats\Dev\AndroidDevCertificat.p12</certificat>
+				<certificatPassword>lhspower</certificatPassword>
+			</android>
+			<air>
+				<certificat></certificat>
+				<certificatPassword></certificatPassword>
+			</air>
+			<windows>
+				<certificat></certificat>
+				<certificatPassword></certificatPassword>
+			</windows>
+			
+			<!-- Non pris en charge pour l'instant -->
+			<!--
+			<mac>
+				<certificat></certificat>
+				<certificatPassword></certificatPassword>
+			</mac>
+			-->
+			
+			<!-- Les targets s elon les plateformes -->
+			<platforms>
+				<platform name="iOS">
+					<!-- Les types de packing de production pour iOS -->
+					<!--<target>ipa-adhoc</target>--><!-- Compilation pour les stores privés (entreprise) -->
+					<target>ipa-app-store</target><!-- Compilation pour l'appstore -->
+					
+					<!--<description></description>-->
+					<!--<nativeExtensions></nativeExtensions>-->
+					<!--<additionalCommands><![CDATA[]]></additionalCommands>-->
+				</platform>
+				<platform name="Android">
+					<!-- Les types de packing de production pour Android -->
+					<!--<target>apk</target>--><!-- Compilation nécessitant l'installation de la machine virtuelle AIR -->
+					<target>apk-captive-runtime</target><!-- Compilation avec la machine virtuelle intégrée (plus lourd mais non dépendant) -->
+					
+					<!--<nativeExtensions></nativeExtensions>-->
+					<!--<additionalCommands><![CDATA[]]></additionalCommands>-->
+				</platform>
+				
+				<platform name="Desktop signed AIR">
+					<target>air</target>
+				</platform>
+				
+				<platform name="Native Windows">
+					<target>exe-native</target>
+				</platform>
+				<platform name="Bundle Windows">
+					<target>exe-bundle</target>
+				</platform>
+				
+				<!-- Non pris en charge pour l'instant -->
+				<!--
+				<platform name="Native Mac">
+					<target>dmg-native</target>
+				</platform>
+				<platform name="Bundle Mac">
+					<target>dmg-bundle</target>
+				</platform>
+				-->
+			</platforms>
+		</production>
+	</outputs>
+</data>
