@@ -50,7 +50,7 @@ package fr.swapp.graphic.base
 		protected var _starling							:Starling;
 		
 		/**
-		 * Le centre de gestion des styles
+		 * Style manager
 		 */
 		protected var _styleCentral						:StyleCentral;
 		
@@ -58,37 +58,32 @@ package fr.swapp.graphic.base
 		 * When starling / wrapper / root are ready
 		 */
 		protected var _onReady							:Signal					= new Signal();
+		
+		/**
+		 * If starling / wrapper / root are ready
+		 */
 		protected var _ready							:Boolean				= false;
 		
 		
 		/**
 		 * The starling engine
 		 */
-		public function get starling ():Starling
-		{
-			return _starling;
-		}
+		public function get starling ():Starling { return _starling; }
 		
 		/**
 		 * The root component
 		 */
-		public function get root ():SComponent
-		{
-			return _starling.root as SComponent;
-		}
-		
-		/**
-		 * Le centre de gestion des styles
-		 */
-		public function get styleCentral ():StyleCentral
-		{
-			return _styleCentral;
-		}
+		public function get root ():SComponent { return _starling.root as SComponent; }
 		
 		/**
 		 * When starling / wrapper / root are ready
 		 */
 		public function get onReady ():Signal { return _onReady; }
+		
+		/**
+		 * Style manager
+		 */
+		public function get styleCentral ():StyleCentral { return _styleCentral; }
 		
 		
 		/**
@@ -119,8 +114,11 @@ package fr.swapp.graphic.base
 					// Passer en basse qualité
 					pStage.quality = StageQuality.LOW;
 					
-					// Ecouter les redimentionnements
-					pStage.addEventListener(Event.RESIZE, stageResizedHandler);
+					// Ecouter les redimentionnements si on n'a pas de viewport
+					if (pViewPort == null)
+					{
+						pStage.addEventListener(Event.RESIZE, stageResizedHandler);
+					}
 					
 					// Activer le multiTouch
 					Starling.multitouchEnabled = true;
@@ -168,6 +166,9 @@ package fr.swapp.graphic.base
 			// Appliquer une première fois la taille du viewPort
 			stageResizedHandler();
 			
+			// Initialiser le style manager
+			//initStyleCentral();
+			
 			// Signaler que c'est prêt
 			_onReady.dispatch();
 		}
@@ -193,9 +194,9 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * Initialiser le manager de styles
+		 * Initialize style manager
 		 */
-		protected function initStyleCentral():void 
+		protected function initStyleCentral ():void 
 		{
 			// Créer le centre de gestion des styles
 			_styleCentral = new StyleCentral();

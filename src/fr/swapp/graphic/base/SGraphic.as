@@ -2,9 +2,11 @@ package fr.swapp.graphic.base
 {
 	import flash.geom.Matrix;
 	import flash.geom.Point;
+	import fr.swapp.graphic.errors.GraphicalError;
 	import starling.display.Image;
 	import starling.display.Quad;
 	import starling.textures.Texture;
+	import starling.textures.TextureSmoothing;
 	
 	/**
 	 * @author ZoulouX
@@ -14,7 +16,12 @@ package fr.swapp.graphic.base
 		/**
 		 * If draw is out of date
 		 */
-		protected var _drawInvalidated					:Boolean 							= true;
+		protected var _drawInvalidated					:Boolean 							= false;
+		
+		/**
+		 * If background is out of date
+		 */
+		protected var _backgroundInvalidated			:Boolean							= false;
 		
 		/**
 		 * Texture to draw
@@ -32,24 +39,34 @@ package fr.swapp.graphic.base
 		protected var _image							:Image;
 		
 		/**
-		 * Actual render mode for graphics
+		 * Actual render mode for graphics (accepted values from SRenderMode)
 		 */
 		protected var _renderMode						:String;
 		
 		/**
-		 * Background color (-1 to ignore)
+		 * Background color 1
 		 */
-		protected var _backgroundColor					:int								= -1;
+		protected var _backgroundColor1					:int								= 0;
 		
 		/**
-		 * Background opacity
+		 * Background color 2
 		 */
-		protected var _backgroundAlpha					:Number								= 1;
+		protected var _backgroundColor2					:int								= 0;
 		
 		/**
-		 * Type of background gradient (look AGradientType
+		 * Background opacity 1
 		 */
-		protected var _backgroundGradientType			:String;
+		protected var _backgroundAlpha1					:Number								= 1;
+		
+		/**
+		 * Background opacity 2
+		 */
+		protected var _backgroundAlpha2					:Number								= 1;
+		
+		/**
+		 * Type of background (accepted values from ABackgroundType)
+		 */
+		protected var _backgroundType					:String								= SBackgroundType.NONE;
 		
 		/**
 		 * Transformation matrix for texture
@@ -57,7 +74,7 @@ package fr.swapp.graphic.base
 		protected var _matrix							:Matrix								= new Matrix();
 		
 		/**
-		 * Allow content overflow with INSIDE and OUTSIDE render modes.
+		 * Allow content overflow with OUTSIDE render mode.
 		 */
 		protected var _allowOverflow					:Boolean							= false;
 		
@@ -87,9 +104,9 @@ package fr.swapp.graphic.base
 		protected var _bitmapVerticalOffset				:int;
 		
 		/**
-		 * Smooth the texture
+		 * Image smoothing type
 		 */
-		protected var _smoothing						:Boolean							= true;
+		protected var _smoothing						:String								= TextureSmoothing.NONE;
 		
 		
 		
@@ -145,7 +162,7 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * Le mode de rendu de l'image
+		 * Actual render mode for graphics (accepted values from SRenderMode)
 		 */
 		public function get renderMode ():String { return _renderMode; }
 		public function set renderMode (value:String):void 
@@ -168,16 +185,16 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * La couleur de fond (blanc par défaut)
+		 * Background first color.
 		 */
-		public function get backgroundColor ():int { return _backgroundColor; }
-		public function set backgroundColor (value:int):void 
+		public function get backgroundColor1 ():int { return _backgroundColor1; }
+		public function set backgroundColor1 (value:int):void 
 		{
 			// Si c'est différent
-			if (_backgroundColor != value)
+			if (_backgroundColor1 != value)
 			{
 				// Enregistrer
-				_backgroundColor = value;
+				_backgroundColor1 = value;
 				
 				// Rendre le dessin invalide
 				invalidateDraw();
@@ -185,16 +202,50 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * La transparence de la couleur de fond
+		 * Background second color.
 		 */
-		public function get backgroundAlpha ():Number { return _backgroundAlpha; }
-		public function set backgroundAlpha (value:Number):void 
+		public function get backgroundColor2 ():int { return _backgroundColor2; }
+		public function set backgroundColor2 (value:int):void 
 		{
 			// Si c'est différent
-			if (_backgroundAlpha != value)
+			if (_backgroundColor2 != value)
 			{
 				// Enregistrer
-				_backgroundAlpha = value;
+				_backgroundColor2 = value;
+				
+				// Rendre le dessin invalide
+				invalidateDraw();
+			}
+		}
+		
+		/**
+		 * Background first opacity.
+		 */
+		public function get backgroundAlpha1 ():Number { return _backgroundAlpha1; }
+		public function set backgroundAlpha1 (value:Number):void 
+		{
+			// Si c'est différent
+			if (_backgroundAlpha1 != value)
+			{
+				// Enregistrer
+				_backgroundAlpha1 = value;
+				
+				// Rendre le dessin invalide
+				invalidateDraw();
+			}
+		}
+		
+		/**
+		 * Background second opacity.
+		 */
+		public function get backgroundAlpha2 ():Number { return _backgroundAlpha2; }
+		public function set backgroundAlpha2 (value:Number):void 
+		{
+			// Si c'est différent
+			if (_backgroundAlpha2 != value)
+			{
+				// Enregistrer
+				_backgroundAlpha2 = value;
 				
 				// Rendre le dessin invalide
 				invalidateDraw();
@@ -203,10 +254,52 @@ package fr.swapp.graphic.base
 		
 		
 		/**
-		 * Lisser l'image.
+		 * Type of background (accepted values from ABackgroundType)
 		 */
-		public function get smoothing ():Boolean { return _smoothing; }
-		public function set smoothing (value:Boolean):void 
+		public function get backgroundType ():String { return _backgroundType; }
+		public function set backgroundType (value:String):void
+		{
+			// Si c'est différent
+			if (_backgroundType != value)
+			{
+				// Si on n'a plus de background
+				if (_backgroundType != SBackgroundType.NONE && value == SBackgroundType.NONE)
+				{
+					// Supprimer l'image
+					removeChild(_quad);
+					
+					// La disposer
+					_quad.dispose();
+					_quad = null;
+				}
+				
+				// Si on n'avait pas de background et qu'on en a un
+				else if (_backgroundType == SBackgroundType.NONE && value != SBackgroundType.NONE)
+				{
+					// Créer le quad du background
+					_quad = new Quad(1, 1, 0, true);
+					
+					// Appliquer les dimensions du composant au background
+					_quad.width = _localWidth;
+					_quad.height = _localHeight;
+					
+					// L'ajouter au fond
+					addChildAt(_quad, 0);
+				}
+				
+				// Enregistrer
+				_backgroundType = value;
+				
+				// Invalider le background
+				invalidatateBackground();
+			}
+		}
+		
+		/**
+		 * Smoothing type for the image.
+		 */
+		public function get smoothing ():String { return _smoothing; }
+		public function set smoothing (value:String):void 
 		{
 			// Si c'est différent
 			if (_smoothing != value)
@@ -220,7 +313,7 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * Autoriser les dépassements de l'image par rapport aux règles de placement.
+		 * Allow content overflow for SRenderMode.OUTSIDE.
 		 */
 		public function get allowOverflow ():Boolean { return _allowOverflow; }
 		public function set allowOverflow (value:Boolean):void 
@@ -237,7 +330,7 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * La densité de l'image. Par exemple si l'image est en format retina, la densité sera de 2.
+		 * Image density. Default is 1, retina will be 2.
 		 */
 		public function get density ():Number { return _density; }
 		public function set density (value:Number):void
@@ -257,7 +350,7 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * Le décallage horizontal de l'image.
+		 * Horizontal image offset.
 		 */
 		public function get bitmapHorizontalOffset ():int { return _bitmapHorizontalOffset; }
 		public function set bitmapHorizontalOffset (value:int):void
@@ -274,7 +367,7 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * Le décallage vertical de l'image.
+		 * Vertical image offset.
 		 */
 		public function get bitmapVerticalOffset ():int { return _bitmapVerticalOffset; }
 		public function set bitmapVerticalOffset (value:int):void
@@ -352,18 +445,23 @@ package fr.swapp.graphic.base
 		
 		/**
 		 * Set a background color to this component.
-		 * @param	pBackgroundColor : Background color (-1 to ignore)
-		 * @param	pBackgroundAlpha : Background opacity
+		 * @param	pBackgroundType : Type of background (accepted values from SBackgroundType)
+		 * @param	pBackgroundColor1 : First color of the background
+		 * @param	pBackgroundAlpha1 : First alpha of the background
+		 * @param	pBackgroundColor2 : Second color of the background (ignored in SBackgroundType.FLAT)
+		 * @param	pBackgroundAlpha2 : Second alpha of the background (ignored in SBackgroundType.FLAT)
 		 * @return this
 		 */
-		public function background (pBackgroundColor:int, pBackgroundAlpha:Number = 1):SGraphic
+		public function background (pBackgroundType:String, pBackgroundColor1:int = 0, pBackgroundAlpha1:Number = 1, pBackgroundColor2:int = 0, pBackgroundAlpha2:Number = 1):SGraphic
 		{
 			// Enregistrer
-			_backgroundColor = pBackgroundColor;
-			_backgroundAlpha = pBackgroundAlpha
+			_backgroundColor1 = pBackgroundColor1;
+			_backgroundColor2 = pBackgroundColor2;
+			_backgroundAlpha1 = pBackgroundAlpha1;
+			_backgroundAlpha2 = pBackgroundAlpha2;
 			
-			// Rendre le dessin invalide
-			invalidateDraw();
+			// Enregistrer le type de background
+			backgroundType = pBackgroundType;
 			
 			// Méthode chaînable
 			return this;
@@ -375,7 +473,7 @@ package fr.swapp.graphic.base
 		 ******************************************/
 		
 		/**
-		 * Draw is out of date
+		 * Drawing is out of date
 		 */
 		public function invalidateDraw ():void
 		{
@@ -384,7 +482,16 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * Replacer le composant
+		 * Background is out of date
+		 */
+		protected function invalidatateBackground ():void
+		{
+			// Invalider le background
+			_backgroundInvalidated = true;
+		}
+		
+		/**
+		 * The component has been replaced
 		 */
 		override protected function replace ():void
 		{
@@ -399,17 +506,30 @@ package fr.swapp.graphic.base
 			// Relayer pour actualiser le flux de positionnement
 			super.replace();
 			
+			// Actualiser le background
+			invalidatateBackground();
+			
 			// Actualiser le dessin
 			invalidateDraw();
 		}
 		
 		/**
-		 * Phase de rendu
+		 * Render phase
 		 */
 		override protected function renderPhase ():void 
 		{
 			// Relayer
 			super.renderPhase();
+			
+			// Si le background est invalidé
+			if (_backgroundInvalidated)
+			{
+				// Actualiser le background
+				updateBackground();
+				
+				// Le background est valide
+				_backgroundInvalidated = false;
+			}
 			
 			// Si le dessin est invalidé
 			if (_drawInvalidated)
@@ -424,33 +544,63 @@ package fr.swapp.graphic.base
 		
 		
 		
-		
 		/******************************************
 						   Dessin
 		 ******************************************/
 		
 		/**
-		 * Forcer le rafraichissement
+		 * Update background properties
 		 */
-		public function redraw ():void
+		protected function updateBackground ():void
+		{
+			// Si on a un background
+			if (_quad != null)
+			{
+				// Appliquer les dimensions du composant au background
+				_quad.width = _localWidth;
+				_quad.height = _localHeight;
+				
+				// La valeur a prendre selon le vertex
+				var firstValue:Boolean;
+				
+				// Parcourir les 4 vertex
+				for (var i:uint = 0; i < 4; i++)
+				{
+					// Définir si on prend la valeur 1 ou 2 selon le vertex
+					firstValue = (
+						// Si on est en couleur pleine
+						_backgroundType == SBackgroundType.FLAT
+						||
+						// Si on est en dégradé vertical
+						(
+							_backgroundType == SBackgroundType.VERTICAL_GRADIENT
+							&&
+							i < 2
+						)
+						||
+						// Si on est en dégradé horizontal
+						(
+							_backgroundType == SBackgroundType.HORIZONTAL_GRADIENT
+							&&
+							(i == 0 || i == 2)
+						)
+					);
+					
+					// Appliquer la couleur et l'alpha sur ce vertex
+					_quad.setVertexColor(i, firstValue ? _backgroundColor1 : _backgroundColor2);
+					_quad.setVertexAlpha(i, firstValue ? _backgroundAlpha1 : _backgroundAlpha2);
+				}
+			}
+		}
+		
+		/**
+		 * Update drawing properties
+		 */
+		protected function redraw ():void
 		{
 			// Si on a des dimensions
 			if (_localWidth > 0 && _localHeight > 0)
 			{
-				// Si on a un fond
-				if (_quad != null)
-				{
-					// Appliquer les dimensions du composant sur le quad
-					_quad.width = _localWidth;
-					_quad.height = _localHeight;
-					
-					//if (_backgroundGradient)
-					{
-						
-					}
-					//_quad.
-				}
-				
 				// Si on a une image
 				if (_image != null)
 				{
@@ -490,42 +640,16 @@ package fr.swapp.graphic.base
 						// Si on est en outside
 						else if (_renderMode == SRenderMode.OUTSIDE)
 						{
-							// TODO : Corriger le placement du mode outside
-							// TODO : Ajoute un mode de rendu qui permet de déplacement l'image dans le composant (ex : photo multitouch)
+							// Calculer les placements U et V
+							var u:Number = - (_matrix.tx / _texture.width) / _matrix.a;
+							var v:Number = - (_matrix.ty / _texture.height) / _matrix.d;
 							
 							// Parcourir les 4 points de l'image
 							for (i = 0; i < 4; i ++)
 							{
-								//
-								var a:Number = - _matrix.tx / _texture.width / 2;
-								var b:Number = _matrix.tx / _texture.width / 2 + 1;
-								var c:Number = - _matrix.ty / _texture.height / 2;
-								var d:Number = _matrix.ty / _texture.height / 2 + 1;
-								
-								if (i == 0)
-								{
-									point.x = a;
-									point.y = c;
-								}
-								else if (i == 1)
-								{
-									point.x = b;
-									point.y = c;
-								}
-								else if (i == 2)
-								{
-									point.x = a;
-									point.y = d;
-								}
-								else if (i == 3)
-								{
-									point.x = b;
-									point.y = d;
-								}
-								
 								// Placer le point selon la matrice
-								//point.x = - _matrix.tx + ((i == 1 || i == 3) ? _matrix.a : 0);
-								//point.y = - _matrix.ty + ((i == 2 || i == 3) ? _matrix.d : 0);
+								point.x = ((i == 0 || i == 2) ? u : 1 - u);
+								point.y = ((i == 0 || i == 1) ? v : 1 - v);
 								
 								// Appliquer cette position sur l'image
 								_image.setTexCoords(i, point);
@@ -547,7 +671,7 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * Actualiser la matrice selon le mode de redimensionnement
+		 * Update scaling and translating matrix for drawing
 		 */
 		protected function updateMatrix ():void
 		{
@@ -632,15 +756,18 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * Actualiser les propriété d'affichage de la texture
+		 * Update texture properties for render mode
 		 */
 		protected function updateTextureProperties ():void
 		{
 			// Si on a bien une texture
 			if (_texture != null)
 			{
-				// Appliquer les valeurs sur le seul bitmap
+				// Appliquer le repeat sur la texture
 				_texture.repeat = (_renderMode == SRenderMode.REPEAT);
+				
+				// Appliquer le smoothing
+				_image.smoothing = _smoothing;
 			}
 		}
 	}
