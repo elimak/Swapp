@@ -16,7 +16,7 @@
     </define>
     <define append="true">
       <name>CONFIG::timeStamp</name>
-      <value>'11/01/2013'</value>
+      <value>'14/01/2013'</value>
     </define>
     <define append="true">
       <name>CONFIG::air</name>
@@ -38,11 +38,10 @@
     <library-path append="true">
       <path-element>C:\local\Frameworks\swapp-master\lib\dependences\as3-signals-v0.8.swc</path-element>
       <path-element>C:\local\Frameworks\swapp-master\lib\dependences\greensock.swc</path-element>
-      <path-element>C:\local\Frameworks\swapp-master\lib\dependences\starling.swc</path-element>
     </library-path>
   </compiler>
   <file-specs>
-    <path-element>C:\local\Frameworks\swapp-master\src\fr\swapptesting\second\SecondTest.as</path-element>
+    <path-element>C:\local\Frameworks\swapp-master\src\fr\swapptesting\rebirth\RebirthDocument.as</path-element>
   </file-specs>
   <default-background-color>#FFFFFF</default-background-color>
   <default-frame-rate>60</default-frame-rate>

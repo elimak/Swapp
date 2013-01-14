@@ -46,13 +46,28 @@ package fr.swapp.graphic.base
 		public static const AUTO_SIZE					:String 							= "autoSizeRenderMode";
 		
 		/**
-		 * Use Scale 9 grid to show a fluid image with 9 slices.
+		 * Show image from atlas
 		 */
-		public static const SCALE_9_RENDER			:String									= "scale9RenderMode";
+		public static const ATLAS						:String 							= "atlasRenderMode";
 		
 		/**
-		 * Use Scale 9 grid automatically.
+		 * Use Scale 3 grid to show a fluid image with 3 horizontal slices.
 		 */
-		public static const AUTO_SCALE_9_RENDER			:String								= "autoScale9RenderMode";
+		public static const HORIZONTAL_SCALE_3_RENDER	:String								= "horizontalScale3RenderMode"
+		
+		/**
+		 * Use Scale 3 grid to show a fluid image with 3 vertical slices.
+		 */
+		public static const VERTICAL_SCALE_3_RENDER		:String								= "verticalScale3RenderMode";
+		
+		/**
+		 * Use Scale 9 grid to show a fluid image with 9 slices.
+		 */
+		public static const SCALE_9_RENDER				:String								= "scale9RenderMode";
+		
+		/**
+		 * Use Scale grid automatically from image.
+		 */
+		public static const AUTO_SCALE_RENDER			:String								= "autoScaleRenderMode";
 	}
 }

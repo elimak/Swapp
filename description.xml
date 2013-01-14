@@ -15,7 +15,7 @@
 	<id>fr.swapp.sample</id>
 	
 	<!-- Version de l'appli (en 3 parties obligatoirement), dernière partie incrémentée automatiquement  -->
-	<versionNumber>0.1.82</versionNumber>
+	<versionNumber>0.1.85</versionNumber>
 	
 	<!-- Nom de fichier a l'export -->
 	<filename>Swapp</filename>

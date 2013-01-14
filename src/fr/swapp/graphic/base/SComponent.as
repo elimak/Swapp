@@ -1,25 +1,33 @@
-package fr.swapp.graphic.base
+package fr.swapp.graphic.base 
 {
-	import flash.display3D.Context3D;
+	import flash.display.DisplayObjectContainer;
+	import flash.display.Sprite;
+	import flash.events.Event;
+	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
+	import fr.swapp.core.roles.IDataContainer;
+	import fr.swapp.core.roles.IDisposable;
+	import fr.swapp.core.roles.IIndexable;
+	import fr.swapp.core.roles.IInitializable;
 	import fr.swapp.graphic.styles.IStylable;
 	import org.osflash.signals.Signal;
-	import starling.core.RenderSupport;
-	import starling.core.Starling;
-	import starling.display.DisplayObjectContainer;
-	import starling.display.Sprite;
-	import starling.errors.MissingContextError;
-	import starling.events.Event;
 	
 	/**
+	 * Composant de base avec gestion des dimensions.
 	 * @author ZoulouX
 	 */
-	public class SComponent extends Sprite implements IStylable
+	public class SComponent extends Sprite implements IIndexable, IDataContainer, IStylable, IInitializable, IDisposable
 	{
+		/**
+		 * Object index
+		 */
+		protected var _index						:int;
+		
 		/**
 		 * Data associated to this object.
 		 */
 		protected var _data							:Object;
+		
 		
 		/**
 		 * When component is resized.
@@ -34,16 +42,16 @@ package fr.swapp.graphic.base
 		/**
 		 * When component visibility is changed.
 		 */
-		protected var _onVisibilityChanged			:Signal						= new Signal();
+		protected var _onStyleChanged				:Signal						= new Signal();
 		
 		/**
 		 * When style has changed.
 		 */
-		protected var _onStyleChanged				:Signal						= new Signal();
+		protected var _onVisibilityChanged			:Signal						= new Signal();
 		
 		
 		/**
-		 * Watched parent to replace in the flow.
+		 * Le parent écouté
 		 */
 		protected var _watchedParent				:SComponent;
 		
@@ -155,6 +163,12 @@ package fr.swapp.graphic.base
 		 */
 		protected var _styleInvalidated				:Boolean					= false;
 		
+		
+		/**
+		 * Si le composant est en rendu bitmap
+		 */
+		protected var _isFlattened					:Boolean					= false;
+		
 		/**
 		 * Le nom du style associé
 		 */
@@ -174,12 +188,17 @@ package fr.swapp.graphic.base
 		/**
 		 * Si l'élément a été disposé
 		 */
-		protected var _disposed						:Boolean;
+		private var _disposed						:Boolean					= true;
 		
 		/**
-		 * ScrollRect
+		 * La visibilité de l'élément
 		 */
-		protected var _scrollRect					:Rectangle;
+		protected var _visible						:Boolean					= true;
+		
+		/**
+		 * Auto-dispose component when removed from DisplayList
+		 */
+		protected var _autoDispose					:Boolean					= true;
 		
 		
 		/**
@@ -192,7 +211,16 @@ package fr.swapp.graphic.base
 		
 		
 		/**
-		 * Data associated to this object.
+		 * L'index de cet élément
+		 */
+		public function get index ():int { return _index; }
+		public function set index (value:int):void 
+		{
+			_index = value;
+		}
+		
+		/**
+		 * Les données arbitraires associées à cet élément
 		 */
 		public function get data ():Object { return _data; }
 		public function set data (value:Object):void 
@@ -202,7 +230,7 @@ package fr.swapp.graphic.base
 		
 		
 		/******************************************
-				  Getters pour les signaux
+					   Signals getters
 		 ******************************************/
 		
 		/**
@@ -227,12 +255,11 @@ package fr.swapp.graphic.base
 		
 		
 		/******************************************
-			   Getters / setters pour le flow
+			     Getters / setters for flow
 		 ******************************************/
 		
-		
 		/**
-		 * Starling width
+		 * DisplayList super-width
 		 */
 		public function get superWidth ():Number { return super.width; };
 		public function set superWidth (value:Number):void
@@ -241,7 +268,7 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * Starling height
+		 * DisplayList super-height
 		 */
 		public function get superHeight ():Number { return super.height; };
 		public function set superHeight (value:Number):void
@@ -597,6 +624,11 @@ package fr.swapp.graphic.base
 		public function get totalHeight ():Number { return _topMargin + _localHeight + _bottomMargin };
 		
 		/**
+		 * If component is in GPU Texture mode
+		 */
+		public function get isFlattened ():Boolean { return _isFlattened; }
+		
+		/**
 		 * On demand generated background. Getter will automagically add a void SGraphic instance.
 		 * If styles are disabled, background will never added automagically.
 		 * Default background name is "background".
@@ -648,20 +680,23 @@ package fr.swapp.graphic.base
 		/**
 		 * Whether or not the display object is visible.
 		 */
-		override public function get visible ():Boolean { return super.visible; }
+		override public function get visible ():Boolean { return _visible; }
 		override public function set visible (value:Boolean):void
 		{
 			// Si c'est différent
-			if (value != super.visible)
+			if (value != _visible)
 			{
 				// Enregistrer
+				_visible = value;
+				
+				// Appliquer
 				super.visible = value;
 				
 				// Invalider la position
 				invalidatePosition();
 				
 				// Dispatcher le changement
-				_onVisibilityChanged.dispatch(this);
+				_onVisibilityChanged.dispatch();
 			}
 		}
 		
@@ -716,20 +751,26 @@ package fr.swapp.graphic.base
 		
 		
 		/**
-		 * Constructor (don't ignore when extending)
+		 * Constructeur du composant avec gestion des dimensions
 		 */
 		public function SComponent ()
 		{
+			// Signaler que le composant n'est pas disposé pour être sûr qu'on passe bien par le constructeur
+			_disposed = false;
+			
 			// Ecouter les ajouts au stage
 			if (stage != null)
+			{
 				addedHandler();
+			}
 			else
+			{
 				addEventListener(Event.ADDED_TO_STAGE, addedHandler);
+			}
 			
 			// Ecouter la suppression
 			addEventListener(Event.REMOVED_FROM_STAGE, removedHandler);
 		}
-		
 		
 		
 		/******************************************
@@ -737,7 +778,7 @@ package fr.swapp.graphic.base
 		 ******************************************/
 		
 		/**
-		 * Component initialisation.
+		 * Component initialisation. Added to stage.
 		 */
 		protected function addedHandler (event:Event = null):void
 		{
@@ -764,83 +805,91 @@ package fr.swapp.graphic.base
 				_watchedParent.onVisibilityChanged.add(parentVisibilityChangedHandler);
 			}
 			
-			// Préparer le rendu et rafraichir
-			renderPhase();
+			// Ecouter la phase de rendu
+			addEventListener(Event.FRAME_CONSTRUCTED, renderHandler);
 			
-			// Relayer
+			// Initialisation
 			init();
+			
+			// Phase de rendu
+			renderPhase();
 		}
 		
 		/**
-		 * Component destruction.
+		 * Component deletion. Removed from stage.
 		 */
 		protected function removedHandler (event:Event):void
 		{
-			// Ne plus écouter les phases
-			//stage.removeEventListener(Event.ENTER_FRAME, constructHandler);
-			
 			// Si on a déjà été disposé
 			if (_disposed)
 			{
-				// C'est un problème
-				// TODO: Récupérer les erreur de remove multiple
-				// TODO: Proposer une methode remove(pDispose:Boolean = true);
-				trace("ERREUR TODO");
+				// C'est un problème OUPS
+				trace("Multiple dispose detected in SComponent");
+				return;
 			}
-			else
+			
+			// Dispose
+			if (_autoDispose)
 			{
-				// On est disposé
-				_disposed = true;
-				
-				// Supprimer tous les listeners
-				_onResized.removeAll();
-				_onReplaced.removeAll();
-				_onStyleChanged.removeAll();
-				_onVisibilityChanged.removeAll();
-				
-				// Supprimer les signaux
-				_onResized = null;
-				_onReplaced = null;
-				_onStyleChanged = null;
-				_onVisibilityChanged = null;
-				
-				// On n'écoute plus le parent
-				if (_watchedParent != null && _watchedParent.onResized != null)
-				{
-					_watchedParent.onResized.remove(parentResizedHandler);
-					_watchedParent.onReplaced.remove(parentReplacedHandler);
-					_watchedParent.onStyleChanged.remove(parentStyleChangedHandler);
-					_watchedParent.onVisibilityChanged.remove(parentVisibilityChangedHandler);
-				}
-				
-				// On n'a plus de parent
-				_watchedParent = null;
-				
-				removeEventListener(Event.ADDED_TO_STAGE, addedHandler);
-				removeEventListener(Event.REMOVED_FROM_STAGE, removedHandler);
-				
-				// Relayer
-				//dispose();
+				dispose();
 			}
+			
+			// Ne plus écouter les phases
+			removeEventListener(Event.FRAME_CONSTRUCTED, renderHandler);
+			
+			// Supprimer tous les listeners
+			_onResized.removeAll();
+			_onReplaced.removeAll();
+			_onStyleChanged.removeAll();
+			_onVisibilityChanged.removeAll();
+			
+			// Supprimer les signaux
+			_onResized = null;
+			_onReplaced = null;
+			_onStyleChanged = null;
+			_onVisibilityChanged = null;
+			
+			// On n'écoute plus le parent
+			if (_watchedParent != null && _watchedParent.onResized != null)
+			{
+				_watchedParent.onResized.remove(parentResizedHandler);
+				_watchedParent.onReplaced.remove(parentReplacedHandler);
+				_watchedParent.onStyleChanged.remove(parentStyleChangedHandler);
+				_watchedParent.onVisibilityChanged.remove(parentVisibilityChangedHandler);
+			}
+			
+			// On n'a plus de parent
+			_watchedParent = null;
 		}
 		
+		/**
+		 * Initialize
+		 */
 		public function init ():void
 		{
 			
 		}
-		/*
+		
+		/**
+		 * Dispose component from memory
+		 */
 		public function dispose ():void
 		{
+			// On est disposé
+			_disposed = true;
 			
+			// Ne plus écouter l'ajout et la suppression
+			removeEventListener(Event.ADDED_TO_STAGE, addedHandler);
+			removeEventListener(Event.REMOVED_FROM_STAGE, removedHandler);
 		}
-		*/
+		
 		
 		/******************************************
 					   Parent observé
 		 ******************************************/
 		
 		/**
-		 * Component's parent has been replaced.
+		 * Le parent a changé de position
 		 */
 		protected function parentReplacedHandler ():void
 		{
@@ -852,7 +901,7 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * Component's parent has been resized.
+		 * Le parent a changé de taille
 		 */
 		protected function parentResizedHandler ():void
 		{
@@ -861,7 +910,7 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * The style of the component's parent has changed.
+		 * Le parent a changé de style
 		 */
 		protected function parentStyleChangedHandler ():void
 		{
@@ -870,7 +919,7 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * The visibility of the component's parent has changed.
+		 * Le parent a changé de visibilité
 		 */
 		protected function parentVisibilityChangedHandler ():void
 		{
@@ -1080,7 +1129,7 @@ package fr.swapp.graphic.base
 		
 		/**
 		 * Place this component into another. This will start the reflow process and show the component.
-		 * @param	pParent : Any Starling DisplayObjectContainer object
+		 * @param	pParent : Any DisplayObjectContainer object
 		 * @param	pName : Name of this component (optionnal)
 		 * @param	pAt : Which level (optionnal, -1 to place on front, 0 to place behind)
 		 * @return this
@@ -1111,13 +1160,63 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
+		 * Convert this component to GPU Texture
+		 * @param	pMatrixScale : Automatic scale of the bitmap (NaN to ignore)
+		 * @param	pMatrix : CacheAsBitmap matrix (Scale will be ignored if non null)
+		 * @return this
+		 */
+		public function flatten (pMatrixScale:Number = NaN, pMatrix:Matrix = null):SComponent
+		{
+			// Invalider la position
+			invalidatePosition();
+			
+			// Appliquer le cacheAsBitmap
+			cacheAsBitmap = true;
+			
+			// Si on a une matrice
+			if (pMatrix != null)
+			{
+				// On l'appliquer
+				cacheAsBitmapMatrix = pMatrix;
+			}
+			
+			// Sinon si on a un scale
+			else if (pMatrixScale > 0)
+			{
+				// On applique ce scale
+				cacheAsBitmapMatrix = new Matrix(pMatrixScale, 0, 0, pMatrixScale);
+			}
+			
+			// Méthode chaînable
+			return this;
+		}
+		
+		/**
+		 * Disable GPU Texture and reactive live component.
+		 * @return this
+		 */
+		public function unflatten ():SComponent
+		{
+			// Virer le cacheAsBitmap
+			cacheAsBitmap = false;
+			cacheAsBitmapMatrix = null;
+			
+			// Invalider la position
+			invalidatePosition();
+			
+			// Méthode chaînable
+			return this;
+		}
+		
+		/**
 		 * Specify if the component is interactive.
 		 * @return this
 		 */
 		public function interactive (pValue:Boolean):SComponent
 		{
 			// Appliquer
-			touchable = pValue;
+			mouseEnabled = pValue;
+			mouseChildren = pValue;
 			
 			// Méthode chaînable
 			return this;
@@ -1165,17 +1264,13 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * Execute render of this component. Called by starling.
+		 * Execute render of this component.
 		 */
-        public override function render (support:RenderSupport, alpha:Number):void
-        {
-			// Activer la phase de rendu
+		protected function renderHandler (event:Event):void
+		{
+			// Phase de rendu
 			renderPhase();
-			//scissorPhase(support, alpha);
-			
-			// Relayer le rendu
-			super.render(support, alpha);
-        }
+		}
 		
 		/**
 		 * Render phase
@@ -1203,34 +1298,6 @@ package fr.swapp.graphic.base
 			}
 		}
 		
-		/*
-		protected function scissorPhase (support:RenderSupport, alpha:Number):void
-		{
-			super.render(support, alpha);
-			
-			if (_scrollRect == null)
-			{
-				super.render(support, alpha);
-			}
-            else
-            {
-                var context:Context3D = Starling.context;
-				
-                if (context == null)
-					throw new MissingContextError();
-                
-                support.finishQuadBatch();
-                support.scissorRectangle = _scrollRect;
-                
-                super.render(support, alpha);
-                
-                support.finishQuadBatch();
-                support.scissorRectangle = null;
-            }
-			
-		}
-		*/
-		
 		
 		/******************************************
 						 Placement
@@ -1250,9 +1317,13 @@ package fr.swapp.graphic.base
 		 */
 		protected function updateFlow ():void
 		{
+			// Si on est disposé
 			if (_disposed)
 			{
 				trace("FUU disposed object is disposed");
+				
+				// On n'actualise pas
+				return;
 			}
 			
 			// Minimiser / maximiser les valeurs
@@ -1339,11 +1410,11 @@ package fr.swapp.graphic.base
 			// Actualiser le masque
 			if (_clipContent && (_localWidth != _oldWidth || _localHeight != _oldHeight))
 			{
-				_scrollRect = new Rectangle(0, 0, _localWidth, _localHeight);
+				scrollRect = new Rectangle(0, 0, _localWidth, _localHeight);
 			}
-			else if (!_clipContent && _scrollRect != null)
+			else if (!_clipContent && scrollRect != null)
 			{
-				_scrollRect = null;
+				scrollRect = null;
 			}
 			
 			// Si le composant a bougé
@@ -1399,24 +1470,28 @@ package fr.swapp.graphic.base
 		 */
 		protected function updateStyle ():void
 		{
-			// Récupérer le wrapper
-			var wrapper:SWrapper = SWrapper.getInstance();
-			
-			// Si on a un wrapper et si les styles sont autorisés
-			if (wrapper != null && _styleEnabled)
+			// Si on a un stage
+			if (stage != null)
 			{
-				// Récupérer la liste des styles des parents
-				var style:Object = wrapper.styleCentral.getComputedStyleFromStylable(this);
+				// Récupérer le wrapper
+				var wrapper:SWrapper = SWrapper.getInstance(stage);
 				
-				// Injecter le style
-				wrapper.styleCentral.injectStyle(this, style);
+				// Si on a un wrapper et si les styles sont autorisés
+				if (wrapper != null && _styleEnabled)
+				{
+					// Récupérer la liste des styles des parents
+					var style:Object = wrapper.styleCentral.getComputedStyleFromStylable(this);
+					
+					// Injecter le style
+					wrapper.styleCentral.injectStyle(this, style);
+					
+					// Le style a été changé
+					styleInjected();
+				}
 				
-				// Le style a été changé
-				styleInjected();
+				// Signaler que le style a changé
+				_onStyleChanged.dispatch();
 			}
-			
-			// Signaler que le style a changé
-			_onStyleChanged.dispatch();		
 		}
 		
 		/**
@@ -1429,7 +1504,7 @@ package fr.swapp.graphic.base
 		
 		
 		/******************************************
-						Visibilité
+					Component Visibility
 		 ******************************************/
 		
 		/**
@@ -1439,7 +1514,7 @@ package fr.swapp.graphic.base
 		public function isVisible ():Boolean
 		{
 			// Si on n'est pas visible
-			if (!super.visible)
+			if (!_visible)
 				return false;
 			
 			// Si on a un stage
