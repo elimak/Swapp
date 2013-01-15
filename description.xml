@@ -15,7 +15,7 @@
 	<id>fr.swapp.sample</id>
 	
 	<!-- Version de l'appli (en 3 parties obligatoirement), dernière partie incrémentée automatiquement  -->
-	<versionNumber>0.1.85</versionNumber>
+	<versionNumber>0.1.99</versionNumber>
 	
 	<!-- Nom de fichier a l'export -->
 	<filename>Swapp</filename>
@@ -155,7 +155,7 @@
 			<content>Swapp.swf</content>
 			
 			<!-- Mode de rendu (GPU pour une composition via le GPU, CPU pour rendu et composition via CPU -->
-			<renderMode>direct</renderMode>
+			<renderMode>gpu</renderMode>
 		
 		<!-- A partir de maintenant c'est pour mobile -->
 		
@@ -284,7 +284,7 @@
 		<!-- Les infos additionnelles pour Android -->
         <manifestAdditions>
 			<![CDATA[
-				<manifest>
+				<manifest android:installLocation="auto">
 					<uses-permission android:name="android.permission.INTERNET" />
 				</manifest>
 				<!-- Propriété de permissions de l'application (ce noeud doit toujours être en premier) -->

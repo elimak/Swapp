@@ -68,8 +68,9 @@
 				<certificatPassword>lhspower</certificatPassword>
 			</ios>
 			<android>
-				<certificat>B:\Perso\Alexis\certificates\p12\Certificate-lhs-development.p12</certificat>
-				<certificatPassword>lhspower</certificatPassword>
+				<certificat>C:\Users\alexis.LAHAUTESOCIETE\Dropbox\Certificats\_\Dev\LHSCertificat.p12</certificat>
+				<!--<certificat>B:\Perso\Alexis\certificates\p12\Certificate-lhs-development.p12</certificat>-->
+				<certificatPassword>azertyuiop</certificatPassword>
 			</android>
 			<air>
 				<certificat></certificat>
@@ -151,6 +152,15 @@
 				<platform name="Android test">
 					<target>apk-debug</target><!-- Compilation debug pour l'émulateur Android et les devices -->
 					<debugger>false</debugger><!-- Ne se connectera pas au debugger Flex -->
+				</platform>
+				<platform name="Android Captive">
+					<!-- Les types de packing de production pour Android -->
+					<!--<target>apk</target>--><!-- Compilation nécessitant l'installation de la machine virtuelle AIR -->
+					<target>apk-captive-runtime</target><!-- Compilation avec la machine virtuelle intégrée (plus lourd mais non dépendant) -->
+					
+					<debugger>false</debugger><!-- Ne se connectera pas au debugger Flex -->
+					<!--<nativeExtensions></nativeExtensions>-->
+					<!--<additionalCommands><![CDATA[]]></additionalCommands>-->
 				</platform>
 			</platforms>
 		</debug>

@@ -9,115 +9,331 @@
 	public class EnvUtils
 	{
 		/**
-		 * Les plateformes
+		 * EnvUtils is Singleton.
 		 */
-		public static const WIN_PLATFORM				:String				= "WIN";
-		public static const MAC_PLATFORM				:String				= "MAC";
-		public static const LINUX_PLATFORM				:String				= "LINUX";
-		public static const IOS_PLATFORM				:String				= "IOS";
-		public static const ANDROID_PLATFORM			:String				= "ANDROID";
+		protected static const __instance				:EnvUtils;
 		
 		/**
-		 * Les types de devices
+		 * Get EnvUtils only instance.
+		 * EnvUtils is Singleton.
 		 */
-		public static const PHONE						:String				= "PHONE";
-		public static const TABLET						:String				= "TABLET";
-		public static const COMPUTER					:String				= "COMPUTER";
+		public static function getInstance ():void
+		{
+			// Si l'instance n'existe pas
+			if (__instance == null)
+			{
+				// On la créé
+				__instance = new EnvUtils();
+			}
+			
+			// Retourner cette instance
+			return __instance;
+		}
+		
 		
 		/**
-		 * Inconnu (plateforme, device, taille...)
+		 * Unknow platform / device
 		 */
-		public static const UNKNOW						:String				= "UNKNOW";
+		public static const UNKNOW						:String				= "unknow";
 		
 		/**
-		 * La délimitation entre téléphone et tablette (en pouces)
+		 * All possibles platforms
+		 */
+		public static const WIN_PLATFORM				:String				= "winPlatform";
+		public static const MAC_PLATFORM				:String				= "macPlatform";
+		public static const LINUX_PLATFORM				:String				= "linuxPlatform";
+		public static const IOS_PLATFORM				:String				= "iosPlatform";
+		public static const ANDROID_PLATFORM			:String				= "androidPlatform";
+		
+		/**
+		 * All possibles devices
+		 */
+		public static const PHONE						:String				= "phoneDevice";
+		public static const TABLET						:String				= "tabletDevice";
+		public static const DESKTOP						:String				= "desktopDevice";
+		
+		/**
+		 * Inches size to determinate if phone or tablet (only for android)
 		 */
 		public static const TABLET_SIZE_DELIMITATION	:Number				= 6.5;
 		
 		/**
-		 * Les DPIs de base
+		 * Bases DPIs (only for desktop and iOS).
+		 * iPad mini is excluded from DPI resizing (it will use iPad definition)
 		 */
-		public static const COMPUTER_DPI				:uint				= 72;
+		public static const DESKTOP_DPI					:uint				= 72;
 		public static const IPAD_CLASSIC_DPI			:uint				= 132;
 		public static const IPAD_RETINA_DPI				:uint				= 264;
 		public static const IPHONE_CLASSIC_DPI			:uint				= 163;
 		public static const IPHONE_RETINA_DPI			:uint				= 326;
 		
 		/**
-		 * Les identifiants iPhone (pour la détéction)
+		 * iPhone IDs (for detection)
 		 */
 		public static const IPHONE_1_DEVICE				:String				= "iPhone1,1";
 		public static const IPHONE_3G_DEVICE			:String				= "iPhone1,2";
 		public static const IPHONE_3GS_DEVICE			:String				= "iPhone2,1";
 		public static const IPHONE_4_DEVICE				:String				= "iPhone3,";
 		public static const IPHONE_4S_DEVICE			:String				= "iPhone4,1";
+		public static const IPHONE_5_DEVICE				:String				= "iPhone5,";
 		
 		/**
-		 * Les identifiants iPod (pour la détéction)
+		 * iPod IDs (for detection)
 		 */
 		public static const IPOD_TOUCH_1_DEVICE			:String				= "iPod1,";
 		public static const IPOD_TOUCH_2_DEVICE			:String				= "iPod2,";
 		public static const IPOD_TOUCH_3_DEVICE			:String				= "iPod3,";
 		public static const IPOD_TOUCH_4_DEVICE			:String				= "iPod4,";
+		public static const IPOD_TOUCH_5_DEVICE			:String				= "iPod5,";
 		
 		/**
-		 * Les identifiants iPad (pour la détéction)
+		 * iPad IDs (for detection)
+		 * iPad mini is excluded from DPI resizing (it will use iPad definition)
 		 */
 		public static const IPAD_1_DEVICE				:String				= "iPad1,1";
 		public static const IPAD_2_DEVICE				:String				= "iPad2,";
-		public static const IPAD_3_DEVICE				:String				= "iPad3,";
+		public static const IPAD_3_DEVICE				:String				= "iPad3,1|iPad3,2|iPad3,3";
+		public static const IPAD_4_DEVICE				:String				= "iPad3,4|iPad3,5|iPad3,6";
 		
 		/**
-		 * Récupérer la version du player
+		 * Player runtime type
 		 */
-		public static function getPlayerVersion ():Vector.<uint>
+		public static const FLASH						:String				= "flashPlayer";
+		public static const AIR							:String				= "airRuntime";
+		
+		
+		
+		/**
+		 * Constructor
+		 */
+		public function EnvUtils ():void
 		{
-			return new <uint>[PlayerInfos.getMajorVersion(), PlayerInfos.getMinorVersion(), PlayerInfos.getBuildNumber(), PlayerInfos.getInternalBuild()];
+			precomputeInformations();
 		}
 		
 		/**
-		 * Récupérer la plateforme sur laquelle est éxécuté le player
+		 * Pre-compute all informations about environment to ease access.
 		 */
-		public static function getPlatform ():String
-		{	
-			/**
-			 * Deux façon de connaitre la platefomre :
-			 * 	- par le Capabilities.version
-			 *  - par le Capabilities.os, mais là c'est le système d'exploitation. 
-			 * Par exemple sur mon SII on a :
-			 * Capabilities.os :  Linux 2.6.35.7-I9100XWKK5-CL754841
-			 * PlayerInfos.getPlatform() :  AND
-			 * 
-			 * Il vaut donc mieux passer par le player pour récupérer la plateforme.
-			 * 
-			 */
-			var platform:String = Capabilities.os;
+		protected function precomputeInformations ():void
+		{
+			// Récupérer les informations de la version
+			var result:Object = /^(\w*) (\d*),(\d*),(\d*),(\d*)$/.exec(Capabilities.version);
 			
-			//trace( "Capabilities.os : " , platform );
-			//trace( "Capabilities.manufacturer : " , Capabilities.manufacturer );
-			//trace( "PlayerInfos.getPlatform() : " , PlayerInfos.getPlatform() );
-			
-			switch (PlayerInfos.getPlatform().toLowerCase()) 
+			// Si on a des résultats
+			if (result != null)
 			{
-				case "win":
-					return WIN_PLATFORM;
-				break;
-				case "mac":
-					return MAC_PLATFORM;
-				break;
-				case "lnx":
-					return LINUX_PLATFORM;
-				break;
-				case "and":
-					return ANDROID_PLATFORM;
-				break;
-				case "ios":
-					return IOS_PLATFORM;
-				break;
-				default:
-					return UNKNOW;
+				// On enregistre les valeurs
+				_version 				= result.input;
+				_platform 				= result[1];
+				_majorVersion 			= result[2];
+				_minorVersion 			= result[3];
+				_buildNumber 			= result[4];
+				_internalBuildNumber 	= result[5];
 			}
 		}
+		
+		/**
+		 * Get raw informations from Capabilities API
+		 */
+		public function getRawInformations ():String
+		{
+			return <text>
+				Capabilities.version : {Capabilities.version}
+				Capabilities.screenDPI : {Capabilities.screenDPI}
+				Capabilities.isDebugger : {Capabilities.isDebugger}
+				Capabilities.manufacturer : {Capabilities.manufacturer}
+				Capabilities.os : {Capabilities.os}
+				Capabilities.pixelAspectRatio : {Capabilities.pixelAspectRatio}
+				Capabilities.playerType : {Capabilities.playerType}
+				Capabilities.screenResolutionX : {Capabilities.screenResolutionX}
+				Capabilities.screenResolutionY : {Capabilities.screenResolutionY}
+				Capabilities.touchscreenType : {Capabilities.touchscreenType}
+			</text>.toString().replace(/(\t|\r)/g, "");
+		}
+		
+		/**
+		 * Get the device type (see statics)
+		 */
+		public function getDeviceType (pAllowDesktop:Boolean = true):String
+		{
+			// On est sur un device ?
+			var platform:String = EnvUtils.getPlatform();
+			
+			// Si on autorise à retourner un type desktop
+			if (pAllowDesktop)
+			{
+				// On est sur un ordi si on est sur Mac / Pc / Linux et si on a un DPI de 72
+				if ((platform == MAC_PLATFORM || platform == WIN_PLATFORM || platform == LINUX_PLATFORM) && Capabilities.screenDPI <= 72)
+				{
+					return COMPUTER;
+				}
+			}
+			
+			// Si on est sur iOS
+			if (platform == IOS_PLATFORM)
+			{
+				// Si on est sur le DPI d'un téléphone
+				if (Capabilities.screenDPI == IPHONE_RETINA_DPI || Capabilities.screenDPI == IPHONE_CLASSIC_DPI)
+				{
+					return PHONE;
+				}
+				
+				// Ou sur le DPI d'une tablette
+				else if (Capabilities.screenDPI == IPAD_RETINA_DPI || Capabilities.screenDPI == IPAD_CLASSIC_DPI || Capabilities.screenDPI == IPAD_MINI_DPI)
+				{
+					return TABLET
+				}
+			}
+			
+			// Si on est sur Android
+			else if (platform == ANDROID_PLATFORM)
+			{
+				// On regarde la taille supposée de l'écran
+				return (getScreenSize() >= TABLET_SIZE_DELIMITATION ? TABLET : PHONE);
+			}
+			
+			// Si on n'autorise pas les return computer
+			else if (!pAllowDesktop)
+			{
+				// 
+				if (getScreenSize(pScreenWidth, pScreenHeight) >= TABLET_SIZE_DELIMITATION)
+				{
+					return TABLET;
+				}
+				else
+				{
+					return PHONE;
+				}
+				
+			}
+			
+			// Si on est arrivé jusque ici c'est qu'on ne sait pas
+			return UNKNOW;
+		}
+		
+		/**
+		 * Check a device type (see statics)
+		 */
+		public function isDeviceType (pDeviceType:String, pAllowDesktop:Boolean = true):Boolean
+		{
+			return getDeviceType(pAllowDesktop) == pDeviceType
+		}
+		
+		/**
+		 * Get the platform type (see statics)
+		 */
+		public function getPlatformType ():String
+		{
+			// Passer le nom de la plateforme en minuscules
+			var lowPlatform:String = _platform.toLowerCase();
+			
+			// Le tableau des correspondances des plateformes
+			var correspondingPlatforms:Object = {
+				"win": WIN_PLATFORM,
+				"mac": MAC_PLATFORM,
+				"lnx": LINUX_PLATFORM,
+				"and": ANDROID_PLATFORM,
+				"ios": IOS_PLATFORM
+			};
+			
+			// Retourner si trouvé
+			(lowPlatform in correspondingPlatforms ? correspondingPlatforms[lowPlatform] : UNKNOW);
+		}
+		
+		/**
+		 * Check a platform type (see statics)
+		 */
+		public function isPlatformType (pPlatformType:String):Boolean
+		{
+			return getPlatformType() == pPlatformType;
+		}
+		
+		/**
+		 * Get the player type (see statics)
+		 */
+		public function getPlayerType ():String
+		{
+			return Capabilities.playerType == "Desktop" ? AIR : FLASH;
+		}
+		
+		/**
+		 * Check a player type (see statics)
+		 */
+		public function isPlayerType (pPlayerType:String):Boolean
+		{
+			return getPlayerType() == pPlayerType;
+		}
+		
+		/**
+		 * If the runtime is in debug mode
+		 */
+		public function isDebug ():void
+		{
+			return Capabilities.isDebugger;
+		}
+		
+		/**
+		 * Get the player version
+		 */
+		public function getPlayerVersion ():Vector.<uint>
+		{
+			//return new <uint>[PlayerInfos.getMajorVersion(), PlayerInfos.getMinorVersion(), PlayerInfos.getBuildNumber(), PlayerInfos.getInternalBuild()];
+		}
+		
+		/**
+		 * Récupérer le nom du device iOS
+		 */
+		protected function getIOSDeviceVersion ():String
+		{
+			return Capabilities.os.substr(Capabilities.os.lastIndexOf(" ") + 1, Capabilities.os.length - 1);
+		}
+		
+		
+		
+		
+		/**
+		 * Get the specific iOS device model
+		 */
+		public function getiOSSpecificDevice ():String
+		{
+			return 
+		}
+		
+		/**
+		 * Check if the device is a specific iOS model
+		 */
+		public function isiOSSpecificDevice (pDeviceType:String):Boolean
+		{
+			
+		}
+		
+		/**
+		 * Get approx screen size (inches)
+		 */
+		public function getScreenSize ():Number
+		{
+			const screenWidth	:Number = (pScreenWidth != -1 ? pScreenWidth : Capabilities.screenResolutionX) / Capabilities.screenDPI;
+			const screenHeight	:Number = (pScreenHeight != -1 ? pScreenHeight : Capabilities.screenResolutionY) / Capabilities.screenDPI;
+			const screenSize	:Number = Math.sqrt(screenWidth * screenWidth + screenHeight * screenHeight);
+			
+			return screenSize;
+		}
+		
+		/**
+		 * Get ratio for stage
+		 */
+		public function ratioForStage ():Number
+		{
+			
+		}
+		
+		
+		
+		
+		
+		
+		
+		
 		
 		/**
 		 * Récupérer la version de la plateforme
@@ -141,87 +357,6 @@
 		public static function isIOSDevice (pDevice:String):Boolean
 		{
 			return getIOSDeviceVersion().indexOf(pDevice) != -1;
-		}
-		
-		/**
-		 * Récupérer le type de device
-		 */
-		public static function getDeviceType (pAllowComputerReturn:Boolean = true, pScreenWidth:int = -1, pScreenHeight:int = -1):String
-		{
-			// On est sur un device ?
-			var platform:String = EnvUtils.getPlatform();
-			
-			// Si on autorise à retourner un type computer
-			if (pAllowComputerReturn)
-			{
-				// On est sur un ordi si on est sur Mac / Pc / Linux et si on a un DPI de 72
-				if ((platform == MAC_PLATFORM || platform == WIN_PLATFORM || platform == LINUX_PLATFORM) && Capabilities.screenDPI <= 72)
-				{
-					return COMPUTER;
-				}
-			}
-			
-			// Si on est sur iOS
-			if (platform == IOS_PLATFORM)
-			{
-				switch (Capabilities.screenDPI) 
-				{
-					// iPhone4
-					case IPHONE_RETINA_DPI:
-					// iPhone3
-					case IPHONE_CLASSIC_DPI:
-						return PHONE;
-					break;
-					// iPad3
-					case IPAD_RETINA_DPI:
-					// iPad
-					case IPAD_CLASSIC_DPI:
-						return TABLET;
-					break;
-					default: "";
-				}
-			}
-			
-			// Ou si on est sur Android
-			else if (platform == ANDROID_PLATFORM)
-			{
-				if (getScreenSize() >= TABLET_SIZE_DELIMITATION)
-				{
-					return TABLET;
-				}
-				else
-				{
-					return PHONE;
-				}
-			}
-			
-			// Si on n'autorise pas les return computer
-			else if (!pAllowComputerReturn)
-			{
-				if (getScreenSize(pScreenWidth, pScreenHeight) >= TABLET_SIZE_DELIMITATION)
-				{
-					return TABLET;
-				}
-				else
-				{
-					return PHONE;
-				}
-				
-			}
-			
-			return UNKNOW;
-		}
-		
-		/**
-		 * Récupérer la taille de l'écran (la diagonale, en pouces)
-		 */
-		public static function getScreenSize (pScreenWidth:int = -1, pScreenHeight:int = -1):Number
-		{
-			const screenWidth	:Number = (pScreenWidth != -1 ? pScreenWidth : Capabilities.screenResolutionX) / Capabilities.screenDPI;
-			const screenHeight	:Number = (pScreenHeight != -1 ? pScreenHeight : Capabilities.screenResolutionY) / Capabilities.screenDPI;
-			const screenSize	:Number = Math.sqrt(screenWidth * screenWidth + screenHeight * screenHeight);
-			
-			return screenSize;
 		}
 		
 		/**
@@ -267,172 +402,5 @@
 			return Capabilities.playerType == "Desktop";
 		}
 		
-		/**
-		 * Un toString de l'environnement.
-		 * @return
-		 */
-		static public function toString():String 
-		{
-			// La sortie.
-			var output:String;
-			
-			// Le player.
-			output = PlayerInfos.toString();
-			
-			// La plateforme.
-			
-			output += 	"---------PLATFORM-----------\n" +
-						"PLATFORM:\t\t\t" + EnvUtils.getPlatform() + "\n" +
-						"PLATFORM_VERSION:\t\t" + EnvUtils.getPlateformVersion() + "\n" +
-						"-----------------------------\n";
-		
-			// Le Device.
-			output += 	"---------DEVICE-----------\n" +
-						"DEVICE:\t\t\t" + EnvUtils.getDeviceType() + "\n" +
-						"-----------------------------\n";
-			
-			return output;
-		}
 	}
 }
-
-import flash.system.Capabilities;
-
-
-// Le player
-class PlayerInfos
-{
-	
-	// PROPERTIES
-	// ----------------------------------------
-	
-	/**
-	 * La plateforme
-	 */
-	protected static var __platform				:String;
-	
-	/**
-	 * Le numéro de version (complet, ex: 11,3,521,22).
-	 */
-	protected static var __version				:String;
-	
-	/**
-	 * La version majeur
-	 */
-	protected static var __majorVersion			:uint;
-	
-	/**
-	 * La version mineur.
-	 */
-	protected static var __minorVersion			:uint;
-	
-	/**
-	 * Le num de la build
-	 */
-	protected static var __buildNumber			:uint;
-	
-	/**
-	 * Le num de la build interne.
-	 */
-	protected static var __internalBuildNumber	:uint;
-	
-	// METHODS
-	// ----------------------------------------		
-	
-	/**
-	 * On récupère la platfomer sur laquel fonctionne le player en cours. (PC, Mac, Lin ?).
-	 * @return Retourne la platforme du player.
-	 */
-	public static function getPlatform():String 
-	{
-		if (!__platform)
-			_getPlayerInfos();
-		
-		return __platform;
-	}
-	
-	
-	/**
-	 * On récupère le numéro majeur de version du player.
-	 * @return Le numéro majeur du player.
-	 */
-	public static function getMajorVersion():Number 
-	{
-		if (!__majorVersion)
-			_getPlayerInfos();
-		
-		return __majorVersion;
-	}
-	
-	
-	/**
-	 * On récupère le numéro mineur de version du player.
-	 * @return Le numéro mineur du player.
-	 */
-	public static function getMinorVersion():Number 
-	{
-		if (!__minorVersion)
-			_getPlayerInfos();
-		
-		return __minorVersion;
-	}
-	
-	
-	/**
-	 * On récupère la build du player.
-	 * @return Retourne le numéro de build du player.
-	 */
-	public static function getBuildNumber():Number 
-	{
-		if (!__buildNumber)
-			_getPlayerInfos();
-		
-		return __buildNumber;
-	}
-	
-	/**
-	 * Récupère la build interne.
-	 */
-	public static function getInternalBuild():Number 
-	{
-		if (!__internalBuildNumber)
-			_getPlayerInfos();
-		
-		return __internalBuildNumber;
-	}
-	
-	
-	protected static function _getPlayerInfos ():void 
-	{
-		var versionString:String = Capabilities.version; 
-		var pattern:RegExp = /^(\w*) (\d*),(\d*),(\d*),(\d*)$/; 
-		var result:Object = pattern.exec(versionString);
-		
-		if (result != null) 
-		{ 
-			__version = 			result.input;
-			__platform = 			result[1];
-			__majorVersion = 		result[2];
-			__minorVersion = 		result[3];
-			__buildNumber = 		result[4];
-			__internalBuildNumber = result[5];
-		} 
-		else 
-		{ 
-			trace("Unable to match RegExp."); 
-		}
-	}	
-	
-	
-	static public function toString ():String
-	{
-		return  "-------- PLAYER ------------\n" +
-				"PLATFORM:\t\t\t" + PlayerInfos.getPlatform() + "\n" +
-				"MAJOR_VERSION:\t\t" + PlayerInfos.__majorVersion + "\n" +
-				"MINOR_VERSION:\t\t" + PlayerInfos.__minorVersion + "\n" +
-				"BUILD_NUMBER:\t\t\t" + PlayerInfos.__buildNumber+ "\n" +
-				"INTERNAL_BUILD_NUMBER:\t" + PlayerInfos.__internalBuildNumber + "\n" +
-				"-----------------------------\n";
-	}
-}
-	

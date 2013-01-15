@@ -465,6 +465,11 @@ package fr.swapp.graphic.base
 		public function get bitmapHorizontalOffset ():int { return _bitmapHorizontalOffset; }
 		public function set bitmapHorizontalOffset (value:int):void
 		{
+			if (_bitmapData != null)
+			{
+				value %= _bitmapData.width;
+			}
+			
 			// Si c'est différent
 			if (_bitmapHorizontalOffset != value)
 			{
@@ -482,6 +487,11 @@ package fr.swapp.graphic.base
 		public function get bitmapVerticalOffset ():int { return _bitmapVerticalOffset; }
 		public function set bitmapVerticalOffset (value:int):void
 		{
+			if (_bitmapData != null)
+			{
+				value %= _bitmapData.height;
+			}
+			
 			// Si c'est différent
 			if (_bitmapVerticalOffset != value)
 			{
@@ -593,11 +603,8 @@ package fr.swapp.graphic.base
 		public function bitmapOffset (pHorizontalOffset:int, pVerticalOffset:int):SGraphic
 		{
 			// Enregistrer les valeurs
-			_bitmapHorizontalOffset = pHorizontalOffset;
-			_bitmapVerticalOffset = pVerticalOffset;
-			
-			// Rendre le dessin invalide
-			invalidateDraw();
+			bitmapHorizontalOffset = pHorizontalOffset;
+			bitmapVerticalOffset = pVerticalOffset;
 			
 			// Méthode chaînable
 			return this;

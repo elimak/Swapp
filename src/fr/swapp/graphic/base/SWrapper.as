@@ -9,6 +9,8 @@ package fr.swapp.graphic.base
 	import fr.swapp.core.roles.IDisposable;
 	import fr.swapp.graphic.errors.GraphicalError;
 	import fr.swapp.graphic.styles.StyleCentral;
+	import fr.swapp.utils.EnvUtils;
+	import fr.swapp.utils.Stats;
 	
 	/**
 	 * @author ZoulouX
@@ -28,6 +30,14 @@ package fr.swapp.graphic.base
 		 */
 		public static function getInstance (pStage:Stage, pAutoRatio:Boolean = true):SWrapper
 		{
+			// Vérifier la validité du stage
+			if (pStage == null)
+			{
+				// Déclancher l'erreur singleton
+				throw new GraphicalError("SWrapper.getInstance", "Stage is null.");
+				return null;
+			}
+			
 			// Si on n'a pas d'instance
 			if (!(pStage in __instances))
 			{
@@ -55,6 +65,16 @@ package fr.swapp.graphic.base
 		 */
 		protected var _styleCentral						:StyleCentral;
 		
+		/**
+		 * Stats
+		 */
+		protected var _stats							:Stats;
+		
+		/**
+		 * If auto ratio is enabled
+		 */
+		protected var _autoRatio						:Boolean;
+		
 		
 		/**
 		 * Associated stage
@@ -71,6 +91,11 @@ package fr.swapp.graphic.base
 		 */
 		public function get styleCentral ():StyleCentral { return _styleCentral; }
 		
+		/**
+		 * If auto ratio is enabled
+		 */
+		public function get autoRatio ():Boolean { return _autoRatio; }
+		
 		
 		/**
 		 * Private constructor. Please use SWrapper.getInstance to create a new instance of SWrapper.
@@ -79,7 +104,7 @@ package fr.swapp.graphic.base
 		 * @param	pStage : The native associated stage instance from the document class
 		 * @param	pAutoRatio : Use auto ratio scaling (only if this is the first getInstance for this stage)
 		 */
-		public function SWrapper (pMultitonKey:MultitonKey, pStage:Stage, pAutoRatio:Boolean = true)
+		public function SWrapper (pMultitonKey:MultitonKey, pStage:Stage, pAutoRatio:Boolean)
 		{
 			// Vérifier la clé pour la création multiton
 			if (pMultitonKey == null)
@@ -89,42 +114,39 @@ package fr.swapp.graphic.base
 			}
 			else
 			{
-				// Vérifier la validité du stage
-				if (pStage == null)
-				{
-					// Déclancher l'erreur singleton
-					throw new GraphicalError("SWrapper.construct", "Stage is null.");
-				}
-				else
-				{
-					// Enregistrer le stage
-					_stage = pStage;
-					
-					// Ne jamais redimensionner l'UI
-					_stage.scaleMode = StageScaleMode.NO_SCALE;
-					_stage.align = StageAlign.TOP_LEFT;
-					
-					// Passer en basse qualité
-					_stage.quality = StageQuality.LOW;
-					
-					// Créer la racine
-					_root = new SComponent();
-					
-					// Le nom de la racine
-					_root.name = "root";
-					
-					// Ajouter la racine
-					_stage.addChild(_root);
-					
-					// Ecouter les redimentionnements
-					_stage.addEventListener(Event.RESIZE, stageResizedHandler);
-					
-					// Appliquer une première fois la taille du viewPort
-					//stageResizedHandler();
-					
-					// Initialiser le styleCentral
-					//initStyleCentral();
-				}
+				// Enregistrer le stage
+				_stage = pStage;
+				
+				// Si on est en ratio auto
+				_autoRatio = pAutoRatio;
+				
+				// Initialiser le wrapper de DPI automatique
+				initDPIWrapper();
+				
+				// Ne jamais redimensionner l'UI
+				_stage.scaleMode = StageScaleMode.NO_SCALE;
+				_stage.align = StageAlign.TOP_LEFT;
+				
+				// Passer en basse qualité
+				_stage.quality = StageQuality.LOW;
+				
+				// Créer la racine
+				_root = new SComponent();
+				
+				// Le nom de la racine
+				_root.name = "root";
+				
+				// Ajouter la racine
+				_stage.addChild(_root);
+				
+				// Ecouter les redimentionnements
+				_stage.addEventListener(Event.RESIZE, stageResizedHandler);
+				
+				// Appliquer une première fois la taille du viewPort
+				//stageResizedHandler();
+				
+				// Initialiser le styleCentral
+				//initStyleCentral();
 			}
 		}
 		
@@ -158,6 +180,45 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
+		 * Initialize DPI wrapper (only if autoSize is true at construction)
+		 */
+		protected function initDPIWrapper ():void
+		{
+			// Si on doit adapter
+			if (_autoRatio)
+			{
+				// Récuéprer le type de device sur lequel on est
+				const deviceType:String = EnvUtils.getInstance().;
+				
+				// Si on est sur PC / MAC
+				if (deviceType == EnvUtils.COMPUTER)
+				{
+					scaleX = scaleY = Capabilities.screenDPI / _baseDPIForComputers;
+				}
+				
+				// Si on est sur téléphone
+				else if (deviceType == EnvUtils.PHONE)
+				{
+					scaleX = scaleY = Capabilities.screenDPI / _baseDPIForPhones;
+				}
+				
+				// Si on est sur tablette
+				else if (deviceType == EnvUtils.TABLET)
+				{
+					scaleX = scaleY = Capabilities.screenDPI / _baseDPIForTablets;
+				}
+			}
+			else
+			{
+				// Le scale à 1
+				scaleX = scaleY = 1;
+			}
+			
+			// Enregistrer le ratio pour le récupérer de l'extérieur
+			_ratio = scaleX;
+		}
+		
+		/**
 		 * Dispose this instance of SWrapper
 		 */
 		public function dispose ():void
@@ -185,6 +246,27 @@ package fr.swapp.graphic.base
 			_stage = null;
 			_root = null;
 			_styleCentral = null;
+		}
+		
+		/**
+		 * Show stats
+		 */
+		public function showStats ():void
+		{
+			_stats = new Stats(100, 0, 0);
+			_stage.addChild(_stats);
+		}
+		
+		/**
+		 * Hide stats
+		 */
+		public function hideStats ():void
+		{
+			if (_stats != null)
+			{
+				_stage.removeChild(_stats);
+				_stats = null;
+			}
 		}
 	}
 }
