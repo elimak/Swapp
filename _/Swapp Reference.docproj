@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<docProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <pageTitle>Swapp AS3 Framework Reference</pageTitle>
-  <classPaths>C:\local\Frameworks\swapp\src\fr\swapp</classPaths>
-  <sourcesList />
-  <outputDirectory>C:\local\Frameworks\swapp-doc</outputDirectory>
-  <activeCompiler>1</activeCompiler>
-  <extraOptions>-library-path C:\local\Frameworks\swapp\lib\code\ -library-path C:\Frameworks\AIR3.4-FLEX4.6.0\frameworks\libs\air -window-title "Swapp AS3 Framework Reference" -footer "La Haute Soci&amp;#233;t&amp;#233; 2012 - &lt;a href=\"http://swapp.lahautesociete.com\" target=\"_parent\"&gt;swapp.lahautesociete.com&lt;/a&gt;" -left-frameset-width 300</extraOptions>
-</docProject>

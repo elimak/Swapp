@@ -1,2 +1,0 @@
-"java" -jar "C:\Frameworks\air\AIR3.5-FLEX4.6.0\lib\adt.jar" -package -target ipa-test-interpreter -storetype pkcs12 -keystore "C:\Users\alexis.LAHAUTESOCIETE\Dropbox\Certificats\Dev\iOsTeamDev.p12" -storepass "azertyuiop" -provisioning-profile "C:\Users\alexis.LAHAUTESOCIETE\Dropbox\Certificats\Dev\LaHauteSocieteProvision.mobileprovision" "C:\local\Frameworks\swapp-master\dist\Swapp-debug-0.1.ipa" "description.xml" -C "bin" Swapp.swf -C "lib/icons" .
-pause
