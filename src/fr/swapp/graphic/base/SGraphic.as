@@ -8,6 +8,8 @@ package fr.swapp.graphic.base
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import fr.swapp.graphic.atlas.SAtlasItem;
+	import fr.swapp.graphic.errors.GraphicalError;
 	
 	/**
 	 * @author ZoulouX
@@ -151,6 +153,16 @@ package fr.swapp.graphic.base
 		 */
 		protected var _drawInvalidated					:Boolean						= false;
 		
+		/**
+		 * Spécific texture width for atlas
+		 */
+		protected var _bitmapSpecificWidth				:int							= 0;
+		
+		/**
+		 * Spécific texture height for atlas
+		 */
+		protected var _bitmapSpecificHeight				:int							= 0;
+		
 		
 		/**
 		 * Le bitmapData pour le fond (null pour utiliser la couleur de fond)
@@ -181,6 +193,14 @@ package fr.swapp.graphic.base
 		public function get renderMode ():String { return _renderMode; }
 		public function set renderMode (value:String):void 
 		{
+			// Si on est en mode de rendu atlas
+			if (_renderMode == SRenderMode.ATLAS)
+			{
+				// On lève une erreur
+				throw new GraphicalError("SGraphic.renderMode", "Can't change renderMode while atlas is setted. Cancel Atlas with the atlas method with null SAtlasItem in parameter.");
+				return;
+			}
+			
 			// Si c'est différent
 			if (_renderMode != value)
 			{
@@ -614,12 +634,12 @@ package fr.swapp.graphic.base
 		 * Set a background color to this component.
 		 * @param	pBackgroundType : Type of background (accepted values from SBackgroundType)
 		 * @param	pBackgroundColor1 : First color of the background
-		 * @param	pBackgroundAlpha1 : First alpha of the background
 		 * @param	pBackgroundColor2 : Second color of the background (ignored in SBackgroundType.FLAT)
-		 * @param	pBackgroundAlpha2 : Second alpha of the background (ignored in SBackgroundType.FLAT)
+		 * @param	pBackgroundAlpha1 : First background alpha
+		 * @param	pBackgroundAlpha2 : Second background alpha (ignored in SBackgroundType.FLAT)
 		 * @return this
 		 */
-		public function background (pBackgroundType:String, pBackgroundColor1:int = 0, pBackgroundAlpha1:Number = 1, pBackgroundColor2:int = 0, pBackgroundAlpha2:Number = 1):SGraphic
+		public function background (pBackgroundType:String, pBackgroundColor1:int = 0, pBackgroundColor2:int = 0, pBackgroundAlpha1:Number = 1, pBackgroundAlpha2:Number = 1):SGraphic
 		{
 			// Enregistrer
 			_backgroundColor1 = pBackgroundColor1;
@@ -696,6 +716,44 @@ package fr.swapp.graphic.base
 			
 			// Méthode chaînable
 			return this;
+		}
+		
+		/**
+		 * Show Atlas Texture
+		 * @param	pAtlasItem : AtlasItem to show. Set to null to disable Atlas renderMode.
+		 */
+		public function atlas (pAtlasItem:SAtlasItem):void
+		{
+			// Si on a un atlas
+			if (pAtlasItem != null)
+			{
+				// On enregistre toutes les coordonnées
+				_density = pAtlasItem.associatedAtlas.density;
+				_bitmapHorizontalOffset = - pAtlasItem.x / _density;
+				_bitmapVerticalOffset = - pAtlasItem.y / _density;
+				_bitmapSpecificWidth = pAtlasItem.width;
+				_bitmapSpecificHeight = pAtlasItem.height;
+				_bitmapData = pAtlasItem.associatedAtlas.bitmapData;
+				
+				size(_bitmapSpecificWidth / _density, _bitmapSpecificHeight / _density);
+				
+				// On passe le mode de rendu en atlas
+				_renderMode = SRenderMode.ATLAS;
+			}
+			else
+			{
+				// Sinon on vire toutes les propriété atlas
+				_bitmapHorizontalOffset = 0;
+				_bitmapVerticalOffset = 0;
+				_bitmapSpecificWidth = 0;
+				_bitmapSpecificHeight = 0;
+				_bitmapData = null;
+				_density = 1;
+				_renderMode = "";
+			}
+			
+			// Invalider le dessin
+			invalidateDraw();
 		}
 		
 		
@@ -826,7 +884,7 @@ package fr.swapp.graphic.base
 						
 						// Si on a un fond
 						// Et si on est sur un mode de rendu ou le contenu peut être plus petit que la zone d'affichage
-						if (_backgroundType != SBackgroundType.NONE && _renderMode != SRenderMode.REPEAT && _renderMode != SRenderMode.AUTO_SIZE && _renderMode != SRenderMode.STRECH)
+						if (_backgroundType != SBackgroundType.NONE && _renderMode != SRenderMode.REPEAT && _renderMode != SRenderMode.AUTO_SIZE && _renderMode != SRenderMode.STRECH && _renderMode != SRenderMode.ATLAS)
 						{
 							// Dessiner le background
 							drawBackground();
@@ -966,6 +1024,12 @@ package fr.swapp.graphic.base
 				// Scaler au composant
 				horizontalScale = _localWidth / _bitmapData.width;
 				verticalScale = _localHeight / _bitmapData.height;
+			}
+			else if (_renderMode == SRenderMode.ATLAS)
+			{
+				// Scaler l'atlas au composant
+				horizontalScale = _localWidth / _bitmapSpecificWidth;
+				verticalScale = _localHeight / _bitmapSpecificHeight;
 			}
 			else if (_renderMode == SRenderMode.INSIDE || _renderMode == SRenderMode.OUTSIDE)
 			{

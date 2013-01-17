@@ -14,7 +14,6 @@ package fr.swapp.touch.emulator
 	import flash.ui.MultitouchInputMode;
 	import fr.swapp.core.roles.IDisposable;
 	import fr.swapp.touch.errors.TouchError;
-	import fr.swapp.touch.indicator.TouchIndicator;
 	
 	/**
 	 * @author ZoulouX
@@ -47,7 +46,7 @@ package fr.swapp.touch.emulator
 		 * @param	pKillMouseEvents : Si l'émulateur doit remplacer les MouseEvent ou s'il doit les laisser se propager avec les TouchEvent.
 		 * @return : L'objet MouseToTouchEmulator. A stocker s'il doit être disposé.
 		 */
-		public static function emulate (pStage:Stage, pAllowMultiTouch:Boolean, pShowPoints:Boolean = true, pKillMouseEvents:Boolean = true):MouseToTouchEmulator
+		public static function emulate (pStage:Stage, pAllowMultiTouch:Boolean, pShowPoints:Boolean = true, pKillMouseEvents:Boolean = false):MouseToTouchEmulator
 		{
 			// Créer l'objet, le retourner
 			return new MouseToTouchEmulator(pStage, pAllowMultiTouch, pShowPoints, pKillMouseEvents);

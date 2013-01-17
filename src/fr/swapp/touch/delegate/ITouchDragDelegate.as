@@ -1,7 +1,6 @@
 package fr.swapp.touch.delegate 
 {
 	import flash.display.DisplayObject;
-	import flash.geom.Point;
 	
 	/**
 	 * @author ZoulouX
@@ -26,9 +25,8 @@ package fr.swapp.touch.delegate
 		 * @param	pDirection : La direction du drag (calculé au premier déplacement donc ne changera pas dans cette session de déplacement). Voir les statiques de TouchEmulator.
 		 * @param	pXDelta : La différence de position horizontale depuis le dernier appel
 		 * @param	pYDelta : La différence de position horizontale depuis le dernier appel
-		 * @param	pPoints : La liste des points en fonction pour le déplacement
 		 * @return : L'autorisation aux parents de recevoir des touchDragging
 		 */
-		function touchDragging (pTarget:DisplayObject, pDirection:String, pXDelta:Number, pYDelta:Number, pPoints:Vector.<Point>):Boolean;
+		function touchDragging (pTarget:DisplayObject, pDirection:String, pXDelta:Number, pYDelta:Number):Boolean;
 	}
 }

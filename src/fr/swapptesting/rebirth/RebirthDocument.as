@@ -8,18 +8,33 @@ package fr.swapptesting.rebirth
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	import flash.text.TextInteractionMode;
+	import flash.utils.ByteArray;
+	import fr.swapp.graphic.atlas.SAtlas;
+	import fr.swapp.graphic.atlas.SAtlasItem;
 	import fr.swapp.graphic.base.SBackgroundType;
+	import fr.swapp.graphic.base.SComponent;
 	import fr.swapp.graphic.base.SDocument;
 	import fr.swapp.graphic.base.SGraphic;
 	import fr.swapp.graphic.base.SRenderMode;
+	import fr.swapp.graphic.controls.SButton;
+	import fr.swapp.graphic.lists.IVirtualListDelegate;
+	import fr.swapp.graphic.lists.SFreeList;
+	import fr.swapp.graphic.lists.SVirtualList;
+	import fr.swapp.touch.emulator.MouseToTouchEmulator;
 	
 	/**
 	 * @author ZoulouX
 	 */
-	public class RebirthDocument extends SDocument
+	public class RebirthDocument extends SDocument implements IVirtualListDelegate
 	{
 		[Embed(source="../../../../lib/images/z.jpg")]
 		public static const ImageTest:Class
+		
+		[Embed(source="../../../../lib/images/atlas.png")]
+		public static const AtlasImageTest:Class
+		
+		[Embed(source="../../../../lib/images/atlas.xml", mimeType='application/octet-stream')]
+		public static const AtlasXMLTest:Class
 		
 		protected var _graph1:SGraphic;
 		protected var _graph2:SGraphic;
@@ -27,6 +42,8 @@ package fr.swapptesting.rebirth
 		protected var _graph4:SGraphic;
 		
 		protected var _currentFrame:int;
+		protected var _list:SFreeList;
+		
 		
 		public function RebirthDocument ()
 		{
@@ -36,8 +53,61 @@ package fr.swapptesting.rebirth
 		override public function init ():void
 		{
 			trace("SDocument.init", _wrapper);
-			/*
+			
+			_wrapper.enableStyleCentral();
+			_wrapper.enableTouchDispatcher();
+			_wrapper.enableTouchEmulator();
 			_wrapper.showStats();
+			
+			_wrapper.styleCentral.styleData = {
+				".component1" : {
+					center: [0, 0],
+					size: [200, 200],
+					backgroundImage: {
+						background: [SBackgroundType.FLAT, 0xFF0000, .5]
+					}
+				}
+			};
+			
+			var c1:SComponent = new SComponent();
+			c1.style("component1");
+			c1.into(_wrapper.root);
+			//c1.center(0, 0).size(200, 200);
+			//c1.backgroundImage.border(1);
+			
+			/*
+			var ba:ByteArray = (new AtlasXMLTest as ByteArray);
+			
+			var atlas:SAtlas = new SAtlas(
+				(new AtlasImageTest as Bitmap).bitmapData,
+				new XML(ba.readUTFBytes(ba.length)),
+				2
+			);
+			
+			trace(atlas.getNames());
+			
+			//var atlasItem:SAtlasItem = atlas.getAtlasItem("start-button");
+			var atlasItem:SAtlasItem = atlas.getAtlasItem("arrow-left");
+			
+			_graph1 = new SGraphic();
+			_graph1.atlas(atlasItem);
+			_graph1.border(1);
+			_graph1.center(0, 0).into(_wrapper.root);
+			*/
+			
+			/*
+			_list = new SFreeList(this);
+			_list.place(100, 100, 100, 100).into(_wrapper.root);
+			_list.clipContent = true;
+			*/
+			
+			/*
+			
+			var button:SButton = new SButton(false);
+			button.styleEnabled = true;
+			button.backgroundImage.background(SBackgroundType.FLAT, 0x333333);
+			button.backgroundImage.allRadius(10);
+			button.size(150, 30).center(0, 0).into(_wrapper.root);;
 			
 			var texture:BitmapData = (new ImageTest as Bitmap).bitmapData;
 			
@@ -69,7 +139,6 @@ package fr.swapptesting.rebirth
 			addEventListener(Event.ENTER_FRAME, enterFrameHandler);
 			*/
 			
-			
 			/*
 			var textField:TextField = new TextField();
 			textField.width = stage.stageWidth;
@@ -88,11 +157,70 @@ package fr.swapptesting.rebirth
 				Capabilities.screenResolutionX : {Capabilities.screenResolutionX}
 				Capabilities.screenResolutionY : {Capabilities.screenResolutionY}
 				Capabilities.touchscreenType : {Capabilities.touchscreenType}
+				ratio : {_wrapper.ratio}
 			</text>.toString().replace(/(\t|\r)/g, "");
 			addChild(textField);
-			
-			//trace(10000000000000000 === 10000000000000001);
 			*/
+			//trace(10000000000000000 === 10000000000000001);
+			
+		}
+		
+		/* INTERFACE fr.swapp.graphic.lists.IVirtualListDelegate */
+		
+		public function getFirstVirtualIndex (pTarget:SVirtualList):int
+		{
+			return 0;
+		}
+		
+		public function getLastVirtualIndex (pTarget:SVirtualList):int
+		{
+			return 100;
+		}
+		
+		public function getVirtualElement (pTarget:SVirtualList, pIndex:int):SComponent
+		{
+			var component:SComponent;
+			
+			/*
+			component = new SComponent();
+			component.styleEnabled = true;
+			component.backgroundImage.background(SBackgroundType.FLAT, Math.random() * 0xFFFFFF);
+			
+			var c:SComponent = component;
+			var oldC:SComponent;
+			for (var i:int = 0; i < 6; i++) 
+			{
+				oldC = c;
+				c = new SComponent();
+				c.styleEnabled = true;
+				c.backgroundImage.background(SBackgroundType.FLAT, Math.random() * 0xFFFFFF);
+				c.place(10, 10, 10, 10).into(oldC);
+			}
+			*/
+			
+			if (pTarget == _list)
+			{
+				component = new SFreeList(this, "horizontal");
+			}
+			else
+			{
+				component = new SComponent();
+				component.styleEnabled = true;
+				component.backgroundImage.background(SBackgroundType.FLAT, Math.random() * 0xFFFFFF);
+				
+				var button:SButton = new SButton();
+				button.styleEnabled = true;
+				button.backgroundImage.background(SBackgroundType.VERTICAL_GRADIENT, 0x333333, 0x000000);
+				button.backgroundImage.allRadius(10);
+				button.center(0, 0).size(80, 30).into(component);
+			}
+			
+			return component;
+		}
+		
+		public function getVirtualTipicalElementSize (pTarget:SVirtualList):int
+		{
+			return 160;
 		}
 		
 		protected function enterFrameHandler (event:Event):void

@@ -6,6 +6,11 @@ package fr.swapp.graphic.base
 	public class SRenderMode
 	{
 		// TODO : Ajoute un mode de rendu qui permet de déplacement l'image dans le composant (ex : photo multitouch)
+		// TODO : Implémenter le mode de rendu Scale 9 / Scale 3 et auto
+		// TODO : Implémenter le mode de rendu Atlas (il faudra ajouter une methode helper pour les coordonnées)
+		// TODO : Implémenter le scale 9 et scale 3 en mode Atlas
+		// TODO : Implémenter le fait de continuer le dessin du bitmap ou non (avec le paramètre allowOverflow) en renderMode NO_SCALE / CENTER
+		// TODO : Finir de traduire / refacto SGraphic
 		
 		/**
 		 * Stretch the image to the component size. Image proportions are not respected.
@@ -53,21 +58,21 @@ package fr.swapp.graphic.base
 		/**
 		 * Use Scale 3 grid to show a fluid image with 3 horizontal slices.
 		 */
-		public static const HORIZONTAL_SCALE_3_RENDER	:String								= "horizontalScale3RenderMode"
+		//public static const HORIZONTAL_SCALE_3_RENDER	:String								= "horizontalScale3RenderMode"
 		
 		/**
 		 * Use Scale 3 grid to show a fluid image with 3 vertical slices.
 		 */
-		public static const VERTICAL_SCALE_3_RENDER		:String								= "verticalScale3RenderMode";
+		//public static const VERTICAL_SCALE_3_RENDER		:String								= "verticalScale3RenderMode";
 		
 		/**
 		 * Use Scale 9 grid to show a fluid image with 9 slices.
 		 */
-		public static const SCALE_9_RENDER				:String								= "scale9RenderMode";
+		//public static const SCALE_9_RENDER				:String								= "scale9RenderMode";
 		
 		/**
 		 * Use Scale grid automatically from image.
 		 */
-		public static const AUTO_SCALE_RENDER			:String								= "autoScaleRenderMode";
+		//public static const AUTO_SCALE_RENDER			:String								= "autoScaleRenderMode";
 	}
 }

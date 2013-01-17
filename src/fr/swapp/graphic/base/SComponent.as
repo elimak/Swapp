@@ -875,6 +875,9 @@ package fr.swapp.graphic.base
 		 */
 		public function dispose ():void
 		{
+			// TODO : Vérifier les disposes de SComponent. Trouver aussi un moyen pour faire du pooling sans faire de remove.
+			// TODO : Vérifier la propagation de visibility
+			
 			// On est disposé
 			_disposed = true;
 			
@@ -1470,6 +1473,7 @@ package fr.swapp.graphic.base
 		 */
 		protected function updateStyle ():void
 		{
+			return;
 			// Si on a un stage
 			if (stage != null)
 			{

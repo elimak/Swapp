@@ -158,5 +158,24 @@
 			// Retourner le cloné du tableau
 			return newTab;
 		}
+		
+		/**
+		 * Récupérer les clés d'un tableau
+		 */
+		public static function getKeys (pArray:Array):Array
+		{
+			// Créer le tableau de sortie
+			var out:Array = [];
+			
+			// Parcourir les tableau d'entrée par clé
+			for (var i:* in pArray)
+			{
+				// Ajouter chaque clé au tableau de sortie
+				out.push(i);
+			}
+			
+			// Retourner le tableau de sortie
+			return out;
+		}
 	}
 }

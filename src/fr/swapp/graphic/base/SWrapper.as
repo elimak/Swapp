@@ -9,6 +9,8 @@ package fr.swapp.graphic.base
 	import fr.swapp.core.roles.IDisposable;
 	import fr.swapp.graphic.errors.GraphicalError;
 	import fr.swapp.graphic.styles.StyleCentral;
+	import fr.swapp.touch.dispatcher.TouchDispatcher;
+	import fr.swapp.touch.emulator.MouseToTouchEmulator;
 	import fr.swapp.utils.EnvUtils;
 	import fr.swapp.utils.Stats;
 	
@@ -17,6 +19,22 @@ package fr.swapp.graphic.base
 	 */
 	public class SWrapper implements IDisposable
 	{
+		/**
+		 * Ratio rounded slices
+		 */
+		public static var ratioRoundSlices			:Number 				= 6;
+		
+		/**
+		 * Android tap threshold (in pixels)
+		 */
+		public static var androidTapThreshold		:int					= 10;
+		
+		/**
+		 * Default tap threshold (in pixels)
+		 */
+		public static var defaultTapThreshold		:int					= 2;
+		
+		
 		/**
 		 * SWrapper instances
 		 */
@@ -34,7 +52,7 @@ package fr.swapp.graphic.base
 			if (pStage == null)
 			{
 				// Déclancher l'erreur singleton
-				throw new GraphicalError("SWrapper.getInstance", "Stage is null.");
+				throw new GraphicalError("SWrapper.getInstance", "Stage can't be null.");
 				return null;
 			}
 			
@@ -66,6 +84,11 @@ package fr.swapp.graphic.base
 		protected var _styleCentral						:StyleCentral;
 		
 		/**
+		 * Touch dispatcher
+		 */
+		protected var _touchDispatcher					:TouchDispatcher;
+		
+		/**
 		 * Stats
 		 */
 		protected var _stats							:Stats;
@@ -75,6 +98,10 @@ package fr.swapp.graphic.base
 		 */
 		protected var _autoRatio						:Boolean;
 		
+		/**
+		 * Current stage ratio (if autoRatio is true, default is 1)
+		 */
+		protected var _ratio							:Number						= 1;
 		
 		/**
 		 * Associated stage
@@ -92,9 +119,19 @@ package fr.swapp.graphic.base
 		public function get styleCentral ():StyleCentral { return _styleCentral; }
 		
 		/**
+		 * Touch dispatcher
+		 */
+		public function get touchDispatcher ():TouchDispatcher { return _touchDispatcher; }
+		
+		/**
 		 * If auto ratio is enabled
 		 */
 		public function get autoRatio ():Boolean { return _autoRatio; }
+		
+		/**
+		 * Current stage ratio (if autoRatio is true, default is 1)
+		 */
+		public function get ratio ():Number { return _ratio; }
 		
 		
 		/**
@@ -120,9 +157,6 @@ package fr.swapp.graphic.base
 				// Si on est en ratio auto
 				_autoRatio = pAutoRatio;
 				
-				// Initialiser le wrapper de DPI automatique
-				initDPIWrapper();
-				
 				// Ne jamais redimensionner l'UI
 				_stage.scaleMode = StageScaleMode.NO_SCALE;
 				_stage.align = StageAlign.TOP_LEFT;
@@ -139,35 +173,22 @@ package fr.swapp.graphic.base
 				// Ajouter la racine
 				_stage.addChild(_root);
 				
+				// Initialiser le wrapper de DPI automatique
+				initDPIWrapper();
+				
 				// Ecouter les redimentionnements
 				_stage.addEventListener(Event.RESIZE, stageResizedHandler);
 				
 				// Appliquer une première fois la taille du viewPort
 				//stageResizedHandler();
-				
-				// Initialiser le styleCentral
-				//initStyleCentral();
 			}
 		}
 		
-		
-		/**
-		 * Native stage is resized
-		 */
-		protected function stageResizedHandler (event:Event = null):void
-		{
-			// Si les dimensions du root et du stage sont différentes
-			if (_root.width != _stage.stageWidth || _root.height != _stage.stageHeight)
-			{
-				// Définir la taille du root
-				_root.size(_stage.stageWidth, _stage.stageHeight);
-			}
-		}
 		
 		/**
 		 * Initialize style manager
 		 */
-		protected function initStyleCentral ():void
+		public function enableStyleCentral ():void
 		{
 			// Créer le centre de gestion des styles
 			_styleCentral = new StyleCentral();
@@ -180,6 +201,46 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
+		 * Initialize touch dispatcher if needed.
+		 */
+		public function enableTouchDispatcher ():void
+		{
+			// Créer le touchDispatcher de ce stage
+			// Patcher les touch foireux d'Android
+			_touchDispatcher = TouchDispatcher.getInstance(_stage, EnvUtils.getInstance().isPlatformType(EnvUtils.ANDROID_PLATFORM) ? androidTapThreshold : defaultTapThreshold);
+		}
+		
+		/**
+		 * Enable touch emulator for desktop testing
+		 */
+		public function enableTouchEmulator ():void
+		{
+			MouseToTouchEmulator.auto(_stage);
+		}
+		
+		/**
+		 * Native stage is resized
+		 */
+		protected function stageResizedHandler (event:Event = null):void
+		{
+			// Si les dimensions du root et du stage sont différentes
+			if (_root.width != _stage.stageWidth || _root.height != _stage.stageHeight)
+			{
+				// Si on a un ratio automatique
+				if (_autoRatio)
+				{
+					// Définir la taille du root
+					_root.size(_stage.stageWidth / _ratio, _stage.stageHeight / _ratio);
+				}
+				else
+				{
+					// Définir la taille du root
+					_root.size(_stage.stageWidth, _stage.stageHeight);
+				}
+			}
+		}
+		
+		/**
 		 * Initialize DPI wrapper (only if autoSize is true at construction)
 		 */
 		protected function initDPIWrapper ():void
@@ -187,35 +248,15 @@ package fr.swapp.graphic.base
 			// Si on doit adapter
 			if (_autoRatio)
 			{
-				// Récuéprer le type de device sur lequel on est
-				const deviceType:String = EnvUtils.getInstance().;
+				// Récupérer le ratio et l'enregistrer
+				_ratio = EnvUtils.getInstance().getRatioForStage();
 				
-				// Si on est sur PC / MAC
-				if (deviceType == EnvUtils.COMPUTER)
-				{
-					scaleX = scaleY = Capabilities.screenDPI / _baseDPIForComputers;
-				}
+				// Arrondir le ratio
+				_ratio = Math.round(_ratio * ratioRoundSlices) / ratioRoundSlices;
 				
-				// Si on est sur téléphone
-				else if (deviceType == EnvUtils.PHONE)
-				{
-					scaleX = scaleY = Capabilities.screenDPI / _baseDPIForPhones;
-				}
-				
-				// Si on est sur tablette
-				else if (deviceType == EnvUtils.TABLET)
-				{
-					scaleX = scaleY = Capabilities.screenDPI / _baseDPIForTablets;
-				}
+				// Appliquer le ratio
+				_root.scaleX = _root.scaleY = _ratio;
 			}
-			else
-			{
-				// Le scale à 1
-				scaleX = scaleY = 1;
-			}
-			
-			// Enregistrer le ratio pour le récupérer de l'extérieur
-			_ratio = scaleX;
 		}
 		
 		/**
@@ -228,6 +269,9 @@ package fr.swapp.graphic.base
 			
 			// Disposer la racine
 			_root.dispose();
+			
+			// Masquer les stats
+			hideStats();
 			
 			// Ne plus écouter les resizes
 			_stage.removeEventListener(Event.RESIZE, stageResizedHandler);
@@ -253,7 +297,13 @@ package fr.swapp.graphic.base
 		 */
 		public function showStats ():void
 		{
+			// Créer les stats
 			_stats = new Stats(100, 0, 0);
+			
+			// Appliquer le ratio du stage
+			_stats.scaleX = _stats.scaleY = _ratio;
+			
+			// Les ajouter
 			_stage.addChild(_stats);
 		}
 		
@@ -262,8 +312,10 @@ package fr.swapp.graphic.base
 		 */
 		public function hideStats ():void
 		{
+			// Si on a des stats
 			if (_stats != null)
 			{
+				// On les vires
 				_stage.removeChild(_stats);
 				_stats = null;
 			}

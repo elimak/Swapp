@@ -1,11 +1,11 @@
-package fr.swapp.utils {
+package fr.swapp.utils
+{
 import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.display.CapsStyle;
 import flash.display.JointStyle;
 import flash.display.LineScaleMode;
 import flash.display.Sprite;
-import flash.events.ContextMenuEvent;
 import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.geom.Matrix;
@@ -15,8 +15,6 @@ import flash.system.System;
 import flash.text.StyleSheet;
 import flash.text.TextField;
 import flash.text.TextFieldAutoSize;
-import flash.ui.ContextMenu;
-import flash.ui.ContextMenuItem;
 import flash.utils.getTimer;
 
 /**
@@ -64,34 +62,15 @@ import flash.utils.getTimer;
  * 
  **/
 
-public class Stats extends Sprite {
-
+public class Stats extends Sprite
+{
 	// stats default size.
-	private const DEFAULT_WIDTH:int = 70;
+	private const DEFAULT_WIDTH:int = 100;
 	private const DEFAULT_HEIGHT:int = 100;
 	private const MINIMIZED_WIDTH:int = 62;
 	private const MINIMIZED_HEIGHT:int = 13;
-	private const MONITOR_WIDTH:int = 500;
-	// fps button consts
-	private const BUTTON_XPOS:int = 62;
-	private const BUTTON_YPOS:int = 2;
-	private const BUTTON_SIZE:Number = 6;
-	private const BUTTON_GAP:int = 9;
-	private const BUTTON_MONITOR_GAP:int = 21;
-	// 
-	private const SCROLL_SIZE:Number = 10;
-	private const MINIMIZE_BUTTON_SIZE:Number = 5;
-
-	// context menu captions
-	private const ZOOM_CAPTION_x2:String = "Zoom to *2";
-	private const ZOOM_CAPTION_x1:String = "Zoom to *1";
-	private const MINIMIZE_CAPTION_ON:String = "Maximize.";
-	private const MINIMIZE_CAPTION_OFF:String = "Minimize.";
-	private const DRAG_CAPTION_ON:String = "Disable dragging.";
-	private const DRAG_CAPTION_OFF:String = "Enable dragging.";
-	private const MONITOR_CAPTION_ON:String = "Disable monitoring.";
-	private const MONITOR_CAPTION_OFF:String = "Enable monitoring.";
-	private const KILL_CAPTION:String = " !!! Kill Stats object. ಠ_ಠ";
+	private const MONITOR_WIDTH:int = 100;
+	
 
 	// bonus width addet to default WIDTH.
 	private var _bonusWidth:int = 0;
@@ -134,11 +113,6 @@ public class Stats extends Sprite {
 	private var monitoringHistoryNewPoint:Point;
 	private var monitorSeparatorRect:Rectangle;
 
-	// context menu items.
-	private var zoomMenuItem:ContextMenuItem;
-	private var minimizeMenuItem:ContextMenuItem;
-	private var dragMenuItem:ContextMenuItem;
-	private var monitorMenuItem:ContextMenuItem;
 
 	// current graph draw value.
 	private var fpsGraph:int = 0;
@@ -156,9 +130,9 @@ public class Stats extends Sprite {
 
 	// flag to show application execution and render monitoring.
 	private var _isMonitoring:Boolean = false;
-
-	// scaling parameter for simple scaling.
-	private var _scale:Number = 1;
+	private var _xOffset:Number;
+	private var _yOffset:Number;
+	private var _moved:int = -1;
 
 	/**
 	 * Stats - FPS, MS and MEM, all in one.
@@ -170,14 +144,11 @@ public class Stats extends Sprite {
 	 * @param	isMonitoring	flag to start monitoring frame execution time. (will not monitor by default.)
 	 * @param	scale			simplified scaling of stat object.
 	 */
-	public function Stats(width:int = 70, x:int = 0, y:int = 0, isMinimized:Boolean = false, isDraggable:Boolean = true, isMonitoring:Boolean = false, scale:Number = 1):void {
+	public function Stats(width:int = 70, x:int = 0, y:int = 0, isMinimized:Boolean = false, isDraggable:Boolean = true, isMonitoring:Boolean = false):void {
 		//
 		this._isDraggable = isDraggable;
 		this._isMonitoring = isMonitoring;
 		this._isMinimized = isMinimized;
-		this._scale = scale;
-
-		initContextMenu();
 
 		// calculate increased width.
 		bonusWidth = width - DEFAULT_WIDTH;
@@ -226,68 +197,6 @@ public class Stats extends Sprite {
 		this.mouseChildren = false;
 	}
 
-	// init righth button click menu.
-	private function initContextMenu():void {
-		var menu:ContextMenu = new ContextMenu();
-		zoomMenuItem = new ContextMenuItem(ZOOM_CAPTION_x2);
-		zoomMenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, handleTogleZoom, false, 0, true);
-		if (_scale != 1) {
-			zoomMenuItem.caption = ZOOM_CAPTION_x1;
-		}
-		minimizeMenuItem = new ContextMenuItem(MINIMIZE_CAPTION_OFF, true);
-		minimizeMenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, toggleMinimize, false, 0, true);
-		if (_isMinimized) {
-			minimizeMenuItem.caption = MINIMIZE_CAPTION_ON;
-		}
-		dragMenuItem = new ContextMenuItem(DRAG_CAPTION_ON);
-		dragMenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, toggleDrag, false, 0, true);
-		if (!_isDraggable) {
-			dragMenuItem.caption = DRAG_CAPTION_ON;
-		}
-		monitorMenuItem = new ContextMenuItem(MONITOR_CAPTION_OFF);
-		monitorMenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, toggleMonitor, false, 0, true);
-		if (_isMonitoring) {
-			monitorMenuItem.caption = MONITOR_CAPTION_ON;
-		}
-		var killMenuItem:ContextMenuItem = new ContextMenuItem(KILL_CAPTION, true);
-		killMenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, destroy, false, 0, true);
-		if(menu.customItems != null){
-			menu.customItems.push( //
-				zoomMenuItem, //
-				minimizeMenuItem, //
-				dragMenuItem, //
-				monitorMenuItem, //
-				killMenuItem //
-				);
-		}
-
-		this.contextMenu = menu;
-	}
-
-	//----------------------------------
-	//     Context menu click handlers
-	//----------------------------------
-
-	private function handleTogleZoom(event:ContextMenuEvent):void {
-		if (_scale == 1) {
-			scale = 2;
-		} else {
-			scale = 1;
-		}
-	}
-
-	private function toggleMinimize(event:ContextMenuEvent):void {
-		isMinimized = !_isMinimized;
-	}
-
-	private function toggleDrag(event:ContextMenuEvent):void {
-		isDraggable = !_isDraggable;
-	}
-
-	private function toggleMonitor(event:ContextMenuEvent):void {
-		isMonitoring = !_isMonitoring;
-	}
-
 	//----------------------------------
 	//     init
 	//----------------------------------
@@ -309,15 +218,10 @@ public class Stats extends Sprite {
 		monitorSeparatorRect = new Rectangle(0, 8, MONITOR_WIDTH, 1)
 
 		// add events.
-		addEventListener(MouseEvent.CLICK, handleClick);
 		addEventListener(Event.ENTER_FRAME, handleFrameTick);
-		addEventListener(MouseEvent.MOUSE_WHEEL, handleMouseWheel);
 
 		// init draging feature by using setter. 
 		isDraggable = _isDraggable;
-
-		// activate scaling setter.
-		scale = _scale;
 
 		// draw bg and graph
 		initDrawArea();
@@ -329,7 +233,6 @@ public class Stats extends Sprite {
 		initBackground();
 		initGraph();
 		initMonitoring();
-		initMinimizeButton();
 	}
 
 	// draw bg with buttons
@@ -343,39 +246,6 @@ public class Stats extends Sprite {
 		}
 		graphics.endFill();
 
-		if (!_isMinimized) {
-			// draw fps UP/DOWN buttons
-			graphics.lineStyle(1, colors.fps, 1, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.MITER);
-			// plus sign button
-			graphics.drawRect(BUTTON_XPOS, BUTTON_YPOS, BUTTON_SIZE, BUTTON_SIZE);
-			graphics.moveTo(BUTTON_XPOS + BUTTON_SIZE / 2, BUTTON_YPOS);
-			graphics.lineTo(BUTTON_XPOS + BUTTON_SIZE / 2, BUTTON_YPOS + BUTTON_SIZE);
-			graphics.moveTo(BUTTON_XPOS, BUTTON_YPOS + BUTTON_SIZE / 2);
-			graphics.lineTo(BUTTON_XPOS + BUTTON_SIZE, BUTTON_YPOS + BUTTON_SIZE / 2);
-			// minus sign button
-			graphics.drawRect(BUTTON_XPOS, BUTTON_YPOS + BUTTON_GAP, BUTTON_SIZE, BUTTON_SIZE);
-			graphics.moveTo(BUTTON_XPOS, BUTTON_YPOS + BUTTON_SIZE / 2 + BUTTON_GAP);
-			graphics.lineTo(BUTTON_XPOS + BUTTON_SIZE, BUTTON_YPOS + BUTTON_SIZE / 2 + BUTTON_GAP);
-			// monitoring on/off button.
-			graphics.lineStyle(1, colors.monitorSeparator, 1, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.MITER);
-			graphics.drawRect(BUTTON_XPOS, BUTTON_YPOS + BUTTON_MONITOR_GAP, BUTTON_SIZE, BUTTON_SIZE);
-			graphics.lineStyle(1, colors.executionTime, 1, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.MITER);
-			graphics.moveTo(BUTTON_XPOS + 1, BUTTON_YPOS + BUTTON_MONITOR_GAP + 1);
-			graphics.lineTo(BUTTON_XPOS + 1, BUTTON_YPOS + BUTTON_MONITOR_GAP + BUTTON_SIZE - 1);
-			graphics.moveTo(BUTTON_XPOS + 2, BUTTON_YPOS + BUTTON_MONITOR_GAP + 1);
-			graphics.lineTo(BUTTON_XPOS + 2, BUTTON_YPOS + BUTTON_MONITOR_GAP + BUTTON_SIZE - 1);
-			graphics.lineStyle(1, colors.ms, 1, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.MITER);
-			graphics.moveTo(BUTTON_XPOS + 2, BUTTON_YPOS + BUTTON_MONITOR_GAP + 1);
-			graphics.lineTo(BUTTON_XPOS + 3, BUTTON_YPOS + BUTTON_MONITOR_GAP + 1);
-			graphics.moveTo(BUTTON_XPOS + 3, BUTTON_YPOS + BUTTON_MONITOR_GAP + 2);
-			graphics.lineTo(BUTTON_XPOS + 4, BUTTON_YPOS + BUTTON_MONITOR_GAP + 2);
-			graphics.moveTo(BUTTON_XPOS + 3, BUTTON_YPOS + BUTTON_MONITOR_GAP + 2);
-			graphics.lineTo(BUTTON_XPOS + 3, BUTTON_YPOS + BUTTON_MONITOR_GAP + 3);
-			graphics.moveTo(BUTTON_XPOS + 2, BUTTON_YPOS + BUTTON_MONITOR_GAP + 4);
-			graphics.lineTo(BUTTON_XPOS + 4, BUTTON_YPOS + BUTTON_MONITOR_GAP + 4);
-			graphics.moveTo(BUTTON_XPOS + 2, BUTTON_YPOS + BUTTON_MONITOR_GAP + 5);
-			graphics.lineTo(BUTTON_XPOS + 3, BUTTON_YPOS + BUTTON_MONITOR_GAP + 5);
-		}
 		//
 		graphics.lineStyle();
 	}
@@ -401,18 +271,6 @@ public class Stats extends Sprite {
 	// init monitoring feature
 	private function initMonitoring():void {
 		// draw button outline.
-		if (!_isMinimized) {
-			if (_isMonitoring) {
-				graphics.lineStyle(1, 0xFFFFFF, 1, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.MITER);
-				graphics.drawRect(BUTTON_XPOS, BUTTON_YPOS + BUTTON_MONITOR_GAP, BUTTON_SIZE, BUTTON_SIZE);
-				graphics.drawRect(BUTTON_XPOS - 1, BUTTON_YPOS - 1 + BUTTON_MONITOR_GAP, BUTTON_SIZE + 2, BUTTON_SIZE + 2);
-			} else {
-				graphics.lineStyle(1, colors.monitorSeparator, 1, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.MITER);
-				graphics.drawRect(BUTTON_XPOS, BUTTON_YPOS + BUTTON_MONITOR_GAP, BUTTON_SIZE, BUTTON_SIZE);
-				graphics.lineStyle(1, colors.bg, 1, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.MITER);
-				graphics.drawRect(BUTTON_XPOS - 1, BUTTON_YPOS - 1 + BUTTON_MONITOR_GAP, BUTTON_SIZE + 2, BUTTON_SIZE + 2);
-			}
-		}
 		graphics.lineStyle();
 
 		// handle  monitorView
@@ -424,7 +282,7 @@ public class Stats extends Sprite {
 			if (!this.contains(monitorView)) {
 				this.addChild(monitorView);
 			}
-			monitorView.x = DEFAULT_WIDTH + _bonusWidth + 5;
+			monitorView.x = DEFAULT_WIDTH + _bonusWidth + 1;
 		} else {
 			if (monitorView_BD) {
 				monitorView_BD.fillRect(monitorView_BD.rect, colors.bg);
@@ -457,26 +315,6 @@ public class Stats extends Sprite {
 		}
 	}
 
-	// draw minimize button.
-	private function initMinimizeButton():void {
-		graphics.beginFill(0xFF0000)
-		graphics.moveTo(-1, 4);
-		if (_isMinimized) {
-			graphics.lineTo(4, 4);
-		} else {
-			graphics.lineTo(-1, -1);
-		}
-		graphics.lineTo(4, -1);
-		graphics.lineTo(-1, 4);
-		graphics.endFill();
-
-		if (_isMinimized) {
-			// resize text field down. (so it will not increase boundary area for mouse clicks..)
-			statsText.text = "...";
-			statsText.height = statsText.textWidth;
-		}
-	}
-
 	//----------------------------------
 	//      
 	//----------------------------------
@@ -494,7 +332,6 @@ public class Stats extends Sprite {
 		graph_BD.dispose();
 
 		// remove listeners.
-		removeEventListener(MouseEvent.CLICK, handleClick);
 		removeEventListener(Event.ENTER_FRAME, handleFrameTick);
 
 		if (_isDraggable) {
@@ -607,61 +444,6 @@ public class Stats extends Sprite {
 		lastTimer = timer;
 	}
 
-	// handle click over stat object.
-	private function handleClick(event:MouseEvent):void {
-		// check if click is in button area.
-		if (!_isMinimized) {
-			if (this.mouseX > BUTTON_XPOS) {
-				if (this.mouseX < BUTTON_XPOS + BUTTON_SIZE) {
-					// add fps button
-					if (this.mouseY > BUTTON_YPOS) {
-						if (this.mouseY < BUTTON_YPOS + BUTTON_SIZE) {
-							stage.frameRate = Math.round(stage.frameRate + 1);
-							statData.fps = "FPS: " + fps + " / " + stage.frameRate;
-							statsText.htmlText = statData;
-						}
-					}
-					// remove fps button
-					if (this.mouseY > BUTTON_YPOS + BUTTON_GAP) {
-						if (this.mouseY < BUTTON_YPOS + BUTTON_SIZE + BUTTON_GAP) {
-							stage.frameRate = Math.round(stage.frameRate - 1);
-							statData.fps = "FPS: " + fps + " / " + stage.frameRate;
-							statsText.htmlText = statData;
-						}
-					}
-					// toggle monitoring button
-					if (this.mouseY > BUTTON_YPOS + BUTTON_MONITOR_GAP) {
-						if (this.mouseY < BUTTON_YPOS + BUTTON_SIZE + BUTTON_MONITOR_GAP) {
-							isMonitoring = !_isMonitoring;
-						}
-					}
-					// recalculate fpsRate. (needed if it is changed.)
-					if (_isMonitoring) {
-						frameRateTime = Math.round(1000 / this.stage.frameRate);
-						frameRateRect.x = frameRateTime;
-					}
-				}
-			}
-		}
-		// minimize button
-		if (this.mouseX < MINIMIZE_BUTTON_SIZE) {
-			if (this.mouseY < MINIMIZE_BUTTON_SIZE) {
-				isMinimized = !_isMinimized;
-			}
-		}
-	}
-
-	// handle mouseWheel
-	private function handleMouseWheel(event:MouseEvent):void {
-		if (event.delta > 0) {
-			bonusWidth = _bonusWidth + SCROLL_SIZE;
-		} else {
-			bonusWidth = _bonusWidth - SCROLL_SIZE;
-		}
-		// redraw bg
-		initDrawArea();
-	}
-
 	// 
 	private function handleFrameRender(event:Event):void {
 		codeTime = getTimer() - timer;
@@ -672,24 +454,49 @@ public class Stats extends Sprite {
 	//----------------------------------
 
 	// start dragging
-	private function handleMouseDown(event:MouseEvent):void {
+	private function handleMouseDown(event:MouseEvent):void
+	{
+		_xOffset = mouseX * this.transform.concatenatedMatrix.a;
+		_yOffset = mouseY * this.transform.concatenatedMatrix.d;
+		_moved = 0;
 		this.stage.addEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
 	}
-
+	
 	// stop dragging
 	private function handleMouseUp(event:MouseEvent):void {
 		this.stage.removeEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
+		
+		if (_moved >= 0 && _moved <= 2)
+		{
+			if (_isMinimized)
+			{
+				isMinimized = false;
+				isMonitoring = false;
+			}
+			else if (!_isMonitoring)
+			{
+				isMonitoring = true;
+			}
+			else
+			{
+				isMinimized = true;
+			}
+			
+		}
+		
+		_moved = -1;
 	}
 
 	// handle dragging
 	private function mouseMoveHandler(event:MouseEvent):void {
+		_moved ++;
 		// calculete new possitions.
 		if (_isMinimized) {
-			this.x = this.stage.mouseX - MINIMIZED_WIDTH * 0.5;
-			this.y = this.stage.mouseY - MINIMIZED_HEIGHT * 0.5;
+			this.x = this.stage.mouseX - _xOffset;
+			this.y = this.stage.mouseY - _yOffset;
 		} else {
-			this.x = this.stage.mouseX - DEFAULT_WIDTH * 0.5;
-			this.y = this.stage.mouseY - DEFAULT_HEIGHT * 0.5;
+			this.x = this.stage.mouseX - _xOffset;
+			this.y = this.stage.mouseY - _yOffset;
 		}
 		fitToStage();
 	}
@@ -733,7 +540,6 @@ public class Stats extends Sprite {
 	public function set isDraggable(value:Boolean):void {
 		_isDraggable = value;
 		if (_isDraggable) {
-			dragMenuItem.caption = DRAG_CAPTION_ON;
 			if (stage) {
 				if (!stage.hasEventListener(MouseEvent.MOUSE_UP)) {
 					stage.addEventListener(MouseEvent.MOUSE_UP, handleMouseUp);
@@ -742,7 +548,6 @@ public class Stats extends Sprite {
 				}
 			}
 		} else {
-			dragMenuItem.caption = DRAG_CAPTION_OFF;
 			if (stage) {
 				if (stage.hasEventListener(MouseEvent.MOUSE_UP)) {
 					stage.removeEventListener(MouseEvent.MOUSE_UP, handleMouseUp);
@@ -767,11 +572,6 @@ public class Stats extends Sprite {
 		_isMonitoring = value;
 		initMonitoring();
 		fitToStage();
-		if (_isMonitoring) {
-			monitorMenuItem.caption = MONITOR_CAPTION_ON;
-		} else {
-			monitorMenuItem.caption = MONITOR_CAPTION_OFF;
-		}
 	}
 
 	/**
@@ -788,11 +588,6 @@ public class Stats extends Sprite {
 		_isMinimized = value;
 		initDrawArea();
 		fitToStage();
-		if (_isMinimized) {
-			minimizeMenuItem.caption = MINIMIZE_CAPTION_ON;
-		} else {
-			minimizeMenuItem.caption = MINIMIZE_CAPTION_OFF;
-		}
 	}
 
 	/**
@@ -816,25 +611,6 @@ public class Stats extends Sprite {
 	override public function set height(value:Number):void {
 		throw Error("It's not possible to change Stats object height. Sorry.");
 	}
-
-	/**
-	 * Shortcut to chang scaleX and ScaleY at same time.
-	 */
-	public function get scale():Number {
-		return _scale;
-	}
-
-	public function set scale(value:Number):void {
-		_scale = value;
-		super.scaleX = _scale;
-		super.scaleY = _scale;
-		if (_scale != 1) {
-			zoomMenuItem.caption = ZOOM_CAPTION_x1;
-		} else {
-			zoomMenuItem.caption = ZOOM_CAPTION_x2;
-		}
-	}
-
 }
 }
 
@@ -848,5 +624,4 @@ class StatColors {
 
 	public var executionTime:uint = 0xFF0000;
 	public var monitorSeparator:int = 0xD8D8D8;
-
 }

@@ -11,13 +11,13 @@
 		/**
 		 * EnvUtils is Singleton.
 		 */
-		protected static const __instance				:EnvUtils;
+		protected static var __instance				:EnvUtils;
 		
 		/**
 		 * Get EnvUtils only instance.
 		 * EnvUtils is Singleton.
 		 */
-		public static function getInstance ():void
+		public static function getInstance ():EnvUtils
 		{
 			// Si l'instance n'existe pas
 			if (__instance == null)
@@ -102,6 +102,24 @@
 		public static const AIR							:String				= "airRuntime";
 		
 		
+		/**
+		 * Platform name from Capabilities.version
+		 */
+		protected var _platform							:String;
+		
+		/**
+		 * Non computed version (full string)
+		 */
+		protected var _version							:String;
+		
+		/**
+		 * Version computed parts from _version
+		 */
+		protected var _majorVersion						:uint;
+		protected var _minorVersion						:uint;
+		protected var _buildNumber						:uint;
+		protected var _internalBuildNumber				:uint;
+		
 		
 		/**
 		 * Constructor
@@ -157,7 +175,7 @@
 		public function getDeviceType (pAllowDesktop:Boolean = true):String
 		{
 			// On est sur un device ?
-			var platform:String = EnvUtils.getPlatform();
+			var platform:String = getPlatformType();
 			
 			// Si on autorise à retourner un type desktop
 			if (pAllowDesktop)
@@ -165,13 +183,15 @@
 				// On est sur un ordi si on est sur Mac / Pc / Linux et si on a un DPI de 72
 				if ((platform == MAC_PLATFORM || platform == WIN_PLATFORM || platform == LINUX_PLATFORM) && Capabilities.screenDPI <= 72)
 				{
-					return COMPUTER;
+					return DESKTOP;
 				}
 			}
 			
 			// Si on est sur iOS
 			if (platform == IOS_PLATFORM)
 			{
+				// TODO: Gérer le cas de l'iPad mini !
+				
 				// Si on est sur le DPI d'un téléphone
 				if (Capabilities.screenDPI == IPHONE_RETINA_DPI || Capabilities.screenDPI == IPHONE_CLASSIC_DPI)
 				{
@@ -179,7 +199,7 @@
 				}
 				
 				// Ou sur le DPI d'une tablette
-				else if (Capabilities.screenDPI == IPAD_RETINA_DPI || Capabilities.screenDPI == IPAD_CLASSIC_DPI || Capabilities.screenDPI == IPAD_MINI_DPI)
+				else if (Capabilities.screenDPI == IPAD_RETINA_DPI || Capabilities.screenDPI == IPAD_CLASSIC_DPI)
 				{
 					return TABLET
 				}
@@ -196,7 +216,7 @@
 			else if (!pAllowDesktop)
 			{
 				// 
-				if (getScreenSize(pScreenWidth, pScreenHeight) >= TABLET_SIZE_DELIMITATION)
+				if (getScreenSize() >= TABLET_SIZE_DELIMITATION)
 				{
 					return TABLET;
 				}
@@ -237,7 +257,7 @@
 			};
 			
 			// Retourner si trouvé
-			(lowPlatform in correspondingPlatforms ? correspondingPlatforms[lowPlatform] : UNKNOW);
+			return (lowPlatform in correspondingPlatforms ? correspondingPlatforms[lowPlatform] : UNKNOW);
 		}
 		
 		/**
@@ -267,7 +287,7 @@
 		/**
 		 * If the runtime is in debug mode
 		 */
-		public function isDebug ():void
+		public function isDebug ():Boolean
 		{
 			return Capabilities.isDebugger;
 		}
@@ -277,7 +297,7 @@
 		 */
 		public function getPlayerVersion ():Vector.<uint>
 		{
-			//return new <uint>[PlayerInfos.getMajorVersion(), PlayerInfos.getMinorVersion(), PlayerInfos.getBuildNumber(), PlayerInfos.getInternalBuild()];
+			return new <uint>[_majorVersion, _minorVersion, _buildNumber, _internalBuildNumber];
 		}
 		
 		/**
@@ -296,7 +316,7 @@
 		 */
 		public function getiOSSpecificDevice ():String
 		{
-			return 
+			return "";
 		}
 		
 		/**
@@ -304,7 +324,7 @@
 		 */
 		public function isiOSSpecificDevice (pDeviceType:String):Boolean
 		{
-			
+			return false;
 		}
 		
 		/**
@@ -312,8 +332,8 @@
 		 */
 		public function getScreenSize ():Number
 		{
-			const screenWidth	:Number = (pScreenWidth != -1 ? pScreenWidth : Capabilities.screenResolutionX) / Capabilities.screenDPI;
-			const screenHeight	:Number = (pScreenHeight != -1 ? pScreenHeight : Capabilities.screenResolutionY) / Capabilities.screenDPI;
+			const screenWidth	:Number = Capabilities.screenResolutionX / Capabilities.screenDPI;
+			const screenHeight	:Number = Capabilities.screenResolutionY / Capabilities.screenDPI;
 			const screenSize	:Number = Math.sqrt(screenWidth * screenWidth + screenHeight * screenHeight);
 			
 			return screenSize;
@@ -322,9 +342,34 @@
 		/**
 		 * Get ratio for stage
 		 */
-		public function ratioForStage ():Number
+		public function getRatioForStage ():Number
 		{
+			// Récupérer le type de device
+			var deviceType:String = getDeviceType(true);
 			
+			// Si on est sur PC / MAC
+			if (deviceType == DESKTOP)
+			{
+				return Capabilities.screenDPI / DESKTOP_DPI;
+			}
+			
+			// Si on est sur téléphone
+			else if (deviceType == PHONE)
+			{
+				return Capabilities.screenDPI / IPHONE_CLASSIC_DPI;
+			}
+			
+			// Si on est sur tablette
+			else if (deviceType == TABLET)
+			{
+				return Capabilities.screenDPI / IPAD_CLASSIC_DPI;
+			}
+			
+			// Sinon
+			else
+			{
+				return 1;
+			}
 		}
 		
 		
