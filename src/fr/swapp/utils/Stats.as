@@ -170,7 +170,6 @@ public class Stats extends Sprite
 			</xmlData>;			
 
 		// text fild to show all stats.
-		// TODO : test if it's not more simple just to have 4 text fields without xml and css...
 		statsText = new TextField();
 		statsText.autoSize = TextFieldAutoSize.LEFT;
 		statsText.styleSheet = style;

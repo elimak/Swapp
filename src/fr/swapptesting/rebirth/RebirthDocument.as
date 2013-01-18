@@ -9,6 +9,7 @@ package fr.swapptesting.rebirth
 	import flash.text.TextFormat;
 	import flash.text.TextInteractionMode;
 	import flash.utils.ByteArray;
+	import fr.swapp.core.central.Central;
 	import fr.swapp.core.log.Log;
 	import fr.swapp.core.log.TraceLogger;
 	import fr.swapp.graphic.atlas.SAtlas;
@@ -88,6 +89,15 @@ package fr.swapptesting.rebirth
 			var text:SLabel = new SLabel(true, false, "Salut");
 			text.style("label");
 			text.center(0, 0).into(c1);
+			
+			var central:Central = Central.getInstance();
+			central.listen("tutu", function (pName:String, pId:int):void {
+				trace(arguments);
+			});
+			
+			central.dispatch("tutu", 4);
+			central.removeAll("tutu");
+			central.dispatch("tutu", 3);
 			
 			/*
 			var html:SHTMLText = new SHTMLText(false, true, true);

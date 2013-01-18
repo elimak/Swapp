@@ -58,8 +58,10 @@ package fr.swapp.graphic.styles
 		{
 			// TODO : Vérifier le déclanchement des erreurs (essayer d'appliquer une valeur sur une fonction, etc)
 			// TODO : Peut être faire un mode strict (Qui throw des error au lieu de log)
+			
 			// TODO : Voir si on peut pas intégrer les states? (Pratique pour le bouton)
 			// TODO : Voir si on peut pas intégrer le name du DisplayObject?
+			
 			// TODO : Faire un sélécteur de DisplayObject style jQuery grâce aux algos déjà fait. Voir si le code peut être mutialisé.
 			// TODO : Peut être qu'il faut composer l'outil de ciblage au styleCentral (SQuery.getInstance(stage) ? SWrapper.getInstance(stage).query ?)
 			// TODO : Il faudra simplifier l'accès au stageWrapper car dans les controlleurs (par exemple) on n'a pas accès à stage.

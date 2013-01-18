@@ -7,7 +7,7 @@ package fr.swapp.core.data.collect
 	{
 		public function HashTable ()
 		{
-			
+			// TODO : HashTable et IHashTable
 		}
 	}
 }
