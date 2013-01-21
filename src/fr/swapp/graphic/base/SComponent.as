@@ -186,11 +186,6 @@ package fr.swapp.graphic.base
 		protected var _styleEnabled					:Boolean					= false;
 		
 		/**
-		 * Si l'élément a été disposé
-		 */
-		private var _disposed						:Boolean					= true;
-		
-		/**
 		 * La visibilité de l'élément
 		 */
 		protected var _visible						:Boolean					= true;
@@ -199,6 +194,11 @@ package fr.swapp.graphic.base
 		 * Auto-dispose component when removed from DisplayList
 		 */
 		protected var _autoDispose					:Boolean					= true;
+		
+		/**
+		 * Si l'élément a été disposé
+		 */
+		protected var _disposed						:Boolean					= true;
 		
 		
 		/**
@@ -878,12 +878,12 @@ package fr.swapp.graphic.base
 			// TODO : Vérifier les disposes de SComponent. Trouver aussi un moyen pour faire du pooling sans faire de remove.
 			// TODO : Vérifier la propagation de visibility
 			
-			// On est disposé
-			_disposed = true;
-			
 			// Ne plus écouter l'ajout et la suppression
 			removeEventListener(Event.ADDED_TO_STAGE, addedHandler);
 			removeEventListener(Event.REMOVED_FROM_STAGE, removedHandler);
+			
+			// On est disposé
+			_disposed = true;
 		}
 		
 		

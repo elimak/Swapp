@@ -20,6 +20,11 @@ package fr.swapp.core.pool
 		protected var _elements				:Vector.<Object>		= new Vector.<Object>;
 		
 		/**
+		 * If pool is disposed
+		 */
+		protected var _disposed				:Boolean;
+		
+		/**
 		 * La classe qui va être générée
 		 */
 		public function get objectClass ():Class { return _class; }
@@ -33,6 +38,11 @@ package fr.swapp.core.pool
 		 * Le nombre d'éléments disponibles
 		 */
 		public function get length ():int { return _elements.length; }
+		
+		/**
+		 * If pool is disposed
+		 */
+		public function get disposed ():Boolean { return _disposed; }
 		
 		
 		/**
@@ -134,6 +144,9 @@ package fr.swapp.core.pool
 			
 			// Disposer cette pool
 			_elements = null;
+			
+			// Disposed
+			_disposed = true;
 		}
 	}
 }

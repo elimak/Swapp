@@ -247,6 +247,13 @@ package fr.swapp.core.central
 			return false;
 		}
 		
+		/**
+		 * Internal register message to handler
+		 * @param	pMessage : Message name
+		 * @param	pHandler : 
+		 * @param	pOnce : 
+		 * @return
+		 */
 		protected function register (pMessage:String, pHandler:Function, pOnce:Boolean):uint
 		{
 			// Vérifier qu'on ai un bon handler

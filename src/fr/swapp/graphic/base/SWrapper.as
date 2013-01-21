@@ -24,21 +24,12 @@ package fr.swapp.graphic.base
 		 */
 		public static var ratioRoundSlices			:Number 				= 6;
 		
-		/**
-		 * Android tap threshold (in pixels)
-		 */
-		public static var androidTapThreshold		:int					= 10;
-		
-		/**
-		 * Default tap threshold (in pixels)
-		 */
-		public static var defaultTapThreshold		:int					= 2;
-		
 		
 		/**
 		 * SWrapper instances
 		 */
 		protected static var __instances				:Dictionary				= new Dictionary(false);
+		
 		
 		/**
 		 * Get an instance of SWrapper. Instances are associated to stages.
@@ -104,6 +95,12 @@ package fr.swapp.graphic.base
 		protected var _ratio							:Number						= 1;
 		
 		/**
+		 * If SWrapper is disposed
+		 */
+		protected var _disposed							:Boolean;
+		
+		
+		/**
 		 * Associated stage
 		 */
 		public function get stage ():Stage { return _stage; }
@@ -132,6 +129,11 @@ package fr.swapp.graphic.base
 		 * Current stage ratio (if autoRatio is true, default is 1)
 		 */
 		public function get ratio ():Number { return _ratio; }
+		
+		/**
+		 * If SWrapper is disposed
+		 */
+		public function get disposed ():Boolean { return _disposed; }
 		
 		
 		/**
@@ -201,24 +203,6 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * Initialize touch dispatcher if needed.
-		 */
-		public function enableTouchDispatcher ():void
-		{
-			// Créer le touchDispatcher de ce stage
-			// Patcher les touch foireux d'Android
-			_touchDispatcher = TouchDispatcher.getInstance(_stage, EnvUtils.getInstance().isPlatformType(EnvUtils.ANDROID_PLATFORM) ? androidTapThreshold : defaultTapThreshold);
-		}
-		
-		/**
-		 * Enable touch emulator for desktop testing
-		 */
-		public function enableTouchEmulator ():void
-		{
-			MouseToTouchEmulator.auto(_stage);
-		}
-		
-		/**
 		 * Native stage is resized
 		 */
 		protected function stageResizedHandler (event:Event = null):void
@@ -270,9 +254,6 @@ package fr.swapp.graphic.base
 			// Disposer la racine
 			_root.dispose();
 			
-			// Masquer les stats
-			hideStats();
-			
 			// Ne plus écouter les resizes
 			_stage.removeEventListener(Event.RESIZE, stageResizedHandler);
 			
@@ -290,35 +271,9 @@ package fr.swapp.graphic.base
 			_stage = null;
 			_root = null;
 			_styleCentral = null;
-		}
-		
-		/**
-		 * Show stats
-		 */
-		public function showStats ():void
-		{
-			// Créer les stats
-			_stats = new Stats(100, 0, 0);
 			
-			// Appliquer le ratio du stage
-			_stats.scaleX = _stats.scaleY = _ratio;
-			
-			// Les ajouter
-			_stage.addChild(_stats);
-		}
-		
-		/**
-		 * Hide stats
-		 */
-		public function hideStats ():void
-		{
-			// Si on a des stats
-			if (_stats != null)
-			{
-				// On les vires
-				_stage.removeChild(_stats);
-				_stats = null;
-			}
+			// Disposé
+			_disposed = true;
 		}
 	}
 }

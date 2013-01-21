@@ -3,6 +3,7 @@ package fr.swapp.touch.dispatcher
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Stage;
+	import flash.events.MouseEvent;
 	import flash.events.TouchEvent;
 	import flash.geom.Point;
 	import flash.utils.Dictionary;
@@ -19,14 +20,6 @@ package fr.swapp.touch.dispatcher
 	public class TouchDispatcher implements IDisposable
 	{
 		/**
-		 * Les directions
-		 */
-		public static const HORIZONTAL_DIRECTION		:String						= "horizontal";
-		public static const VERTICAL_DIRECTION			:String						= "vertical";
-		public static const UNKNOW_DIRECTION			:String						= "unknow";
-		
-		
-		/**
 		 * TouchDispatcher instances
 		 */
 		protected static var __instances				:Dictionary					= new Dictionary(false);
@@ -34,10 +27,11 @@ package fr.swapp.touch.dispatcher
 		/**
 		 * Get a TouchDispatcher instance for a specific stage. Will create an instance for a stage if not created yet.
 		 * @param	pStage : Associated stage. Must be non null.
+		 * @param	pEnableMouse : Enable mouse managment
 		 * @param	pTapThreshold : Threshold value to correcting false tap on bad touchscreens
 		 * @return : TouchDispatcher instance
 		 */
-		public static function getInstance (pStage:Stage, pTapThreshold:int):TouchDispatcher
+		public static function getInstance (pStage:Stage, pEnableMouse:Boolean = true, pTapThreshold:int = 0):TouchDispatcher
 		{
 			// Vérifier que le stage ne soit pas null
 			if (pStage == null)
@@ -50,7 +44,7 @@ package fr.swapp.touch.dispatcher
 			if (!(pStage in __instances))
 			{
 				// On l'a créé
-				__instances[pStage] = new TouchDispatcher(new MultitonKey(), pStage, pTapThreshold);
+				__instances[pStage] = new TouchDispatcher(new MultitonKey(), pStage, pEnableMouse, pTapThreshold);
 			}
 			
 			// Retourner l'instance
@@ -117,6 +111,10 @@ package fr.swapp.touch.dispatcher
 		 */
 		protected var _pressedDelegates					:Dictionary 	= new Dictionary();
 		
+		/**
+		 * If TouchDispatcher is disposed
+		 */
+		protected var _disposed							:Boolean;
 		
 		/**
 		 * Direction multiplier. If 1, direction can't be unknown.
@@ -136,11 +134,16 @@ package fr.swapp.touch.dispatcher
 			_tapThreshold = value;
 		}
 		
+		/**
+		 * If TouchDispatcher is disposed
+		 */
+		public function get disposed ():Boolean { return _disposed; }
+		
 		
 		/**
 		 * Constructor. Please use TouchDispatcher.getInstance(pStage)
 		 */
-		public function TouchDispatcher (pMultitonKey:MultitonKey, pStage:Stage, pTapThreshold:int)
+		public function TouchDispatcher (pMultitonKey:MultitonKey, pStage:Stage, pEnableMouse:Boolean, pTapThreshold:int)
 		{
 			// Enregistrer le stage
 			_stage = pStage;
@@ -148,10 +151,43 @@ package fr.swapp.touch.dispatcher
 			// Enregistrer le threshold du tap
 			_tapThreshold = pTapThreshold;
 			
-			// Ecouter les touch
+			// Ecouter les touch events
 			_stage.addEventListener(TouchEvent.TOUCH_BEGIN, touchBeginHandler);
 			_stage.addEventListener(TouchEvent.TOUCH_MOVE, touchMoveHandler);
 			_stage.addEventListener(TouchEvent.TOUCH_END, touchEndHandler);
+			
+			// Si on doit aussi gérer les mouse events
+			if (pEnableMouse)
+			{
+				// Ecouter les mouse events
+				_stage.addEventListener(MouseEvent.MOUSE_DOWN, mouseDownHandler);
+				_stage.addEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
+				_stage.addEventListener(MouseEvent.MOUSE_UP, mouseUpHandler);
+			}
+		}
+		
+		/**
+		 * Mouse down
+		 */
+		protected function mouseDownHandler (event:MouseEvent):void 
+		{
+			
+		}
+		
+		/**
+		 * Mouse Move
+		 */
+		protected function mouseMoveHandler (event:MouseEvent):void 
+		{
+			
+		}
+		
+		/**
+		 * Mouse Up
+		 */
+		protected function mouseUpHandler (event:MouseEvent):void 
+		{
+			
 		}
 		
 		/**
@@ -459,21 +495,21 @@ package fr.swapp.touch.dispatcher
 				else if (Math.abs(_touchDeltas[touchId].x) > Math.abs(_touchDeltas[touchId].y) * _directionDetectionMultiplier)
 				{
 					// On est en déplacement horizontal
-					_directions[touchId] = HORIZONTAL_DIRECTION;
+					_directions[touchId] = TouchDirections.HORIZONTAL_DIRECTION;
 				}
 				
 				// Si on déplace significativement plus en Y qu'en X
 				else if (Math.abs(_touchDeltas[touchId].y) > Math.abs(_touchDeltas[touchId].x) * _directionDetectionMultiplier)
 				{
 					// On est en déplacement vertical
-					_directions[touchId] = VERTICAL_DIRECTION;
+					_directions[touchId] = TouchDirections.VERTICAL_DIRECTION;
 				}
 				
 				// Sinon
 				else
 				{
 					// On est en déplacement libre
-					_directions[touchId] = UNKNOW_DIRECTION;
+					_directions[touchId] = TouchDirections.UNKNOW_DIRECTION;
 				}
 			}
 		}
@@ -483,7 +519,10 @@ package fr.swapp.touch.dispatcher
 		 */
 		public function dispose ():void
 		{
-			// TODO : dispose
+			// TODO : dispose du touch dispatcher
+			
+			throw new Error("NOT IMPLEMENTED YET -> TouchDispatcher");
+			_disposed = true;
 		}
 	}
 }

@@ -6,6 +6,7 @@ package fr.swapp.utils
 	import flash.utils.Dictionary;
 	import fr.swapp.core.roles.IDisposable;
 	import org.osflash.signals.Signal;
+	
 	/**
 	 * @author ZoulouX
 	 */

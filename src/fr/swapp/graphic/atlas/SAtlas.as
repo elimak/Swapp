@@ -30,6 +30,10 @@ package fr.swapp.graphic.atlas
 		 */
 		protected var _density				:Number;
 		
+		/**
+		 * If SAtlas is disposed
+		 */
+		protected var _disposed				:Boolean;
 		
 		/**
 		 * BitmapData containg all textures
@@ -45,6 +49,11 @@ package fr.swapp.graphic.atlas
 		 * Textures density
 		 */
 		public function get density ():Number { return _density; }
+		
+		/**
+		 * If SAtlas is disposed
+		 */
+		public function get disposed ():Boolean { return _disposed; }
 		
 		
 		/**
@@ -125,6 +134,8 @@ package fr.swapp.graphic.atlas
 		public function dispose ():void
 		{
 			// TODO : Atlas dispose
+			
+			_disposed = true;
 		}
 	}
 }

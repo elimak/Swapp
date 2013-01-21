@@ -51,14 +51,13 @@ package fr.swapptesting.rebirth
 		
 		public function RebirthDocument ()
 		{
-			super();
+			initTraceLogger();
+			initAppViewController();
 		}
 		
 		override public function init ():void
 		{
 			trace("SDocument.init", _wrapper);
-			
-			Log.addLogger(new TraceLogger());
 			
 			_wrapper.enableStyleCentral();
 			_wrapper.enableTouchDispatcher();

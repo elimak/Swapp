@@ -105,6 +105,10 @@
 		 */
 		protected var _onError					:DeluxeSignal			= new DeluxeSignal(this);
 		
+		/**
+		 * If remote is disposed
+		 */
+		protected var _disposed					:Boolean;
 		
 		/**
 		 * Le parseur associé
@@ -182,6 +186,12 @@
 		{
 			_autoCancelCommands = value;
 		}
+		
+		/**
+		 * If remote is disposed
+		 */
+		public function get disposed ():Boolean { return _disposed; }
+		
 		
 		/**
 		 * Le constructeur
@@ -493,6 +503,9 @@
 		{
 			// Vider la queue
 			cancelQueue();
+			
+			// Disposé
+			_disposed = true;
 		}
 	}
 }

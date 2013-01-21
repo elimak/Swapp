@@ -27,6 +27,10 @@ package fr.swapp.graphic.styles
 		 */
 		protected var _onStyleChanged				:Signal						= new Signal();
 		
+		/**
+		 * If StyleCentral is disposed
+		 */
+		protected var _disposed						:Boolean;
 		
 		/**
 		 * Les styles globaux
@@ -49,6 +53,11 @@ package fr.swapp.graphic.styles
 		 * Lorsque le style à changé
 		 */
 		public function get onStyleChanged ():Signal { return _onStyleChanged; }
+		
+		/**
+		 * If StyleCentral is disposed
+		 */
+		public function get disposed ():Boolean { return _disposed; }
 		
 		
 		/**
@@ -488,6 +497,10 @@ package fr.swapp.graphic.styles
 			
 			_onStyleChanged.removeAll();
 			_onStyleChanged = null;
+			
+			_disposed = true;
+			
+			// TODO : vérifier si tout est bien disposé dans StyleCentral
 		}
 	}
 }

@@ -112,6 +112,18 @@ package fr.swapp.touch.emulator
 		protected var _secondarySimulatedTouchEvent	:TouchEvent;
 		
 		/**
+		 * If MouseToTouchEmulator is disposed
+		 */
+		protected var _disposed						:Boolean
+		
+		
+		/**
+		 * If MouseToTouchEmulator is disposed
+		 */
+		public function get disposed ():Boolean { return _disposed; }
+		
+		
+		/**
 		 * Le constructeur de l'émulateur.
 		 * Convertir automatiquement les MouseEvent en TouchEvent sur le stage spécifé.
 		 * @param	pStage : Le stage sur lequel vont commencer la capture des MouseEvent et le dispatch des TouchEvent
@@ -413,6 +425,9 @@ package fr.swapp.touch.emulator
 			// On vire les events (qui peuvent avoir des références au targets)
 			_primarySimulatedTouchEvent = null;
 			_secondarySimulatedTouchEvent = null;
+			
+			// Disposé
+			_disposed = true;
 		}
 	}
 }
