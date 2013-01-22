@@ -5,9 +5,9 @@ package fr.swapp.core.mvc
 	/**
 	 * @author ZoulouX
 	 */
-	public class AppController extends ViewController
+	public class AppViewController extends ViewController
 	{
-		public function AppController ()
+		public function AppViewController ()
 		{
 			
 		}

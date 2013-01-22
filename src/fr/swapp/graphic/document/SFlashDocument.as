@@ -4,7 +4,7 @@ package fr.swapp.graphic.document
 	import flash.events.Event;
 	import fr.swapp.core.log.Log;
 	import fr.swapp.core.log.TraceLogger;
-	import fr.swapp.core.mvc.AppController;
+	import fr.swapp.core.mvc.AppViewController;
 	import fr.swapp.core.roles.IDisposable;
 	import fr.swapp.core.roles.IInitializable;
 	import fr.swapp.graphic.base.SWrapper;
@@ -34,9 +34,9 @@ package fr.swapp.graphic.document
 		protected var _touchDispatcher		:TouchDispatcher;
 		
 		/**
-		 * AppController
+		 * AppViewController
 		 */
-		protected var _appController		:AppController;
+		protected var _appViewController	:AppViewController;
 		
 		
 		/**
@@ -55,9 +55,9 @@ package fr.swapp.graphic.document
 		public function get touchDispatcher ():TouchDispatcher { return _touchDispatcher; }
 		
 		/**
-		 * AppController
+		 * AppViewController
 		 */
-		public function get appController ():AppController { return _appController; }
+		public function get appViewController ():AppViewController { return _appViewController; }
 		
 		
 		/**
@@ -141,16 +141,16 @@ package fr.swapp.graphic.document
 		}
 		
 		/**
-		 * Setup AppController and start AppController.
+		 * Setup AppViewController and start AppViewController.
 		 * SWrapper will be used if initialised. Else, stage will be provided.
 		 */
-		protected function setupAppController (pAppControllerClass:Class):void
+		protected function setupAppViewController (pAppViewControllerClass:Class):void
 		{
 			// Créer l'AppController
-			_appController = new pAppControllerClass();
+			_appViewController = new pAppViewControllerClass();
 			
 			// Démarrer le controlleur avec un container par défaut
-			_appController.turnOn({
+			_appViewController.turnOn({
 				container: _wrapper != null ? _wrapper : stage
 			});
 			

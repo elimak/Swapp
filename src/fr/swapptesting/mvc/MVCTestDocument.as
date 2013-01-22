@@ -1,6 +1,7 @@
 package fr.swapptesting.mvc
 {
 	import fr.swapp.graphic.document.SAirDocument;
+	import fr.swapptesting.mvc.modules.app.MVCAppViewController;
 	
 	/**
 	 * @author ZoulouX
@@ -35,8 +36,8 @@ package fr.swapptesting.mvc
 			// Initialiser l'emulateur de touch pour desktop avec les paramètres par défaut
 			enableTouchEmulator();
 			
-			// Activer l'AppController
-			setupAppController(MVCAppController);
+			// Activer l'AppViewController
+			setupAppViewController(MVCAppViewController);
 		}
 	}
 }

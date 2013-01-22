@@ -1,4 +1,4 @@
-package fr.swapptesting.mvc
+package fr.swapptesting.mvc.modules.app
 {
 	import fr.swapp.graphic.base.SView;
 	
