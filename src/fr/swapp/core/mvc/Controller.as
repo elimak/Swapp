@@ -1,5 +1,6 @@
 package fr.swapp.core.mvc
 {
+	import fr.swapp.core.actions.IAction;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -35,6 +36,11 @@ package fr.swapp.core.mvc
 		 * If controller is disposed
 		 */
 		protected var _disposed							:Boolean;
+		
+		/**
+		 * When controller is disposed
+		 */
+		protected var _onDisposed						:Signal							= new Signal();
 		
 		
 		/**
@@ -76,6 +82,11 @@ package fr.swapp.core.mvc
 		 * If controller is disposed
 		 */
 		public function get disposed ():Boolean { return _disposed; }
+		
+		/**
+		 * When controller is disposed
+		 */
+		public function get onDisposed ():ISignal { return _onDisposed; }
 		
 		
 		/**
@@ -135,7 +146,7 @@ package fr.swapp.core.mvc
 		/**
 		 * Démarrer le controlleur
 		 */
-		public function turnOn (pContextInfo:Object = null):void
+		public function turnOn ():void
 		{
 			// Par défaut, dispatcher les 2 signaux directement
 			dispatchEngineSignal(_onTurningOn);
@@ -145,7 +156,7 @@ package fr.swapp.core.mvc
 		/**
 		 * Arrêter le controlleur
 		 */
-		public function turnOff (pContextInfo:Object = null):void 
+		public function turnOff ():void 
 		{
 			// Par défaut, dispatcher les 2 signaux directement
 			dispatchEngineSignal(_onTurningOff);
@@ -153,56 +164,17 @@ package fr.swapp.core.mvc
 		}
 		
 		/**
-		 * Attendre un IReadyable pour construire.
-		 * Pas de construction pendant les transitions si pWaitForMe est à true (défaut).
+		 * Initialization
 		 */
-		/*
-		public function waitReadyable (pReadyable:IReadyable, pHandler:Function, pWaitForMe:Boolean = true):Boolean
+		public function init ():void
 		{
-			// Si le readyable est prêt
-			if (pReadyable.ready)
-			{
-				// On appel directement le handler
-				pHandler.apply();
-				
-				// Appelé directement
-				return true;
-			}
-			else
-			{
-				// Si la vue est affichée
-				if (_started || !pWaitForMe)
-				{
-					// On attend le signal
-					pReadyable.onReady.addOnce(pHandler);
-				}
-				else
-				{
-					// On attend que cet élément soit prêt
-					_onTurnedOn.addOnce(function ():void {
-						waitReadyable(pReadyable, pHandler);
-					});
-				}
-				
-				// Décallé
-				return false;
-			}
-		}*/
-		
-		/**
-		 * Ne plus attendre le IReadyable
-		 */
-		/*
-		public function noMoreWaitReadyable (pReadyable:IReadyable, pHandler:Function):void
-		{
-			pReadyable.onReady.remove(pHandler);
+			
 		}
-		*/
 		
 		/**
-		 * Default action
+		 * Request an action
 		 */
-		public function index (pContext:Object):void
+		public function requestAction (pAction:IAction):void
 		{
 			
 		}
@@ -226,6 +198,11 @@ package fr.swapp.core.mvc
 			
 			// Il est disposé
 			_disposed = true;
+			
+			// Signaler et supprimer
+			_onDisposed.dispatch();
+			_onDisposed.removeAll();
+			_onDisposed = null;
 		}
 	}
 }

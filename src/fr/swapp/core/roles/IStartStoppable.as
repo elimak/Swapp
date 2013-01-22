@@ -13,14 +13,12 @@ package fr.swapp.core.roles
 		
 		/**
 		 * Démarrer l'objet
-		 * @param	pContextInfo : Objet personnalisable et optionnel pour avoir plus d'informations sur le démarrage.
 		 */
-		function turnOn (pContextInfo:Object = null):void;
+		function turnOn ():void;
 		 
 		/**
 		 * Arrêter l'objet
-		 * @param	pContextInfo : Objet personnalisable et optionnel pour avoir plus d'informations sur l'arrêt.
 		 */
-		function turnOff (pContextInfo:Object = null):void;
+		function turnOff ():void;
 	}
 }

@@ -1,16 +1,18 @@
 package fr.swapp.core.mvc
 {
+	import fr.swapp.core.actions.IAction;
 	import fr.swapp.core.roles.IDisposable;
 	import fr.swapp.core.roles.IEngine;
+	import fr.swapp.core.roles.IInitializable;
 	
 	/**
 	 * @author ZoulouX
 	 */
-	public interface IController extends IEngine, IDisposable
+	public interface IController extends IEngine, IDisposable, IInitializable
 	{
 		/**
-		 * Default action
+		 * Request an action
 		 */
-		function index (pContext:Object):void;
+		function requestAction (pAction:IAction):void;
 	}
 }

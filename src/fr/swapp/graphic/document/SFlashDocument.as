@@ -2,6 +2,8 @@ package fr.swapp.graphic.document
 {
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import fr.swapp.core.actions.Action;
+	import fr.swapp.core.actions.IAction;
 	import fr.swapp.core.log.Log;
 	import fr.swapp.core.log.TraceLogger;
 	import fr.swapp.core.mvc.AppViewController;
@@ -104,11 +106,18 @@ package fr.swapp.graphic.document
 		/**
 		 * Init SWrapper
 		 * @param	pAutoDPI : Enable auto DPI
+		 * @param	pEnableStyleCentral : Enable style central
 		 */
-		protected function initWrapper (pAutoDPI:Boolean = true):void
+		protected function initWrapper (pAutoDPI:Boolean = true, pEnableStyleCentral:Boolean = true):void
 		{
 			// Créer le wrapper
 			_wrapper = SWrapper.getInstance(stage, pAutoDPI);
+			
+			// Si on doit activer le style central
+			if (pEnableStyleCentral)
+			{
+				_wrapper.enableStyleCentral();
+			}
 		}
 		
 		/**
@@ -144,18 +153,19 @@ package fr.swapp.graphic.document
 		 * Setup AppViewController and start AppViewController.
 		 * SWrapper will be used if initialised. Else, stage will be provided.
 		 */
-		protected function setupAppViewController (pAppViewControllerClass:Class):void
+		protected function setupAppViewController (pAppViewControllerClass:Class, pDefaultAction:IAction = null):void
 		{
 			// Créer l'AppController
 			_appViewController = new pAppViewControllerClass();
 			
-			// Démarrer le controlleur avec un container par défaut
-			_appViewController.turnOn({
-				container: _wrapper != null ? _wrapper : stage
-			});
+			// Donner un container au controller (wrapper si disponible sinon stage)
+			_appViewController.container = (_wrapper != null ? _wrapper.root : stage);
+			
+			// Démarrer le controlleur
+			_appViewController.turnOn();
 			
 			// Appeller l'action par défaut sur le controlleur
-			//_appController.action();
+			_appViewController.requestAction(pDefaultAction == null ? Action.create("default") : pDefaultAction);
 		}
 		
 		/**

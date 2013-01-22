@@ -13,6 +13,8 @@ package fr.swapp.graphic.base
 	import fr.swapp.touch.emulator.MouseToTouchEmulator;
 	import fr.swapp.utils.EnvUtils;
 	import fr.swapp.utils.Stats;
+	import org.osflash.signals.ISignal;
+	import org.osflash.signals.Signal;
 	
 	/**
 	 * @author ZoulouX
@@ -99,6 +101,11 @@ package fr.swapp.graphic.base
 		 */
 		protected var _disposed							:Boolean;
 		
+		/**
+		 * When disposed
+		 */
+		protected var _onDisposed						:Signal;
+		
 		
 		/**
 		 * Associated stage
@@ -134,6 +141,11 @@ package fr.swapp.graphic.base
 		 * If SWrapper is disposed
 		 */
 		public function get disposed ():Boolean { return _disposed; }
+		
+		/**
+		 * When disposed
+		 */
+		public function get onDisposed ():ISignal { return _onDisposed; }
 		
 		
 		/**
@@ -274,6 +286,11 @@ package fr.swapp.graphic.base
 			
 			// Disposé
 			_disposed = true;
+			
+			// Signaler et supprimer
+			_onDisposed.dispatch();
+			_onDisposed.removeAll();
+			_onDisposed = null;
 		}
 	}
 }

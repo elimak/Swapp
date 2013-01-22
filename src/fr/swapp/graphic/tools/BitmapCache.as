@@ -15,6 +15,8 @@ package fr.swapp.graphic.tools
 	import fr.swapp.core.log.Log;
 	import fr.swapp.core.roles.IDisposable;
 	import fr.swapp.graphic.errors.GraphicalError;
+	import org.osflash.signals.ISignal;
+	import org.osflash.signals.Signal;
 	
 	/**
 	 * @author ZoulouX
@@ -90,6 +92,12 @@ package fr.swapp.graphic.tools
 		protected var _disposed							:Boolean;
 		
 		/**
+		 * When disposed
+		 */
+		protected var _onDisposed						:Signal						= new Signal();
+		
+		
+		/**
 		 * Le contexte de chargement des images
 		 */
 		public function get loaderContext ():LoaderContext 
@@ -101,6 +109,11 @@ package fr.swapp.graphic.tools
 		 * If BitmapCache is disposed
 		 */
 		public function get disposed ():Boolean { return _disposed; }
+		
+		/**
+		 * When disposed
+		 */
+		public function get onDisposed ():ISignal { return _onDisposed; }
 		
 		
 		/**
@@ -276,6 +289,11 @@ package fr.swapp.graphic.tools
 			
 			// Disposed
 			_disposed = true;
+			
+			// Signaler et supprimer
+			_onDisposed.dispatch();
+			_onDisposed.removeAll();
+			_onDisposed = null;
 		}
 	}
 }

@@ -5,6 +5,8 @@
 	import fr.swapp.core.roles.IDisposable;
 	import fr.swapp.core.roles.IExecutable;
 	import fr.swapp.core.roles.IIdentifiable;
+	import org.osflash.signals.ISignal;
+	import org.osflash.signals.Signal;
 	
 	/**
 	 * Cette classe permet de généraliser et de stocker chaque appel remoting de manière abstraite.
@@ -62,6 +64,18 @@
 		 * If call is disposed
 		 */
 		protected var _disposed					:Boolean;
+		
+		/**
+		 * When disposed
+		 */
+		protected var _onDisposed				:Signal					= new Signal();
+		
+		
+		
+		/**
+		 * When disposed
+		 */
+		public function get onDisposed ():ISignal { return _onDisposed; }
 		
 		/**
 		 * L'id de l'appel
@@ -210,6 +224,11 @@
 			
 			// Disposed
 			_disposed = true;
+			
+			// Signaler et supprimer
+			_onDisposed.dispatch();
+			_onDisposed.removeAll();
+			_onDisposed = null;
 		}
 	}
 }

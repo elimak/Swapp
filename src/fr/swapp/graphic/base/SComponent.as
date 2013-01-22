@@ -10,6 +10,7 @@ package fr.swapp.graphic.base
 	import fr.swapp.core.roles.IIndexable;
 	import fr.swapp.core.roles.IInitializable;
 	import fr.swapp.graphic.styles.IStylable;
+	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
 	/**
@@ -28,6 +29,10 @@ package fr.swapp.graphic.base
 		 */
 		protected var _data							:Object;
 		
+		/**
+		 * When component is disposed
+		 */
+		protected var _onDisposed					:Signal						= new Signal();
 		
 		/**
 		 * When component is resized.
@@ -749,6 +754,11 @@ package fr.swapp.graphic.base
 		 */
 		public function get disposed ():Boolean { return _disposed; }
 		
+		/**
+		 * When component is disposed
+		 */
+		public function get onDisposed ():ISignal { return _onDisposed; }
+		
 		
 		/**
 		 * Constructeur du composant avec gestion des dimensions
@@ -884,6 +894,11 @@ package fr.swapp.graphic.base
 			
 			// On est disposé
 			_disposed = true;
+			
+			// Signaler et supprimer
+			_onDisposed.dispatch();
+			_onDisposed.removeAll();
+			_onDisposed = null;
 		}
 		
 		

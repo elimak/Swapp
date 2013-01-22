@@ -12,6 +12,7 @@
 	import fr.swapp.utils.ArrayUtils;
 	import org.osflash.signals.DeluxeSignal;
 	import org.osflash.signals.ISignal;
+	import org.osflash.signals.Signal;
 	
 	/**
 	 * La remote abstraite.
@@ -109,6 +110,17 @@
 		 * If remote is disposed
 		 */
 		protected var _disposed					:Boolean;
+		
+		/**
+		 * When component is disposed
+		 */
+		protected var _onDisposed				:Signal					= new Signal();
+		
+		
+		/**
+		 * When component is disposed
+		 */
+		public function get onDisposed ():ISignal { return _onDisposed; }
 		
 		/**
 		 * Le parseur associé
@@ -506,6 +518,11 @@
 			
 			// Disposé
 			_disposed = true;
+			
+			// Signaler et supprimer
+			_onDisposed.dispatch();
+			_onDisposed.removeAll();
+			_onDisposed = null;
 		}
 	}
 }

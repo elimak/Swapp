@@ -13,13 +13,13 @@ package fr.swapptesting.mvc
 		 */
 		public function MVCTestDocument ()
 		{
-			
+		
 		}
 		
 		/**
 		 * Initialisation du document
 		 */
-		override public function init ():void
+		override public function init():void
 		{
 			// Initialiser les log avec trace
 			initTraceLogger();

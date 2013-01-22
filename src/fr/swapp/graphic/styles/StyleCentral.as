@@ -3,6 +3,7 @@ package fr.swapp.graphic.styles
 	import flash.utils.getQualifiedClassName;
 	import fr.swapp.core.log.Log;
 	import fr.swapp.core.roles.IDisposable;
+	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
 	/**
@@ -13,7 +14,7 @@ package fr.swapp.graphic.styles
 		/**
 		 * Les styles globaux
 		 */
-		protected var _styleData					:Object;
+		protected var _styleData					:Object						= {};
 		
 		/**
 		 * La liste des sélécteurs.
@@ -31,6 +32,12 @@ package fr.swapp.graphic.styles
 		 * If StyleCentral is disposed
 		 */
 		protected var _disposed						:Boolean;
+		
+		/**
+		 * When disposed
+		 */
+		protected var _onDisposed					:Signal						= new Signal();
+		
 		
 		/**
 		 * Les styles globaux
@@ -58,6 +65,11 @@ package fr.swapp.graphic.styles
 		 * If StyleCentral is disposed
 		 */
 		public function get disposed ():Boolean { return _disposed; }
+		
+		/**
+		 * When disposed
+		 */
+		public function get onDisposed ():ISignal { return _onDisposed; }
 		
 		
 		/**
@@ -488,6 +500,38 @@ package fr.swapp.graphic.styles
 		}
 		
 		/**
+		 * Ajouter un objet style
+		 */
+		public function addStyleData (pStyleData:IStyleData):void
+		{
+			// Parcourir les déclarations de ces données de style
+			for (var i:String in pStyleData.styleData)
+			{
+				// Ajouter chaque déclaration
+				_styleData[i] = pStyleData.styleData[i];
+			}
+			
+			// Actualiser les données
+			parseStyleData();
+		}
+		
+		/**
+		 * Supprimer un objet style
+		 */
+		public function removeStyleData (pStyleData:IStyleData):void
+		{
+			// Parcourir les déclarations de ces données de style
+			for (var i:String in pStyleData.styleData)
+			{
+				// Supprimer chaque déclaration
+				delete _styleData[i];
+			}
+			
+			// Actualiser les données
+			parseStyleData();
+		}
+		
+		/**
 		 * Détruire cet élément
 		 */
 		public function dispose ():void
@@ -499,6 +543,10 @@ package fr.swapp.graphic.styles
 			_onStyleChanged = null;
 			
 			_disposed = true;
+			
+			_onDisposed.dispatch();
+			_onDisposed.removeAll();
+			_onDisposed = null;
 			
 			// TODO : vérifier si tout est bien disposé dans StyleCentral
 		}

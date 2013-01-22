@@ -14,6 +14,8 @@ package fr.swapp.touch.emulator
 	import flash.ui.MultitouchInputMode;
 	import fr.swapp.core.roles.IDisposable;
 	import fr.swapp.touch.errors.TouchError;
+	import org.osflash.signals.ISignal;
+	import org.osflash.signals.Signal;
 	
 	/**
 	 * @author ZoulouX
@@ -114,13 +116,23 @@ package fr.swapp.touch.emulator
 		/**
 		 * If MouseToTouchEmulator is disposed
 		 */
-		protected var _disposed						:Boolean
+		protected var _disposed						:Boolean;
+		
+		/**
+		 * When disposed
+		 */
+		protected var _onDisposed					:Signal					= new Signal();
 		
 		
 		/**
 		 * If MouseToTouchEmulator is disposed
 		 */
 		public function get disposed ():Boolean { return _disposed; }
+		
+		/**
+		 * When disposed
+		 */
+		public function get onDisposed ():ISignal { return _onDisposed; }
 		
 		
 		/**
@@ -428,6 +440,11 @@ package fr.swapp.touch.emulator
 			
 			// Disposé
 			_disposed = true;
+			
+			// Signaler et supprimer
+			_onDisposed.dispatch();
+			_onDisposed.removeAll();
+			_onDisposed = null;
 		}
 	}
 }

@@ -1,5 +1,7 @@
 ﻿package fr.swapp.core.roles 
 {
+	import org.osflash.signals.ISignal;
+	
 	/**
 	 * Cet élément peut être effacé de la mémoire.
 	 * Pour cela il suffit d'implémenter la méthode dispose, appelable depuis l'exérieur.
@@ -8,6 +10,11 @@
 	 */
 	public interface IDisposable 
 	{
+		/**
+		 * When element is disposed
+		 */
+		function get onDisposed ():ISignal
+		
 		/**
 		 * If element is disposed
 		 */

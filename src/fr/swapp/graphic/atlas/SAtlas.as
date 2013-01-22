@@ -4,6 +4,8 @@ package fr.swapp.graphic.atlas
 	import fr.swapp.core.roles.IDisposable;
 	import fr.swapp.graphic.errors.GraphicalError;
 	import fr.swapp.utils.ArrayUtils;
+	import org.osflash.signals.ISignal;
+	import org.osflash.signals.Signal;
 	
 	/**
 	 * @author ZoulouX
@@ -36,6 +38,12 @@ package fr.swapp.graphic.atlas
 		protected var _disposed				:Boolean;
 		
 		/**
+		 * When disposed
+		 */
+		protected var _onDisposed			:Signal						= new Signal();
+		
+		
+		/**
 		 * BitmapData containg all textures
 		 */
 		public function get bitmapData ():BitmapData { return _bitmapData; }
@@ -54,6 +62,11 @@ package fr.swapp.graphic.atlas
 		 * If SAtlas is disposed
 		 */
 		public function get disposed ():Boolean { return _disposed; }
+		
+		/**
+		 * When disposed
+		 */
+		public function get onDisposed ():ISignal { return _onDisposed; }
 		
 		
 		/**
@@ -136,6 +149,10 @@ package fr.swapp.graphic.atlas
 			// TODO : Atlas dispose
 			
 			_disposed = true;
+			
+			_onDisposed.dispatch();
+			_onDisposed.removeAll();
+			_onDisposed = null;
 		}
 	}
 }

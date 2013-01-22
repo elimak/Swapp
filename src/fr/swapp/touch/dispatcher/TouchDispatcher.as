@@ -13,6 +13,8 @@ package fr.swapp.touch.dispatcher
 	import fr.swapp.touch.delegate.ITouchTapDelegate;
 	import fr.swapp.touch.delegate.ITouchTransformDelegate;
 	import fr.swapp.touch.errors.TouchError;
+	import org.osflash.signals.ISignal;
+	import org.osflash.signals.Signal;
 	
 	/**
 	 * @author ZoulouX
@@ -116,6 +118,13 @@ package fr.swapp.touch.dispatcher
 		 */
 		protected var _disposed							:Boolean;
 		
+		
+		/**
+		 * When disposed
+		 */
+		protected var _onDisposed						:Signal			= new Signal();
+		
+		
 		/**
 		 * Direction multiplier. If 1, direction can't be unknown.
 		 */
@@ -138,6 +147,11 @@ package fr.swapp.touch.dispatcher
 		 * If TouchDispatcher is disposed
 		 */
 		public function get disposed ():Boolean { return _disposed; }
+		
+		/**
+		 * When disposed
+		 */
+		public function get onDisposed ():ISignal { return _onDisposed; }
 		
 		
 		/**
@@ -522,7 +536,13 @@ package fr.swapp.touch.dispatcher
 			// TODO : dispose du touch dispatcher
 			
 			throw new Error("NOT IMPLEMENTED YET -> TouchDispatcher");
+			
 			_disposed = true;
+			
+			// Signaler et dispatcher
+			_onDisposed.dispatch();
+			_onDisposed.removeAll();
+			_onDisposed = null;
 		}
 	}
 }

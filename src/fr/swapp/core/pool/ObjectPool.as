@@ -3,6 +3,8 @@ package fr.swapp.core.pool
 	import flash.utils.getQualifiedClassName;
 	import fr.swapp.core.log.Log;
 	import fr.swapp.core.roles.IDisposable;
+	import org.osflash.signals.ISignal;
+	import org.osflash.signals.Signal;
 	
 	/**
 	 * @author ZoulouX
@@ -25,6 +27,12 @@ package fr.swapp.core.pool
 		protected var _disposed				:Boolean;
 		
 		/**
+		 * When pool is disposed
+		 */
+		protected var _onDisposed			:Signal					= new Signal();
+		
+		
+		/**
 		 * La classe qui va être générée
 		 */
 		public function get objectClass ():Class { return _class; }
@@ -43,6 +51,11 @@ package fr.swapp.core.pool
 		 * If pool is disposed
 		 */
 		public function get disposed ():Boolean { return _disposed; }
+		
+		/**
+		 * When pool is disposed
+		 */
+		public function get onDisposed ():ISignal { return _onDisposed; }
 		
 		
 		/**
@@ -147,6 +160,11 @@ package fr.swapp.core.pool
 			
 			// Disposed
 			_disposed = true;
+			
+			// Signaler et supprimer
+			_onDisposed.dispatch();
+			_onDisposed.removeAll();
+			_onDisposed = null;
 		}
 	}
 }
