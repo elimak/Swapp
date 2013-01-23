@@ -1,6 +1,7 @@
 package fr.swapp.graphic.base
 {
 	import flash.display.DisplayObject;
+	import flash.display.DisplayObjectContainer;
 	import flash.events.Event;
 	import flash.utils.getQualifiedClassName;
 	import fr.swapp.core.mvc.IView;
@@ -21,7 +22,7 @@ package fr.swapp.graphic.base
 		/**
 		 * Get DisplayObject instance of this view
 		 */
-		public function get displayObject ():DisplayObject { return this; }
+		public function get displayObject ():DisplayObjectContainer { return this; }
 		
 		
 		/**
@@ -42,13 +43,13 @@ package fr.swapp.graphic.base
 			style(ClassUtils.getClassNameFromInstance(this));
 			
 			// Enregistrer l'instance
-			_styleData = new pStyleDataClass as IStyleData;
+			_styleData = (new pStyleDataClass as IStyleData);
 		}
 		
 		/**
-		 * Initialization
+		 * Added to stage
 		 */
-		override public function init ():void 
+		override protected function addedHandler (event:Event = null):void
 		{
 			// Appliquer le style si disponible
 			if (_styleData != null)
@@ -57,7 +58,7 @@ package fr.swapp.graphic.base
 			}
 			
 			// Relayer
-			super.init();
+			super.addedHandler(event);
 		}
 		
 		/**

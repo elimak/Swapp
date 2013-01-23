@@ -61,11 +61,6 @@
 		protected var _error					:Error;
 		
 		/**
-		 * If call is disposed
-		 */
-		protected var _disposed					:Boolean;
-		
-		/**
 		 * When disposed
 		 */
 		protected var _onDisposed				:Signal					= new Signal();
@@ -160,11 +155,6 @@
 			_error = value;
 		}
 		
-		/**
-		 * If call is disposed
-		 */
-		public function get disposed ():Boolean { return _disposed; }
-		
 		
 		/**
 		 * Le constructeur de l'appel.
@@ -221,9 +211,6 @@
 			
 			// Et les options
 			_options = null;
-			
-			// Disposed
-			_disposed = true;
 			
 			// Signaler et supprimer
 			_onDisposed.dispatch();

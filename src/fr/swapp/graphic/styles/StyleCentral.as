@@ -21,17 +21,12 @@ package fr.swapp.graphic.styles
 		 * En clé, le dernier élément des selecteurs.
 		 * En valeur, un tableau contenant chaque sélécteur de cette clé.
 		 */
-		protected var _selectors					:Array;
+		protected var _selectors					:Array						= [];
 		
 		/**
 		 * Lorsque le style à changé
 		 */
 		protected var _onStyleChanged				:Signal						= new Signal();
-		
-		/**
-		 * If StyleCentral is disposed
-		 */
-		protected var _disposed						:Boolean;
 		
 		/**
 		 * When disposed
@@ -60,11 +55,6 @@ package fr.swapp.graphic.styles
 		 * Lorsque le style à changé
 		 */
 		public function get onStyleChanged ():Signal { return _onStyleChanged; }
-		
-		/**
-		 * If StyleCentral is disposed
-		 */
-		public function get disposed ():Boolean { return _disposed; }
 		
 		/**
 		 * When disposed
@@ -541,8 +531,6 @@ package fr.swapp.graphic.styles
 			
 			_onStyleChanged.removeAll();
 			_onStyleChanged = null;
-			
-			_disposed = true;
 			
 			_onDisposed.dispatch();
 			_onDisposed.removeAll();

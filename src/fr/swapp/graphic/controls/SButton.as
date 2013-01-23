@@ -31,7 +31,7 @@ package fr.swapp.graphic.controls
 		protected var _onTapHandler				:Signal					= new Signal(SButton);
 		
 		/**
-		 * 
+		 * Button interaction mode (see statics)
 		 */
 		protected var _interactionMode			:String;
 		
@@ -68,7 +68,7 @@ package fr.swapp.graphic.controls
 		public function get onTapHandler ():Signal { return _onTapHandler; }
 		
 		/**
-		 * 
+		 * Button interaction mode (see statics)
 		 */
 		public function get interactionMode ():String { return _interactionMode; }
 		
@@ -270,10 +270,13 @@ package fr.swapp.graphic.controls
 		/**
 		 * Set styles for each Button state
 		 */
+		/*
 		public function statesStyles (pNormalStyle:Object, pHoverStyle:Object, pPressedStyle:Object, pDisabledStyle:Object):void
 		{
-			
+			// TODO : State styles. Possibilité de surchargé du style au changement de stage
+			// TODO : Transition entre les changements de style (propriété / delay / duration / easing ?)
 		}
+		*/
 		
 		/**
 		 * State has changed

@@ -33,10 +33,13 @@ package fr.swapp.core.mvc
 		/**
 		 * Initialize default dependences manager
 		 */
-		protected function initDependencesManager ():void
+		protected function initDependencesManager (pDependencesManagerName:String = "default"):void
 		{
 			// Instancier le manager de dépendances par défaut
-			_dependencesManager = new DependencesManager();
+			_dependencesManager = DependencesManager.getInstance(pDependencesManagerName);
+			
+			// Initialiser les dépendences
+			initDependences();
 		}
 		
 		/**

@@ -33,11 +33,6 @@ package fr.swapp.core.mvc
 		protected var _turningOff						:Boolean						= false;
 		
 		/**
-		 * If controller is disposed
-		 */
-		protected var _disposed							:Boolean;
-		
-		/**
 		 * When controller is disposed
 		 */
 		protected var _onDisposed						:Signal							= new Signal();
@@ -77,11 +72,6 @@ package fr.swapp.core.mvc
 		 * Si le controlleur est en train d'être arrêté
 		 */
 		public function get turningOff ():Boolean { return _turningOff; }
-		
-		/**
-		 * If controller is disposed
-		 */
-		public function get disposed ():Boolean { return _disposed; }
 		
 		/**
 		 * When controller is disposed
@@ -195,9 +185,6 @@ package fr.swapp.core.mvc
 			_onTurnedOn = null;
 			_onTurningOff = null;
 			_onTurnedOff = null;
-			
-			// Il est disposé
-			_disposed = true;
 			
 			// Signaler et supprimer
 			_onDisposed.dispatch();

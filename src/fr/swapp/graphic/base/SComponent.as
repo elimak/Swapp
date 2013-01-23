@@ -32,7 +32,7 @@ package fr.swapp.graphic.base
 		/**
 		 * When component is disposed
 		 */
-		protected var _onDisposed					:Signal						= new Signal();
+		protected var _onDisposed					:Signal;
 		
 		/**
 		 * When component is resized.
@@ -750,11 +750,6 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * If this component was disposed.
-		 */
-		public function get disposed ():Boolean { return _disposed; }
-		
-		/**
 		 * When component is disposed
 		 */
 		public function get onDisposed ():ISignal { return _onDisposed; }
@@ -766,7 +761,7 @@ package fr.swapp.graphic.base
 		public function SComponent ()
 		{
 			// Signaler que le composant n'est pas disposé pour être sûr qu'on passe bien par le constructeur
-			_disposed = false;
+			_onDisposed = new Signal();
 			
 			// Ecouter les ajouts au stage
 			if (stage != null)
@@ -891,9 +886,6 @@ package fr.swapp.graphic.base
 			// Ne plus écouter l'ajout et la suppression
 			removeEventListener(Event.ADDED_TO_STAGE, addedHandler);
 			removeEventListener(Event.REMOVED_FROM_STAGE, removedHandler);
-			
-			// On est disposé
-			_disposed = true;
 			
 			// Signaler et supprimer
 			_onDisposed.dispatch();

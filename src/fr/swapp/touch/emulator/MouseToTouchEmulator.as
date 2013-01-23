@@ -114,20 +114,10 @@ package fr.swapp.touch.emulator
 		protected var _secondarySimulatedTouchEvent	:TouchEvent;
 		
 		/**
-		 * If MouseToTouchEmulator is disposed
-		 */
-		protected var _disposed						:Boolean;
-		
-		/**
 		 * When disposed
 		 */
 		protected var _onDisposed					:Signal					= new Signal();
 		
-		
-		/**
-		 * If MouseToTouchEmulator is disposed
-		 */
-		public function get disposed ():Boolean { return _disposed; }
 		
 		/**
 		 * When disposed
@@ -437,9 +427,6 @@ package fr.swapp.touch.emulator
 			// On vire les events (qui peuvent avoir des références au targets)
 			_primarySimulatedTouchEvent = null;
 			_secondarySimulatedTouchEvent = null;
-			
-			// Disposé
-			_disposed = true;
 			
 			// Signaler et supprimer
 			_onDisposed.dispatch();

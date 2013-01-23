@@ -114,12 +114,6 @@ package fr.swapp.touch.dispatcher
 		protected var _pressedDelegates					:Dictionary 	= new Dictionary();
 		
 		/**
-		 * If TouchDispatcher is disposed
-		 */
-		protected var _disposed							:Boolean;
-		
-		
-		/**
 		 * When disposed
 		 */
 		protected var _onDisposed						:Signal			= new Signal();
@@ -142,11 +136,6 @@ package fr.swapp.touch.dispatcher
 		{
 			_tapThreshold = value;
 		}
-		
-		/**
-		 * If TouchDispatcher is disposed
-		 */
-		public function get disposed ():Boolean { return _disposed; }
 		
 		/**
 		 * When disposed
@@ -536,8 +525,6 @@ package fr.swapp.touch.dispatcher
 			// TODO : dispose du touch dispatcher
 			
 			throw new Error("NOT IMPLEMENTED YET -> TouchDispatcher");
-			
-			_disposed = true;
 			
 			// Signaler et dispatcher
 			_onDisposed.dispatch();

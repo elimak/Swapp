@@ -87,11 +87,6 @@ package fr.swapp.graphic.tools
 		protected var _loaders							:Dictionary					= new Dictionary();
 		
 		/**
-		 * If BitmapCache is disposed
-		 */
-		protected var _disposed							:Boolean;
-		
-		/**
 		 * When disposed
 		 */
 		protected var _onDisposed						:Signal						= new Signal();
@@ -104,11 +99,6 @@ package fr.swapp.graphic.tools
 		{
 			return _loaderContext;
 		}
-		
-		/**
-		 * If BitmapCache is disposed
-		 */
-		public function get disposed ():Boolean { return _disposed; }
 		
 		/**
 		 * When disposed
@@ -286,9 +276,6 @@ package fr.swapp.graphic.tools
 			
 			// Vider le tableau
 			clear();
-			
-			// Disposed
-			_disposed = true;
 			
 			// Signaler et supprimer
 			_onDisposed.dispatch();

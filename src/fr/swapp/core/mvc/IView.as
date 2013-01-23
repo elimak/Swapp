@@ -1,6 +1,6 @@
 package fr.swapp.core.mvc
 {
-	import flash.display.DisplayObject;
+	import flash.display.DisplayObjectContainer;
 	import fr.swapp.core.roles.IDisposable;
 	
 	/**
@@ -11,6 +11,6 @@ package fr.swapp.core.mvc
 		/**
 		 * Get displayObject instance of this view
 		 */
-		function get displayObject ():DisplayObject;
+		function get displayObject ():DisplayObjectContainer;
 	}
 }

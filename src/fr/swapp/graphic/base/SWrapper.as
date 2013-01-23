@@ -97,11 +97,6 @@ package fr.swapp.graphic.base
 		protected var _ratio							:Number						= 1;
 		
 		/**
-		 * If SWrapper is disposed
-		 */
-		protected var _disposed							:Boolean;
-		
-		/**
 		 * When disposed
 		 */
 		protected var _onDisposed						:Signal;
@@ -136,11 +131,6 @@ package fr.swapp.graphic.base
 		 * Current stage ratio (if autoRatio is true, default is 1)
 		 */
 		public function get ratio ():Number { return _ratio; }
-		
-		/**
-		 * If SWrapper is disposed
-		 */
-		public function get disposed ():Boolean { return _disposed; }
 		
 		/**
 		 * When disposed
@@ -283,9 +273,6 @@ package fr.swapp.graphic.base
 			_stage = null;
 			_root = null;
 			_styleCentral = null;
-			
-			// Disposé
-			_disposed = true;
 			
 			// Signaler et supprimer
 			_onDisposed.dispatch();

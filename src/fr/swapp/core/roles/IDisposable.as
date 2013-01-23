@@ -16,11 +16,6 @@
 		function get onDisposed ():ISignal
 		
 		/**
-		 * If element is disposed
-		 */
-		function get disposed ():Boolean;
-		
-		/**
 		 * Effacer cet élément de la mémoire
 		 */
 		function dispose ():void

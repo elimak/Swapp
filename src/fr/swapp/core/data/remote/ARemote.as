@@ -107,20 +107,10 @@
 		protected var _onError					:DeluxeSignal			= new DeluxeSignal(this);
 		
 		/**
-		 * If remote is disposed
-		 */
-		protected var _disposed					:Boolean;
-		
-		/**
 		 * When component is disposed
 		 */
 		protected var _onDisposed				:Signal					= new Signal();
 		
-		
-		/**
-		 * When component is disposed
-		 */
-		public function get onDisposed ():ISignal { return _onDisposed; }
 		
 		/**
 		 * Le parseur associé
@@ -200,9 +190,9 @@
 		}
 		
 		/**
-		 * If remote is disposed
+		 * When component is disposed
 		 */
-		public function get disposed ():Boolean { return _disposed; }
+		public function get onDisposed ():ISignal { return _onDisposed; }
 		
 		
 		/**
@@ -515,9 +505,6 @@
 		{
 			// Vider la queue
 			cancelQueue();
-			
-			// Disposé
-			_disposed = true;
 			
 			// Signaler et supprimer
 			_onDisposed.dispatch();

@@ -11,6 +11,30 @@ package fr.swapp.core.dependences
 	public class DependencesManager implements IDependencesManager
 	{
 		/**
+		 * All DependencesManager instances
+		 */
+		protected static var __instances			:Array 		= [];
+		
+		/**
+		 * Get a DependencesManager instance. Instances are stored by name.
+		 * @param	pName : Name of instance to get. If null, default will be returned
+		 * @return : DependencesManager instance
+		 */
+		public static function getInstance (pName:String = "default"):DependencesManager
+		{
+			// Si l'instance avec ce nom n'existe pas
+			if (!(pName in __instances))
+			{
+				// Créer l'instance
+				__instances[pName] = new DependencesManager();
+			}
+			
+			// Retourner l'instance avec ce nom
+			return __instances[pName];
+		}
+		
+		
+		/**
 		 * Les dépendences
 		 */
 		protected var _dependences					:Dictionary;

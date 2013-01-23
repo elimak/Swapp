@@ -23,6 +23,11 @@ package fr.swapp.core.mvc
 		 */
 		protected var _autoDispose			:Boolean						= true;
 		
+		/**
+		 * If controller was initialized
+		 */
+		protected var _initialized			:Boolean;
+		
 		
 		/**
 		 * Associated view
@@ -40,6 +45,28 @@ package fr.swapp.core.mvc
 			{
 				// Enregistrer le container
 				_container = pValue;
+				
+				// Vérifier si on doit lancer l'init
+				checkForInit();
+			}
+		}
+		
+		/**
+		 * Check for init. If container and view are set, init is fired.
+		 */
+		protected function checkForInit ():void
+		{
+			// Si le controller n'a pas déjà été initialisé
+			if (!_initialized && _container != null && _view != null)
+			{
+				// On ajoute la vue au container
+				_container.addChild(_view.displayObject);
+				
+				// Lancer l'init
+				init();
+				
+				// Il a été initialisé
+				_initialized = true;
 			}
 		}
 		
@@ -68,6 +95,9 @@ package fr.swapp.core.mvc
 			
 			// Ecouter quand la vue est disposée
 			_view.onDisposed.add(viewDisposedHandler);
+			
+			// Vérifier si on doit lancer l'init
+			checkForInit();
 		}
 		
 		/**
@@ -132,12 +162,7 @@ package fr.swapp.core.mvc
 		 */
 		protected function initView ():void
 		{
-			// Si on a un container et une vue
-			if (_container != null && _view != null)
-			{
-				// On ajoute la vue au container
-				_container.addChild(_view.displayObject);
-			}
+			
 		}
 		
 		/**
