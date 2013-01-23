@@ -44,7 +44,7 @@ package fr.swapp.graphic.base
 			// Vérifier la validité du stage
 			if (pStage == null)
 			{
-				// Déclancher l'erreur singleton
+				// déclencher l'erreur singleton
 				throw new GraphicalError("SWrapper.getInstance", "Stage can't be null.");
 				return null;
 			}
@@ -150,7 +150,7 @@ package fr.swapp.graphic.base
 			// Vérifier la clé pour la création multiton
 			if (pMultitonKey == null)
 			{
-				// Déclancher l'erreur singleton
+				// déclencher l'erreur singleton
 				throw new GraphicalError("SWrapper.construct", "Direct instancation not allowed, please use SWrapper.getInstance instead.");
 			}
 			else

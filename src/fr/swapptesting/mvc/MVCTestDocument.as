@@ -25,7 +25,7 @@ package fr.swapptesting.mvc
 			initTraceLogger();
 			
 			// Initialiser le SWrapper pour les composants
-			initWrapper();
+			initWrapper(true, true);
 			
 			// Afficher les stats FPS
 			showStats();

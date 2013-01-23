@@ -57,7 +57,7 @@
 			var newTab:Array = [];
 			
 			// Vérifier que l'index est correct par rapport à la taille
-			// Sinon, on déclanche une erreur
+			// Sinon, on déclenche une erreur
 			if (pIndex <= total || total)
 			{
 				// Boucler avec une itération de plus
@@ -75,7 +75,7 @@
 			}
 			else
 			{
-				// Déclancher l'erreur
+				// déclencher l'erreur
 				throw new SwappUtilsError("ArrayUtils.insertAt", "pIndex is out of bounds.");
 			}
 			

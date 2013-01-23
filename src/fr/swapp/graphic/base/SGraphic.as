@@ -154,14 +154,9 @@ package fr.swapp.graphic.base
 		protected var _drawInvalidated					:Boolean						= false;
 		
 		/**
-		 * Spécific texture width for atlas
+		 * AtlasItem to show
 		 */
-		protected var _bitmapSpecificWidth				:int							= 0;
-		
-		/**
-		 * Spécific texture height for atlas
-		 */
-		protected var _bitmapSpecificHeight				:int							= 0;
+		protected var _atlasItem						:SAtlasItem;
 		
 		
 		/**
@@ -193,19 +188,19 @@ package fr.swapp.graphic.base
 		public function get renderMode ():String { return _renderMode; }
 		public function set renderMode (value:String):void 
 		{
-			// Si on est en mode de rendu atlas
-			if (_renderMode == SRenderMode.ATLAS)
-			{
-				// On lève une erreur
-				throw new GraphicalError("SGraphic.renderMode", "Can't change renderMode while atlas is setted. Cancel Atlas with the atlas method with null SAtlasItem in parameter.");
-				return;
-			}
-			
 			// Si c'est différent
 			if (_renderMode != value)
 			{
 				// Enregistrer le nouveau mode
 				_renderMode = value;
+				
+				// Vérifier le nouveau renderMode
+				if (!checkRenderMode())
+				{
+					// S'il n'est pas bon on déclenche un erreur
+					throw new GraphicalError("SGraphic.renderMode", "Invalid render mode.");
+					return;
+				}
 				
 				// On prépare le scale9 si besoin
 				prepareScale9Mode();
@@ -540,12 +535,35 @@ package fr.swapp.graphic.base
 		
 		/**
 		 * La couleur limite pour le découpage.
-		 * La modification de cette valeur ne redéclanchera pas le découpage.
+		 * La modification de cette valeur ne redéclenchera pas le découpage.
 		 */
 		public function get cutThreshold ():uint { return _cutThreshold; }
 		public function set cutThreshold (value:uint):void
 		{
 			_cutThreshold = value;
+		}
+		
+		/**
+		 * AtlasItem to show, null to cancel atlas rendering. Warning, only these SRenderMode will work :
+		 * - STRETCH
+		 * - AUTO_SIZE
+		 * - HORIZONTAL_SCALE_3_RENDER
+		 * - VERTICAL_SCALE_3_RENDER
+		 * - SCALE_9_RENDER
+		 * - AUTO_SCALE_RENDER
+		 */
+		public function get atlasItem ():SAtlasItem  { return _atlasItem; }
+		public function set atlasItem (value:SAtlasItem):void 
+		{
+			// Si c'est différent
+			if (value != _atlasItem)
+			{
+				// Enregistrer la valeur
+				_atlasItem = value;
+				
+				// Actualiser l'atlas
+				updateAtlas("atlasItem");
+			}
 		}
 		
 		
@@ -706,38 +724,102 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * Show Atlas Texture
-		 * @param	pAtlasItem : AtlasItem to show. Set to null to disable Atlas renderMode.
+		 * AtlasItem to show, null to cancel atlas rendering. Warning, only these SRenderMode will work :
+		 * - STRETCH
+		 * - AUTO_SIZE
+		 * - HORIZONTAL_SCALE_3_RENDER
+		 * - VERTICAL_SCALE_3_RENDER
+		 * - SCALE_9_RENDER
+		 * - AUTO_SCALE_RENDER
+		 * @param	pAtlasItem : AtlasItem to show. Set to null to disable Atlas rendering.
+		 * @param	pRenderMode : Render mode to use if AtlasItem is provided, not all available with atlas mode. Default is AUTO_SIZE.
 		 */
-		public function atlas (pAtlasItem:SAtlasItem):void
+		public function atlas (pAtlasItem:SAtlasItem, pRenderMode:String = "autoSize"):void
 		{
+			// Enregistrer l'item
+			_atlasItem = pAtlasItem;
+			
 			// Si on a un atlas
-			if (pAtlasItem != null)
+			if (_atlasItem != null)
 			{
-				// On enregistre toutes les coordonnées
-				_density = pAtlasItem.associatedAtlas.density;
-				_bitmapHorizontalOffset = - pAtlasItem.x / _density;
-				_bitmapVerticalOffset = - pAtlasItem.y / _density;
-				_bitmapSpecificWidth = pAtlasItem.width;
-				_bitmapSpecificHeight = pAtlasItem.height;
-				_bitmapData = pAtlasItem.associatedAtlas.bitmapData;
+				// Appliquer le mode de rendu
+				_renderMode = pRenderMode;
+			}
+			
+			// Actualiser
+			updateAtlas("atlas");
+		}
+		
+		/**
+		 * Check validity of provided SRenderMode.
+		 * Will return false if provided SRenderMode is invalid.
+		 */
+		protected function checkRenderMode ():Boolean
+		{
+			return (
+				// Si c'est un des modes de rendu compatible avec ou sans atlas
+				_renderMode == SRenderMode.AUTO_SIZE
+				||
+				_renderMode == SRenderMode.STRECH
+				||
+				_renderMode == SRenderMode.HORIZONTAL_SCALE_3_RENDER
+				||
+				_renderMode == SRenderMode.VERTICAL_SCALE_3_RENDER
+				||
+				_renderMode == SRenderMode.SCALE_9_RENDER
+				||
+				_renderMode == SRenderMode.AUTO_SCALE_RENDER
+				||
+				(
+					// Sinon si on n'a pas d'atlas
+					_atlasItem == null ? (
+						// Et que c'est un des modes de rendu compatible sans atlas
+						_renderMode == SRenderMode.CENTER
+						||
+						_renderMode == SRenderMode.INSIDE
+						||
+						_renderMode == SRenderMode.NO_SCALE
+						||
+						_renderMode == SRenderMode.OUTSIDE
+						||
+						_renderMode == SRenderMode.REPEAT
+					)
+					
+					// Sinon c'est qu'on a un atlas avec un mode incompatible
+					: false
+				)
+			)
+		}
+		
+		/**
+		 * Update atlas properties from atlas item
+		 */
+		protected function updateAtlas (pFromMethodName:String = null):void
+		{
+			// Si on a un item
+			if (_atlasItem != null)
+			{
+				// Appliquer les valeurs de l'atlas
+				_bitmapData = _atlasItem.associatedAtlas.bitmapData;
+				_density = _atlasItem.associatedAtlas.density;
+				_bitmapHorizontalOffset = - _atlasItem.x / _density;
+				_bitmapVerticalOffset = - _atlasItem.y / _density;
 				
-				// Appliquer la size de la texture au composant
-				size(_bitmapSpecificWidth / _density, _bitmapSpecificHeight / _density);
-				
-				// On passe le mode de rendu en atlas
-				_renderMode = SRenderMode.ATLAS;
+				// Vérifier le renderMode
+				if (!checkRenderMode())
+				{
+					// déclencher une erreur
+					throw new GraphicalError("SGraphic." + (pFromMethodName == null ? "updateAtlas" : pFromMethodName), "Atlas setted with incompatible RenderMode.");
+					return;
+				}
 			}
 			else
 			{
-				// Sinon on vire toutes les propriété atlas
-				_bitmapHorizontalOffset = 0;
-				_bitmapVerticalOffset = 0;
-				_bitmapSpecificWidth = 0;
-				_bitmapSpecificHeight = 0;
+				// Remettre les valeurs modifiées par l'atlas à leurs valeurs par défaut
 				_bitmapData = null;
 				_density = 1;
-				_renderMode = "";
+				_bitmapHorizontalOffset = 0;
+				_bitmapVerticalOffset = 0;
 			}
 			
 			// Invalider le dessin
@@ -766,9 +848,19 @@ package fr.swapp.graphic.base
 			// Si on est en mode de rendu taille auto, et qu'on a une image
 			if (_renderMode == SRenderMode.AUTO_SIZE && _bitmapData != null)
 			{
-				// Appliquer les dimensions de l'image
-				_localWidth = _bitmapData.width / _density;
-				_localHeight = _bitmapData.height / _density;
+				// Si on est en mode atlas
+				if (_atlasItem != null)
+				{
+					// Appliquer les dimensions de l'atlas
+					_localWidth = _atlasItem.width / _density;
+					_localHeight = _atlasItem.height / _density;
+				}
+				else
+				{
+					// Appliquer les dimensions de l'image
+					_localWidth = _bitmapData.width / _density;
+					_localHeight = _bitmapData.height / _density;
+				}
 			}
 			
 			// Actualiser le flux de positionnement
@@ -872,7 +964,7 @@ package fr.swapp.graphic.base
 						
 						// Si on a un fond
 						// Et si on est sur un mode de rendu ou le contenu peut être plus petit que la zone d'affichage
-						if (_backgroundType != SBackgroundType.NONE && _renderMode != SRenderMode.REPEAT && _renderMode != SRenderMode.AUTO_SIZE && _renderMode != SRenderMode.STRECH && _renderMode != SRenderMode.ATLAS)
+						if (_backgroundType != SBackgroundType.NONE && _renderMode != SRenderMode.REPEAT && _renderMode != SRenderMode.AUTO_SIZE && _renderMode != SRenderMode.STRECH && _atlasItem == null)
 						{
 							// Dessiner le background
 							drawBackground();
@@ -1013,11 +1105,13 @@ package fr.swapp.graphic.base
 				horizontalScale = _localWidth / _bitmapData.width;
 				verticalScale = _localHeight / _bitmapData.height;
 			}
-			else if (_renderMode == SRenderMode.ATLAS)
+			
+			// Sinon si on a un atlas
+			else if (_atlasItem != null)
 			{
 				// Scaler l'atlas au composant
-				horizontalScale = _localWidth / _bitmapSpecificWidth;
-				verticalScale = _localHeight / _bitmapSpecificHeight;
+				horizontalScale = _localWidth / _atlasItem.width;
+				verticalScale = _localHeight / _atlasItem.height;
 			}
 			else if (_renderMode == SRenderMode.INSIDE || _renderMode == SRenderMode.OUTSIDE)
 			{
@@ -1275,6 +1369,20 @@ package fr.swapp.graphic.base
 					}
 				}
 			}
+		}
+		
+		/**
+		 * Dispose
+		 */
+		override public function dispose ():void
+		{
+			// Supprimer les références
+			_bitmapData = null;
+			_atlasItem = null;
+			_slices = null;
+			
+			// Relayer
+			super.dispose();
 		}
 	}
 }

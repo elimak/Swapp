@@ -93,7 +93,7 @@ package fr.swapp.core.data.remote
 				}
 				else
 				{
-					// Déclancher une erreur
+					// déclencher une erreur
 					throw new SwappError("ExternalInterfaceRemote.registerCallbackObject", "Callback objet must contain only functions.");
 				}
 			}

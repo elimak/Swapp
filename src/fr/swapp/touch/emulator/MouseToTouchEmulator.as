@@ -23,7 +23,7 @@ package fr.swapp.touch.emulator
 	public class MouseToTouchEmulator implements IDisposable
 	{
 		/**
-		 * Déclancher automatiquement l'émulateur si besoin
+		 * déclencher automatiquement l'émulateur si besoin
 		 */
 		public static function auto (pStage:Stage):void
 		{

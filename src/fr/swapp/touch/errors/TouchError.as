@@ -7,7 +7,7 @@ package fr.swapp.touch.errors
 	public class TouchError extends Error 
 	{
 		/**
-		 * Déclancher une erreur d'exécution du framework graphique
+		 * déclencher une erreur d'exécution du framework graphique
 		 * @param	pMethod : Le nom de la classe et de la méthode sous cette forme : "MyClass.myMethod"
 		 * @param	pMessage : Le message associé à l'erreur
 		 * @param	pId : L'id du message

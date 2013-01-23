@@ -234,7 +234,7 @@
 		 */
 		public function call (pCommand:String, pOptions:Object = null, ... rest):RemotingCall
 		{
-			// Par défaut, déclancher une erreur
+			// Par défaut, déclencher une erreur
 			throw new SwappError("ADataRemote.call", "This is an abstract method which you must override.");
 			return null;
 		}
@@ -321,7 +321,7 @@
 					}
 					else
 					{
-						// Ce ne sont pas des collections, déclancher une erreur
+						// Ce ne sont pas des collections, déclencher une erreur
 						throw new SwappError("ADataRemote.callSuccess", "Options[COLLECTION_TO_FEED] must be IDataCollection or Array of IDataCollection.");
 					}
 				}

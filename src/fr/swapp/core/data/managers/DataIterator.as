@@ -58,7 +58,7 @@
 			// Vérifier que la collection à définir n'est pas nulle
 			if (value is null)
 			{
-				// Déclancher une error interne
+				// déclencher une error interne
 				throw new SwappError("DataIterator.dataCollection", "DataCollection can't be null.");
 			}
 			else
@@ -91,7 +91,7 @@
 			}
 			else
 			{
-				// Déclancher l'erreur
+				// déclencher l'erreur
 				throw new SwappError("DataIterator.index", "Index is out of bounds.");
 			}
 		}
@@ -101,7 +101,7 @@
 		 */
 		public function get current ():IDataItem
 		{
-			// Récupérer l'élément courrant dans les limites pour ne pas déclancher de bounds error
+			// Récupérer l'élément courrant dans les limites pour ne pas déclencher de bounds error
 			return _dataCollection.getItem(Math.max(0, Math.min(_index, _dataCollection.length - 1)));
 		}
 		

@@ -104,7 +104,7 @@
 			}
 			else
 			{
-				// Déclancher une erreur interne
+				// déclencher une erreur interne
 				throw new SwappError("JSONRemote.prepareData", "JSONRemote must compose a decode function (view constructor signature)");
 			}
 			return null;

@@ -200,11 +200,6 @@ package fr.swapp.graphic.base
 		 */
 		protected var _autoDispose					:Boolean					= true;
 		
-		/**
-		 * Si l'élément a été disposé
-		 */
-		protected var _disposed						:Boolean					= true;
-		
 		
 		/**
 		 * Les anciennes valeurs pour détécter les changements.
@@ -826,7 +821,7 @@ package fr.swapp.graphic.base
 		protected function removedHandler (event:Event):void
 		{
 			// Si on a déjà été disposé
-			if (_disposed)
+			if (_onDisposed == null)
 			{
 				// C'est un problème OUPS
 				trace("Multiple dispose detected in SComponent");
@@ -1328,7 +1323,7 @@ package fr.swapp.graphic.base
 		protected function updateFlow ():void
 		{
 			// Si on est disposé
-			if (_disposed)
+			if (_onDisposed == null)
 			{
 				trace("FUU disposed object is disposed");
 				

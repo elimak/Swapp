@@ -33,7 +33,7 @@
 			}
 			catch (e:Error)
 			{
-				// Déclancher une erreur
+				// déclencher une erreur
 				Log.warning("TODO : PREPARE XML ERROR");
 				_onError.dispatch();
 			}

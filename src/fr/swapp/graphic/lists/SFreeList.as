@@ -4,6 +4,7 @@ package fr.swapp.graphic.lists
 	import flash.display.DisplayObject;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import fr.swapp.touch.dispatcher.TouchDirections;
 	import fr.swapp.touch.dispatcher.TouchDispatcher;
 	//import fr.swapp.touch.emulator.TouchEmulator;
 	import org.osflash.signals.Signal;
@@ -132,7 +133,7 @@ package fr.swapp.graphic.lists
 			if (
 					pDirection == _dragDirection
 					||
-					(pDirection == TouchDispatcher.UNKNOW_DIRECTION && _dragAllowUnknownDirection)
+					(pDirection == TouchDirections.UNKNOW_DIRECTION && _dragAllowUnknownDirection)
 					||
 					_dragAllowOppositeDirection
 				)

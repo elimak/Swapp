@@ -67,7 +67,7 @@ package fr.swapp.graphic.styles
 		 */
 		public function StyleCentral ()
 		{
-			// TODO : Vérifier le déclanchement des erreurs (essayer d'appliquer une valeur sur une fonction, etc)
+			// TODO : Vérifier le déclenchement des erreurs (essayer d'appliquer une valeur sur une fonction, etc)
 			// TODO : Peut être faire un mode strict (Qui throw des error au lieu de log)
 			
 			// TODO : Voir si on peut pas intégrer les states? (Pratique pour le bouton)

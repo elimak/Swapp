@@ -11,68 +11,65 @@ package fr.swapp.graphic.base
 		// TODO : Implémenter le scale 9 et scale 3 en mode Atlas
 		// TODO : Implémenter le fait de continuer le dessin du bitmap ou non (avec le paramètre allowOverflow) en renderMode NO_SCALE / CENTER
 		// TODO : Finir de traduire / refacto SGraphic
+		// TODO : Ajouter un mode qui permet d'animer dans un Atlas, peut être faire un nouvelle classe qui étend SGraphic
+		
 		
 		/**
 		 * Stretch the image to the component size. Image proportions are not respected.
 		 */
-		public static const STRECH						:String 							= "strechRenderMode";
+		public static const STRECH						:String 							= "strech";
 		
 		/**
 		 * Don't scale the image. The image have its original size, computed with the density.
 		 * Component size will not be changed.
 		 */
-		public static const NO_SCALE					:String 							= "noScaleRenderMode";
+		public static const NO_SCALE					:String 							= "noScale";
 		
 		/**
 		 * Repeat the image through the component. The image have the same size as NO_SCALE mode.
 		 * Be carefull about x² size which can create blank areas if not respected.
 		 */
-		public static const REPEAT						:String 							= "repeatRenderMode";
+		public static const REPEAT						:String 							= "repeat";
 		
 		/**
 		 * Center the image in the component. The image have the same size as NO_SCALE mode.
 		 */
-		public static const CENTER						:String 							= "centerRenderMode";
+		public static const CENTER						:String 							= "center";
 		
 		/**
 		 * Maximise the image size in the component. Proportions will be respected and image is showed entirely.
 		 */
-		public static const INSIDE						:String 							= "insideRenderMode";
+		public static const INSIDE						:String 							= "inside";
 		
 		/**
 		 * Maximise the image size in the component. Proportions will be respected but image can overflow the component.
 		 * Property allowOverflow on SGraphic prevent the overflow and the image will be cutted.
 		 */
-		public static const OUTSIDE						:String 							= "outsideRenderMode";
+		public static const OUTSIDE						:String 							= "outside";
 		
 		/**
 		 * The component will automatically have the size of the image, with proportions respected and computed with density.
 		 */
-		public static const AUTO_SIZE					:String 							= "autoSizeRenderMode";
-		
-		/**
-		 * Show image from atlas
-		 */
-		public static const ATLAS						:String 							= "atlasRenderMode";
+		public static const AUTO_SIZE					:String 							= "autoSize";
 		
 		/**
 		 * Use Scale 3 grid to show a fluid image with 3 horizontal slices.
 		 */
-		public static const HORIZONTAL_SCALE_3_RENDER	:String								= "horizontalScale3RenderMode"
+		public static const HORIZONTAL_SCALE_3_RENDER	:String								= "horizontalScale3"
 		
 		/**
 		 * Use Scale 3 grid to show a fluid image with 3 vertical slices.
 		 */
-		public static const VERTICAL_SCALE_3_RENDER		:String								= "verticalScale3RenderMode";
+		public static const VERTICAL_SCALE_3_RENDER		:String								= "verticalScale3";
 		
 		/**
 		 * Use Scale 9 grid to show a fluid image with 9 slices.
 		 */
-		public static const SCALE_9_RENDER				:String								= "scale9RenderMode";
+		public static const SCALE_9_RENDER				:String								= "scale9";
 		
 		/**
 		 * Use Scale grid automatically from image.
 		 */
-		public static const AUTO_SCALE_RENDER			:String								= "autoScaleRenderMode";
+		public static const AUTO_SCALE_RENDER			:String								= "autoScale";
 	}
 }

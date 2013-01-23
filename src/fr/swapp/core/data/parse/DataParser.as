@@ -570,7 +570,7 @@
 		}
 		
 		/**
-		 * Déclancher une erreur de parse
+		 * déclencher une erreur de parse
 		 */
 		protected function showErrorMessage (pElementName:String, pError:Error):void
 		{

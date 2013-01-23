@@ -16,10 +16,10 @@ package fr.swapptesting.rebirth
 	import fr.swapp.graphic.atlas.SAtlasItem;
 	import fr.swapp.graphic.base.SBackgroundType;
 	import fr.swapp.graphic.base.SComponent;
-	import fr.swapp.graphic.base.SDocument;
 	import fr.swapp.graphic.base.SGraphic;
 	import fr.swapp.graphic.base.SRenderMode;
 	import fr.swapp.graphic.controls.SButton;
+	import fr.swapp.graphic.document.SAirDocument;
 	import fr.swapp.graphic.lists.IVirtualListDelegate;
 	import fr.swapp.graphic.lists.SFreeList;
 	import fr.swapp.graphic.lists.SVirtualList;
@@ -30,7 +30,7 @@ package fr.swapptesting.rebirth
 	/**
 	 * @author ZoulouX
 	 */
-	public class RebirthDocument extends SDocument implements IVirtualListDelegate
+	public class RebirthDocument extends SAirDocument implements IVirtualListDelegate
 	{
 		[Embed(source="../../../../lib/images/z.jpg")]
 		public static const ImageTest:Class
@@ -51,19 +51,47 @@ package fr.swapptesting.rebirth
 		
 		public function RebirthDocument ()
 		{
-			initTraceLogger();
-			initAppViewController();
+			
 		}
 		
 		override public function init ():void
 		{
 			trace("SDocument.init", _wrapper);
 			
-			_wrapper.enableStyleCentral();
-			_wrapper.enableTouchDispatcher();
-			_wrapper.enableTouchEmulator();
-			_wrapper.showStats();
+			// Initialiser les log avec trace
+			initTraceLogger();
 			
+			// Initialiser le SWrapper pour les composants
+			initWrapper(true, true);
+			
+			// Afficher les stats FPS
+			showStats();
+			
+			// Initialiser la gestion des touch avec les paramètres par défaut
+			enableTouchDispatcher();
+			
+			// Initialiser l'emulateur de touch pour desktop avec les paramètres par défaut
+			enableTouchEmulator();
+			
+			
+			var ba:ByteArray = (new AtlasXMLTest as ByteArray);
+			
+			var atlas:SAtlas = new SAtlas(
+				(new AtlasImageTest as Bitmap).bitmapData,
+				new XML(ba.readUTFBytes(ba.length)),
+				2
+			);
+			
+			trace(atlas.getNames());
+			_graph1 = new SGraphic();
+			
+			_graph1.atlas(atlas.getAtlasItem("videos-btn"), SRenderMode.AUTO_SIZE);
+			
+			_graph1.center(0, 0).into(_wrapper.root);
+			
+			trace(_graph1.width, _graph1.height);
+			
+			/*
 			_wrapper.styleCentral.styleData = {
 				".component1" : {
 					center: [0, 0],
@@ -97,6 +125,7 @@ package fr.swapptesting.rebirth
 			central.dispatch("tutu", 4);
 			central.removeAll("tutu");
 			central.dispatch("tutu", 3);
+			*/
 			
 			/*
 			var html:SHTMLText = new SHTMLText(false, true, true);

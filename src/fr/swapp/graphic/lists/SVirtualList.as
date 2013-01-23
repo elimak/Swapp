@@ -644,7 +644,7 @@ package fr.swapp.graphic.lists
 						}
 						else
 						{
-							// Déclancher une erreur et arrêter
+							// déclencher une erreur et arrêter
 							throw new GraphicalError("AVirtualList.needElementAt", "Element " + pFromIndex + " has no size and delegate can't deliver typical size");
 							return null;
 						}

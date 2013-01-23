@@ -188,7 +188,7 @@
 		 */
 		public function getItem (pIndex:uint):IDataItem
 		{
-			// Vérifier qu'on soit bien dans les valeurs acceptées, sinon on déclanche une erreur
+			// Vérifier qu'on soit bien dans les valeurs acceptées, sinon on déclenche une erreur
 			if (pIndex >= _data.length)
 				throw new SwappError("DataCollection.getItem", "Index is out of bounds");
 			

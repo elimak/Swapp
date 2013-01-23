@@ -7,7 +7,7 @@ package fr.swapp.utils
 	public class SwappUtilsError extends Error 
 	{
 		/**
-		 * Déclancher une erreur interne aux utilitaires du framework Swapp
+		 * déclencher une erreur interne aux utilitaires du framework Swapp
 		 * @param	pMethod : Le nom de la classe et de la méthode sous cette forme : "MyClass.myMethod"
 		 * @param	pMessage : Le message associé à l'erreur
 		 * @param	pId : L'id du message

@@ -211,7 +211,7 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * La méthode interne pour ajouter un élément (pas de déclanchement de méthode overridable)
+		 * La méthode interne pour ajouter un élément (pas de déclenchement de méthode overridable)
 		 * @param	pElement : L'élément a ajouter de type SComponent
 		 * @param	pAt : L'index de l'ajout -1 pour l'ajouter à la fin
 		 */
@@ -303,7 +303,7 @@ package fr.swapp.graphic.base
 			// Sinon on est out of range
 			else
 			{
-				// Donc on déclanche un erreur
+				// Donc on déclenche un erreur
 				throw new GraphicalError("SContainer.addElement", "Element index is out of range (" + pAt + " of " + _elements.length + ")");
 				
 				// Arrêter le script
@@ -323,7 +323,7 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * La méthode interne pour supprimer un élément (pas de déclanchement d'erreur)
+		 * La méthode interne pour supprimer un élément (pas de déclenchement d'erreur)
 		 */
 		protected function internalRemoveElement (pElement:SComponent):void
 		{
