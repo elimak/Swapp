@@ -4,6 +4,7 @@ package fr.swapp.core.dependences
 	import flash.utils.getDefinitionByName;
 	import flash.utils.getQualifiedClassName;
 	import flash.utils.getQualifiedSuperclassName;
+	import fr.swapp.core.errors.SwappError;
 	
 	/**
 	 * @author ZoulouX 
@@ -26,7 +27,7 @@ package fr.swapp.core.dependences
 			if (!(pName in __instances))
 			{
 				// Créer l'instance
-				__instances[pName] = new DependencesManager();
+				__instances[pName] = new DependencesManager(new MultitonKey(), pName);
 			}
 			
 			// Retourner l'instance avec ce nom
@@ -44,6 +45,11 @@ package fr.swapp.core.dependences
 		 */
 		protected var _concretes					:Dictionary;
 		
+		/**
+		 * Le nom du manager de dependences
+		 */
+		protected var _name							:String;
+		
 		
 		/**
 		 * Récupérer les dépendences.
@@ -57,16 +63,32 @@ package fr.swapp.core.dependences
 		 */
 		public function get concretes ():Dictionary { return _concretes; }
 		
+		/**
+		 * Le nom du manager de dependences
+		 */
+		public function get name ():String { return _name; }
+		
 		
 		/**
 		 * Le constructeur
 		 * @param	pWeekReference : Si les références aux classes sont faibles
 		 */
-		public function DependencesManager (pWeekReference:Boolean = false)
+		public function DependencesManager (pMultitonKey:MultitonKey, pName:String, pWeekReference:Boolean = false)
 		{
-			// Créer les dicos
-			_dependences = new Dictionary(pWeekReference);
-			_concretes = new Dictionary(pWeekReference);
+			// Vérifier la création du multiton
+			if (pMultitonKey == null)
+			{
+				throw new SwappError("DependencesManager.constructor", "Direct instancations are not allowed, please use DependencesManager.getInstance instead.");
+			}
+			else
+			{
+				// Enregistrer le nom
+				_name = pName;
+				
+				// Créer les dicos
+				_dependences = new Dictionary(pWeekReference);
+				_concretes = new Dictionary(pWeekReference);
+			}
 		}
 		
 		/**
@@ -325,3 +347,8 @@ package fr.swapp.core.dependences
 		}
 	}
 }
+
+/**
+ * Private key to secure multiton providing.
+ */
+internal class MultitonKey {}

@@ -53,7 +53,7 @@ package fr.swapp.core.central
 		{
 			if (pInstanciationKey == null)
 			{
-				throw new SwappError("Central.constructor", "Direct instancation not allowed, please use Central.getInstance instead.");
+				throw new SwappError("Central.constructor", "Direct instancations are not allowed, please use Central.getInstance instead.");
 			}
 		}
 		

@@ -10,7 +10,8 @@ package fr.swapp.core.mvc
 		/**
 		 * Container which will have view
 		 */
-		function get container ():DisplayObjectContainer
+		function get container ():DisplayObjectContainer;
+		function set container (pValue:DisplayObjectContainer):void;
 		
 		/**
 		 * Associated controlled view

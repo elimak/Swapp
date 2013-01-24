@@ -16,7 +16,7 @@
     </define>
     <define append="true">
       <name>CONFIG::timeStamp</name>
-      <value>'23/01/2013'</value>
+      <value>'24/01/2013'</value>
     </define>
     <define append="true">
       <name>CONFIG::air</name>
@@ -32,16 +32,16 @@
     </define>
     <verbose-stacktraces>true</verbose-stacktraces>
     <source-path append="true">
-      <path-element>C:\local\frameworks\swapp\Swapp\src</path-element>
+      <path-element>C:\local\Frameworks\swapp-master\src</path-element>
       <path-element>C:\Program Files (x86)\FlashDevelop\Library\AS3\classes</path-element>
     </source-path>
     <library-path append="true">
-      <path-element>C:\local\frameworks\swapp\Swapp\lib\dependences\as3-signals-v0.8.swc</path-element>
-      <path-element>C:\local\frameworks\swapp\Swapp\lib\dependences\greensock.swc</path-element>
+      <path-element>C:\local\Frameworks\swapp-master\lib\dependences\as3-signals-v0.8.swc</path-element>
+      <path-element>C:\local\Frameworks\swapp-master\lib\dependences\greensock.swc</path-element>
     </library-path>
   </compiler>
   <file-specs>
-    <path-element>C:\local\frameworks\swapp\Swapp\src\fr\swapptesting\rebirth\RebirthDocument.as</path-element>
+    <path-element>C:\local\Frameworks\swapp-master\src\fr\diagral\mobile\DiagralDocument.as</path-element>
   </file-specs>
   <default-background-color>#FFFFFF</default-background-color>
   <default-frame-rate>60</default-frame-rate>

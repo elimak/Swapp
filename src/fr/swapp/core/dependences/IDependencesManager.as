@@ -8,6 +8,11 @@ package fr.swapp.core.dependences
 	public interface IDependencesManager 
 	{
 		/**
+		 * Context name of the dependences manager
+		 */
+		function get name ():String;
+		
+		/**
 		 * Récupérer les dépendences.
 		 * Dictionnaire avec classe en clé et objet associatif des dépendances en valeur.
 		 */
