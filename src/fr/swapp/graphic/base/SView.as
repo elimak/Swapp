@@ -4,9 +4,15 @@ package fr.swapp.graphic.base
 	import flash.display.DisplayObjectContainer;
 	import flash.events.Event;
 	import flash.utils.getQualifiedClassName;
+	import fr.swapp.core.central.Central;
+	import fr.swapp.core.dependences.DependencesManager;
 	import fr.swapp.core.mvc.IView;
+	import fr.swapp.core.navigation.IBootstrap;
+	import fr.swapp.graphic.navigation.SNavigationStack;
 	import fr.swapp.graphic.styles.IStyleData;
 	import fr.swapp.utils.ClassUtils;
+	import fr.swapp.utils.DisplayObjectUtils;
+	import fr.swapp.utils.ObjectUtils;
 	
 	/**
 	 * @author ZoulouX
@@ -18,11 +24,37 @@ package fr.swapp.graphic.base
 		 */
 		protected var _styleData							:IStyleData;
 		
+		/**
+		 * Events from Central (eventName in key, handler in value)
+		 */
+		protected var _events								:Object							= {};
+		
 		
 		/**
 		 * Get DisplayObject instance of this view
 		 */
 		public function get displayObject ():DisplayObjectContainer { return this; }
+		
+		/**
+		 * Get the first SNavigationStack recursively to the stage.
+		 */
+		public function get navigationStack ():SNavigationStack
+		{
+			// Cibler la SNavigationStack parente
+			return DisplayObjectUtils.getParentOfType(this, SNavigationStack) as SNavigationStack;
+		}
+		
+		/**
+		 * Get the first bootstrap recursively to the stage.
+		 */
+		public function get bootstrap ():IBootstrap
+		{
+			// Récupérer la navigationStack la plus proche
+			var ns:SNavigationStack = navigationStack;
+			
+			// Retourner le bootstrap si on en a trouvé une sinon on retourne null
+			return (ns != null ? ns.bootstrap : null);
+		}
 		
 		
 		/**
@@ -43,7 +75,7 @@ package fr.swapp.graphic.base
 			style(ClassUtils.getClassNameFromInstance(this));
 			
 			// Enregistrer l'instance
-			_styleData = (new pStyleDataClass as IStyleData);
+			_styleData = DependencesManager.getInstance().instanciate(pStyleDataClass) as IStyleData;
 		}
 		
 		/**
@@ -62,6 +94,39 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
+		 * Set events via Central
+		 */
+		protected function setEvents (pEvents:Object):void
+		{
+			// Enregistrer
+			ObjectUtils.extra(_events, pEvents);
+		}
+		
+		/**
+		 * Init events via Central
+		 */
+		protected function initEvents ():void
+		{
+			// Parcourir les events
+			for (var i:String in _events)
+			{
+				Central.getInstance().listen(i, _events[i]);
+			}
+		}
+		
+		/**
+		 * Dispose events via Central
+		 */
+		protected function disposeEvents ():void
+		{
+			// Parcourir les events
+			for (var i:String in _events)
+			{
+				Central.getInstance().remove(i, _events[i]);
+			}
+		}
+		
+		/**
 		 * Dispose
 		 */
 		override public function dispose ():void
@@ -71,6 +136,9 @@ package fr.swapp.graphic.base
 			{
 				SWrapper.getInstance(stage).styleCentral.removeStyleData(_styleData);
 			}
+			
+			// Supprimer les events
+			disposeEvents();
 			
 			// Relayer
 			super.dispose();

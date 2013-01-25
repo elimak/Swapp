@@ -1,6 +1,8 @@
 package fr.swapp.core.mvc
 {
 	import fr.swapp.core.actions.IAction;
+	import fr.swapp.core.central.Central;
+	import fr.swapp.utils.ObjectUtils;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -36,6 +38,11 @@ package fr.swapp.core.mvc
 		 * When controller is disposed
 		 */
 		protected var _onDisposed						:Signal							= new Signal();
+		
+		/**
+		 * Events from Central (eventName in key, handler in value)
+		 */
+		protected var _events							:Object							= {};
 		
 		
 		/**
@@ -170,10 +177,67 @@ package fr.swapp.core.mvc
 		}
 		
 		/**
+		 * Reset all registerd events
+		 */
+		protected function resetEvents ():void
+		{
+			// Virer les anciens events
+			disposeEvents();
+			
+			// Remettre à 0
+			_events = { };
+		}
+		
+		/**
+		 * Set events via Central
+		 */
+		protected function setEvents (pEvents:Object):void
+		{
+			// Virer les anciens events
+			disposeEvents();
+			
+			// Enregistrer
+			ObjectUtils.extra(_events, pEvents);
+			
+			// Initialiser les nouveaux events
+			initEvents();
+		}
+		
+		/**
+		 * Init events via Central
+		 */
+		protected function initEvents ():void
+		{
+			// Parcourir les events
+			for (var i:String in _events)
+			{
+				Central.getInstance().listen(i, _events[i]);
+			}
+		}
+		
+		/**
+		 * Dispose events via Central
+		 */
+		protected function disposeEvents ():void
+		{
+			// Parcourir les events
+			for (var i:String in _events)
+			{
+				Central.getInstance().remove(i, _events[i]);
+			}
+		}
+		
+		/**
 		 * Méthode abstraite de destruction. A overrider et relayer.
 		 */
 		public function dispose ():void
 		{
+			// Disposer les events
+			disposeEvents();
+			
+			// Virer la référence des events
+			_events = null;
+			
 			// Supprimer toutes les écoutes des signaux engine
 			_onTurningOn.removeAll();
 			_onTurnedOn.removeAll();

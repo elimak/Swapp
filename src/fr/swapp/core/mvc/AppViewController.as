@@ -29,6 +29,34 @@ package fr.swapp.core.mvc
 			
 		}
 		
+		/**
+		 * Initialize
+		 */
+		override public function init ():void
+		{
+			// Relayer
+			super.init();
+			
+			// Initialiser les models
+			initModels();
+			
+			// Initialiser le manager de dépendances
+			initDependencesManager();
+			
+			// Initialiser les dépendences
+			initDependences();
+			
+			// Initialiser les actions
+			initActions();
+		}
+		
+		/**
+		 * Initialize application models
+		 */
+		protected function initModels ():void
+		{
+			
+		}
 		
 		/**
 		 * Initialize default dependences manager
@@ -37,9 +65,6 @@ package fr.swapp.core.mvc
 		{
 			// Instancier le manager de dépendances par défaut
 			_dependencesManager = DependencesManager.getInstance(pDependencesManagerName);
-			
-			// Initialiser les dépendences
-			initDependences();
 		}
 		
 		/**
@@ -51,9 +76,9 @@ package fr.swapp.core.mvc
 		}
 		
 		/**
-		 * Initialize application models
+		 * Initialize actions
 		 */
-		protected function initModels ():void
+		protected function initActions ():void
 		{
 			
 		}

@@ -808,11 +808,11 @@ package fr.swapp.graphic.base
 			// Ecouter la phase de rendu
 			addEventListener(Event.FRAME_CONSTRUCTED, renderHandler);
 			
-			// Initialisation
-			init();
-			
 			// Phase de rendu
 			renderPhase();
+			
+			// Initialisation
+			init();
 		}
 		
 		/**

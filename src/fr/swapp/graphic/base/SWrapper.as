@@ -184,7 +184,7 @@ package fr.swapp.graphic.base
 				_stage.addEventListener(Event.RESIZE, stageResizedHandler);
 				
 				// Appliquer une première fois la taille du viewPort
-				//stageResizedHandler();
+				stageResizedHandler();
 			}
 		}
 		

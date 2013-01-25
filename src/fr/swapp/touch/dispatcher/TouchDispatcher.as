@@ -109,6 +109,11 @@ package fr.swapp.touch.dispatcher
 		protected var _touchThresholders				:Array			= [];
 		
 		/**
+		 * All top targets by touchIds
+		 */
+		protected var _targets							:Array			= [];
+		
+		/**
 		 * Pressed status for tap delegates
 		 */
 		protected var _pressedDelegates					:Dictionary 	= new Dictionary();
@@ -221,13 +226,13 @@ package fr.swapp.touch.dispatcher
 			// Si on a trouvé un target
 			if (target != null)
 			{
-				// Cibler le topTarget
-				var topTarget:DisplayObject = target;
-				
 				// Enregistrer la position de ce point
 				_touchPositions[touchId] 	= new Point(event.stageX, event.stageY);
 				_touchDeltas[touchId] 		= new Point(0, 0);
 				_events[touchId] 			= event;
+				
+				// Enregistrer le target
+				_targets[touchId] = target;
 				
 				// Remonter jusqu'au stage
 				while (target != _stage)
@@ -245,15 +250,15 @@ package fr.swapp.touch.dispatcher
 						// Référencer le delegate adéquat
 						if (target is ITouchDragDelegate)
 						{
-							registerDragDelegate(target as ITouchDragDelegate, event, topTarget);
+							registerDragDelegate(target as ITouchDragDelegate, event);
 						}
 						if (target is ITouchTapDelegate)
 						{
-							registerTapDelegate(target as ITouchTapDelegate, event, topTarget);
+							registerTapDelegate(target as ITouchTapDelegate, event);
 						}
 						if (target is ITouchTransformDelegate)
 						{
-							registerTransformDelegate(target as ITouchTransformDelegate, event, topTarget);
+							registerTransformDelegate(target as ITouchTransformDelegate, event);
 						}
 					}
 					
@@ -291,7 +296,7 @@ package fr.swapp.touch.dispatcher
 					
 					// Dispatcher un dragging avec le bon ratio
 					allowed = delegate.touchDragging(
-						null,
+						_targets[touchId],
 						_directions[touchId],
 						_touchDeltas[touchId].x / target.transform.concatenatedMatrix.a,
 						_touchDeltas[touchId].y / target.transform.concatenatedMatrix.d
@@ -322,7 +327,7 @@ package fr.swapp.touch.dispatcher
 				for each (var touchDragDelegate:ITouchDragDelegate in _draggables[touchId])
 				{
 					// Dispatcher un unlock
-					touchDragDelegate.touchDragUnlock(null);
+					touchDragDelegate.touchDragUnlock(_targets[touchId]);
 				}
 				
 				// Supprimer les delegates de ce point qui n'existe plus
@@ -346,13 +351,13 @@ package fr.swapp.touch.dispatcher
 					else if (_pressedDelegates[touchTapDelegate] <= 1)
 					{
 						// Dispatcher le release
-						touchTapDelegate.touchReleaseHandler(null);
+						touchTapDelegate.touchReleaseHandler(_targets[touchId]);
 						
 						// Si on n'a pas de direction
 						if (!(touchId in _directions))
 						{
 							// Dispatcher le tap
-							touchTapDelegate.touchTapHandler(null, event.isPrimaryTouchPoint);
+							touchTapDelegate.touchTapHandler(_targets[touchId], event.isPrimaryTouchPoint);
 						}
 						
 						// Virer des pressed
@@ -373,6 +378,7 @@ package fr.swapp.touch.dispatcher
 				delete _touchDeltas[touchId];
 				delete _directions[touchId];
 				delete _events[touchId];
+				delete _targets[touchId];
 			}
 		}
 		
@@ -380,9 +386,8 @@ package fr.swapp.touch.dispatcher
 		 * Register a delegate for dragging behavior
 		 * @param	pDelegate : The drag delegate
 		 * @param	pEvent : The touch start event firing
-		 * @param	pTarget : The direct top target
 		 */
-		protected function registerDragDelegate (pDelegate:ITouchDragDelegate, pEvent:TouchEvent, pTarget:DisplayObject):void
+		protected function registerDragDelegate (pDelegate:ITouchDragDelegate, pEvent:TouchEvent):void
 		{
 			// Cibler l'id du touch
 			var touchId:int = pEvent.touchPointID;
@@ -398,16 +403,15 @@ package fr.swapp.touch.dispatcher
 			_draggables[touchId].push(pDelegate);
 			
 			// Dispatcher un lock sur
-			pDelegate.touchDragLock(null);
+			pDelegate.touchDragLock(_targets[touchId]);
 		}
 		
 		/**
 		 * Register a delegate for tapping behavior
 		 * @param	pDelegate : The tap delegate
 		 * @param	pEvent : The touch start event firing
-		 * @param	pTarget : The direct top target
 		 */
-		protected function registerTapDelegate (pDelegate:ITouchTapDelegate, pEvent:TouchEvent, pTarget:DisplayObject):void
+		protected function registerTapDelegate (pDelegate:ITouchTapDelegate, pEvent:TouchEvent):void
 		{
 			// Cibler l'id du touch
 			var touchId:int = pEvent.touchPointID;
@@ -429,7 +433,7 @@ package fr.swapp.touch.dispatcher
 				_pressedDelegates[pDelegate] = 0;
 				
 				// Dispatcher
-				pDelegate.touchPressHandler(null);
+				pDelegate.touchPressHandler(_targets[touchId]);
 			}
 			else
 			{
@@ -442,9 +446,8 @@ package fr.swapp.touch.dispatcher
 		 * Register a delegate for transform behavior
 		 * @param	pDelegate : The transform delegate
 		 * @param	pEvent : The touch start event firing
-		 * @param	pTarget : The direct top target
 		 */
-		protected function registerTransformDelegate (pDelegate:ITouchTransformDelegate, pEvent:TouchEvent, pTarget:DisplayObject):void
+		protected function registerTransformDelegate (pDelegate:ITouchTransformDelegate, pEvent:TouchEvent):void
 		{
 			// TODO : gestion des delegate transform
 			// TODO : gestion des double tap

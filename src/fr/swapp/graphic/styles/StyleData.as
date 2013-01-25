@@ -16,10 +16,12 @@ package fr.swapp.graphic.styles
 		 */
 		public function get styleData ():Object { return _styleData; }
 		
+		
 		/**
 		 * Useless constructor
 		 */
 		public function StyleData () { }
+		
 		
 		/**
 		 * Internal style setter (usefull when added via overrided constructor)

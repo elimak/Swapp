@@ -666,7 +666,10 @@ package fr.swapp.graphic.base
 			_backgroundAlpha2 = pBackgroundAlpha2;
 			
 			// Enregistrer le type de background
-			backgroundType = pBackgroundType;
+			_backgroundType = pBackgroundType;
+			
+			// Invalider le dessin
+			invalidateDraw();
 			
 			// Méthode chaînable
 			return this;

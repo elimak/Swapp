@@ -418,8 +418,10 @@
 		 * Dévérouiller la collection (elle pourra renvoyer des signaux)
 		 * @param	pUnlockSystem : -1 pour dispatch auto, 0 pour interdiction de dispatch, 1 pour dispatch forcé
 		 */
-		public function unlock (pUnlockSystem:int = -1):void
+		public function unlock ():void//pUnlockSystem:int = -1):void
 		{
+			var pUnlockSystem:int = -1;
+			
 			// Ce n'est plus vérouillé
 			_locked = false;
 			

@@ -154,6 +154,8 @@ package fr.swapp.core.navigation
 		 */
 		public function requestAction (pAction:IAction):void
 		{
+			trace("BOOTSTRAP REQUEST ACTION ", pAction);
+			
 			// Si on a une action
 			if (pAction != null)
 			{

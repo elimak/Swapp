@@ -1,6 +1,7 @@
 package fr.swapp.core.mvc
 {
 	import flash.display.DisplayObjectContainer;
+	import fr.swapp.core.dependences.DependencesManager;
 	import fr.swapp.core.errors.SwappError;
 	
 	/**
@@ -91,13 +92,21 @@ package fr.swapp.core.mvc
 		protected function setView (pViewClass:Class):void
 		{
 			// Instancier la vue
-			_view = new pViewClass;
+			_view = DependencesManager.getInstance().instanciate(pViewClass) as IView;
 			
 			// Ecouter quand la vue est disposée
 			_view.onDisposed.add(viewDisposedHandler);
 			
 			// Vérifier si on doit lancer l'init
 			checkForInit();
+		}
+		
+		/**
+		 * Set events via central
+		 */
+		protected function setEvent ():void
+		{
+			
 		}
 		
 		/**
@@ -108,6 +117,9 @@ package fr.swapp.core.mvc
 			// Si on est en autoDispose
 			if (_autoDispose)
 			{
+				// Virer autoDispose pour éviter la récursivité de suppression de la vue
+				_autoDispose = false;
+				
 				// On dispose aussi ce controller
 				dispose();
 			}
@@ -195,8 +207,12 @@ package fr.swapp.core.mvc
 		 */
 		override public function dispose ():void
 		{
-			// Disposer la vue si besoin
-			disposeView();
+			// Si on est en autoDispose
+			if (_autoDispose)
+			{
+				// Disposer la vue si besoin
+				disposeView();
+			}
 			
 			// Dispose le container si besoin
 			disposeContainer();
