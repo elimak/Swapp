@@ -30,6 +30,11 @@ package fr.swapp.graphic.base
 		protected var _data							:Object;
 		
 		/**
+		 * When component is initialised
+		 */
+		protected var _onInit						:Signal						= new Signal();
+		
+		/**
 		 * When component is disposed
 		 */
 		protected var _onDisposed					:Signal;
@@ -745,6 +750,11 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
+		 * When component is initialised
+		 */
+		public function get onInit ():ISignal { return _onInit; }
+		
+		/**
 		 * When component is disposed
 		 */
 		public function get onDisposed ():ISignal { return _onDisposed; }
@@ -867,7 +877,8 @@ package fr.swapp.graphic.base
 		 */
 		public function init ():void
 		{
-			
+			// Dispatcher
+			_onInit.dispatch();
 		}
 		
 		/**
@@ -881,6 +892,10 @@ package fr.swapp.graphic.base
 			// Ne plus écouter l'ajout et la suppression
 			removeEventListener(Event.ADDED_TO_STAGE, addedHandler);
 			removeEventListener(Event.REMOVED_FROM_STAGE, removedHandler);
+			
+			// Supprimer l'init
+			_onInit.removeAll();
+			_onInit = null;
 			
 			// Signaler et supprimer
 			_onDisposed.dispatch();

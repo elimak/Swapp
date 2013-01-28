@@ -192,7 +192,13 @@ package fr.swapp.core.central
 			return false;
 		}
 		
-		
+		/**
+		 * Remove an event
+		 * @param	pMessage : Message to delete some listeners from
+		 * @param	pEntity : Entity to delete
+		 * @param	pEntityIndex : Index where to search entity
+		 * @return : If a message was found and deleted
+		 */
 		protected function removeByEntity (pMessage:String, pEntity:*, pEntityIndex:uint):Boolean
 		{
 			// Vérifier si on a des handlers sur ce message

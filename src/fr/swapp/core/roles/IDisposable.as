@@ -8,7 +8,7 @@
 	 * La méthode dispose doit alors tuer toutes les références, disposer les éléments disposables, et aussi ne plus écouter les évènements.
 	 * @author ZoulouX
 	 */
-	public interface IDisposable 
+	public interface IDisposable
 	{
 		/**
 		 * When element is disposed

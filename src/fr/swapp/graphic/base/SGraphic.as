@@ -1134,7 +1134,7 @@ package fr.swapp.graphic.base
 			}
 			
 			// Appliquer la densité pour ces modes de rendu
-			else if (_renderMode == SRenderMode.AUTO_SIZE || _renderMode == SRenderMode.REPEAT || _renderMode == SRenderMode.NO_SCALE)
+			else if (_renderMode == SRenderMode.AUTO_SIZE || _renderMode == SRenderMode.REPEAT || _renderMode == SRenderMode.NO_SCALE || _renderMode == SRenderMode.CENTER)
 			{
 				horizontalScale = 1 / _density;
 				verticalScale = 1 / _density;

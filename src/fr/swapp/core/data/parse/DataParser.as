@@ -27,6 +27,20 @@
 		 */
 		public static function feedCollection (pCollection:IDataCollection, pData:*, pType:Class, pRecursive:int = -1, pResetCollection:Boolean = false):void
 		{
+			// Si la collection est null
+			if (pCollection == null)
+			{
+				throw new SwappError("DataParser.feedCollection", "Collection to feed is null.");
+				return;
+			}
+			
+			// Si les données sont null
+			else if (pData == null)
+			{
+				throw new SwappError("DataParser.feedCollection", "Data to feed in collection is null.");
+				return;
+			}
+			
 			// Vérouiller la collection (pour qu'elle n'envoie pas d'events)
 			pCollection.lock();
 			
@@ -349,13 +363,21 @@
 							// Vérifier si on est dans une collection
 							// Et si la collection a un type forcé
 							// Et si le nom de l'adapteur correspond bien au nom du noeud (vérifier le jocker)
-							if (out[nodeName] != null && out[nodeName] is IDataCollection && (out[nodeName] as IDataCollection).dataType != null && (parseAdapters[xmlItem.name()] == nodeName || parseAdapters["*"] == nodeName))
+							//if (out[nodeName] != null && out[nodeName] is IDataCollection && (out[nodeName] as IDataCollection).dataType != null && (parseAdapters[xmlItem.name()] == nodeName || parseAdapters["*"] == nodeName))
+							if (out[nodeName] != null && out[nodeName] is IDataCollection && (out[nodeName] as IDataCollection).dataType != null)// && (parseAdapters[xmlItem.name()] == nodeName || parseAdapters["*"] == nodeName))
 							{
+								// TODO : Virer les try / catch du parser
+								// TODO : Documenter l'histoire des adapters et des colections
+								
 								// Parser / Ajouter
 								try
 								{
-									// Parser l'item grâce à l'adapteur, et l'ajoute dans la collection
-									(out[nodeName] as IDataCollection).add(parse(xmlItem, (out[nodeName] as IDataCollection).dataType) as IDataItem);
+									// Parcourir le premier niveau
+									for each (var iXmlCollection:XML in xmlItem.children())
+									{
+										// Parser l'item grâce à l'adapteur, et l'ajoute dans la collection
+										(out[nodeName] as IDataCollection).add(parse(iXmlCollection, (out[nodeName] as IDataCollection).dataType) as IDataItem);
+									}
 									
 									// Ce noeud à été vérifié
 									verified = true;
@@ -371,8 +393,11 @@
 								for (iItem in _items)
 								{
 									// Vérifier si un élément XML porte le même nom qu'un item
-									if (xmlItem.name() == iItem || xmlItem.name() == nodeName)
+									//if (xmlItem.name() == iItem || xmlItem.name() == nodeName)
+									if (xmlItem.name() == iItem)
 									{
+										// TODO : WTF ici ?!!
+										
 										// Essayer d'ajouter normalement
 										try
 										{
@@ -458,8 +483,7 @@
 					// Vérifier si on est dans une collection
 					// Et si la collection a un type forcé
 					// Et si le nom de l'adapteur correspond bien au nom du noeud (vérifier le jocker)
-					if (out[nodeName] != null && out[nodeName] is IDataCollection && (
-					[nodeName] as IDataCollection).dataType != null && (parseAdapters[iData] == nodeName || parseAdapters["*"] == nodeName))
+					if (out[nodeName] != null && out[nodeName] is IDataCollection && ([nodeName] as IDataCollection).dataType != null && (parseAdapters[iData] == nodeName || parseAdapters["*"] == nodeName))
 					{
 						// Vérifier si c'est un tableau qui contient plusieurs objets
 						// Sinon, si c'est un objet, on prend quand même

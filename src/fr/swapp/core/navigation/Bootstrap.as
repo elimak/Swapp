@@ -227,6 +227,13 @@ package fr.swapp.core.navigation
 			// Instancier le nouveau controller et injecter automatiquement ses dépendences
 			var newController:IViewController = _dependencesManager.instanciate(__actionsMap[action.name]) as IViewController;
 			
+			// Si on avait un controller
+			if (oldController != null)
+			{
+				// On le vire du container
+				oldController.container = null;
+			}
+			
 			// Si on a un container à injecter
 			if (_container != null)
 			{
@@ -239,6 +246,9 @@ package fr.swapp.core.navigation
 			
 			// Démarrer le nouveau controller
 			newController.turnOn();
+			
+			// Appeler l'action sur le nouveau controller
+			newController.requestAction(action);
 			
 			// On n'a plus d'action en attente
 			_waitingAction = null;

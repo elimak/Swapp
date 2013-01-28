@@ -35,6 +35,11 @@ package fr.swapp.core.mvc
 		protected var _turningOff						:Boolean						= false;
 		
 		/**
+		 * When controller is initialized
+		 */
+		protected var _onInit							:Signal							= new Signal();
+		
+		/**
 		 * When controller is disposed
 		 */
 		protected var _onDisposed						:Signal							= new Signal();
@@ -79,6 +84,11 @@ package fr.swapp.core.mvc
 		 * Si le controlleur est en train d'être arrêté
 		 */
 		public function get turningOff ():Boolean { return _turningOff; }
+		
+		/**
+		 * When controller is initialized
+		 */
+		public function get onInit ():ISignal { return _onInit; }
 		
 		/**
 		 * When controller is disposed
@@ -165,7 +175,7 @@ package fr.swapp.core.mvc
 		 */
 		public function init ():void
 		{
-			
+			_onInit.dispatch();
 		}
 		
 		/**
@@ -234,6 +244,10 @@ package fr.swapp.core.mvc
 		{
 			// Disposer les events
 			disposeEvents();
+			
+			// Supprimer l'init
+			_onInit.removeAll();
+			_onInit = null;
 			
 			// Virer la référence des events
 			_events = null;

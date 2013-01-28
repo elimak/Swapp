@@ -14,6 +14,8 @@ package fr.swapp.graphic.document
 	import fr.swapp.touch.emulator.MouseToTouchEmulator;
 	import fr.swapp.utils.EnvUtils;
 	import fr.swapp.utils.Stats;
+	import org.osflash.signals.ISignal;
+	import org.osflash.signals.Signal;
 	
 	/**
 	 * @author ZoulouX
@@ -40,6 +42,11 @@ package fr.swapp.graphic.document
 		 */
 		protected var _appViewController	:AppViewController;
 		
+		/**
+		 * When document is initialized
+		 */
+		protected var _onInit				:Signal;
+		
 		
 		/**
 		 * Components wrapper
@@ -60,6 +67,11 @@ package fr.swapp.graphic.document
 		 * AppViewController
 		 */
 		public function get appViewController ():AppViewController { return _appViewController; }
+		
+		/**
+		 * When document is initialized
+		 */
+		public function get onInit ():ISignal { return _onInit; }
 		
 		
 		/**
@@ -100,7 +112,8 @@ package fr.swapp.graphic.document
 		 */
 		public function init ():void
 		{
-			
+			// Signaler l'init
+			_onInit.dispatch();
 		}
 		
 		/**
