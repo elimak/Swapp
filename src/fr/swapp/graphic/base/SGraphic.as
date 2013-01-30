@@ -1111,12 +1111,12 @@ package fr.swapp.graphic.base
 						var hTexturePosition:Vector.<Number> = Vector.<Number>([
 							_frameOffset,
 							_slices.x,
-							_bitmapData.width - _localWidth - _frameOffset
+							_bitmapData.width - _localWidth
 						]);
 						var vTexturePosition:Vector.<Number> = Vector.<Number>([
 							_frameOffset,
 							_slices.y,
-							_bitmapData.height - _localHeight - _frameOffset
+							_bitmapData.height - _localHeight
 						]);
 						
 						// Parcourir les blocs horizontaux
