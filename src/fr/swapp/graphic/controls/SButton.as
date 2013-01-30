@@ -28,7 +28,7 @@ package fr.swapp.graphic.controls
 		/**
 		 * When user tap the button
 		 */
-		protected var _onTapHandler				:Signal					= new Signal(SButton);
+		protected var _onTap				:Signal					= new Signal(SButton);
 		
 		/**
 		 * Button interaction mode (see statics)
@@ -65,7 +65,7 @@ package fr.swapp.graphic.controls
 		/**
 		 * When user tap the button
 		 */
-		public function get onTapHandler ():Signal { return _onTapHandler; }
+		public function get onTap ():Signal { return _onTap; }
 		
 		/**
 		 * Button interaction mode (see statics)
@@ -173,7 +173,7 @@ package fr.swapp.graphic.controls
 			// Au clic
 			else if (event.type == MouseEvent.CLICK)
 			{
-				_onTapHandler.dispatch(this);
+				_onTap.dispatch(this);
 			}
 			
 			// Actualiser l'état selon les properties
@@ -199,7 +199,7 @@ package fr.swapp.graphic.controls
 			)
 			{
 				// On dispatch le tap
-				_onTapHandler.dispatch(this);
+				_onTap.dispatch(this);
 			}
 		}
 		

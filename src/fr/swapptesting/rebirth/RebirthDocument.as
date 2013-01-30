@@ -26,6 +26,7 @@ package fr.swapptesting.rebirth
 	import fr.swapp.graphic.text.SHTMLText;
 	import fr.swapp.graphic.text.SLabel;
 	import fr.swapp.touch.emulator.MouseToTouchEmulator;
+	import fr.swapp.utils.EmbedUtils;
 	
 	/**
 	 * @author ZoulouX
@@ -37,6 +38,9 @@ package fr.swapptesting.rebirth
 		
 		[Embed(source="../../../../lib/images/atlas.png")]
 		public static const AtlasImageTest:Class
+		
+		[Embed(source="../../../../lib/images/scale-test.png")]
+		public static const Scale9ImageTest:Class
 		
 		[Embed(source="../../../../lib/images/atlas.xml", mimeType='application/octet-stream')]
 		public static const AtlasXMLTest:Class
@@ -73,6 +77,16 @@ package fr.swapptesting.rebirth
 			// Initialiser l'emulateur de touch pour desktop avec les paramètres par défaut
 			enableTouchEmulator();
 			
+			_graph2 = new SGraphic();
+			_graph2.background(0xFF0000, 0.2).center(0, 0).into(_wrapper.root);
+			
+			_graph1 = new SGraphic(EmbedUtils.getBitmapData(Scale9ImageTest), null, 1);
+			_graph1.autoSlice();
+			_graph1.center(0, 0).into(_wrapper.root);
+			
+			addEventListener(Event.ENTER_FRAME, enterFrameHandler);
+			
+			/*
 			
 			var ba:ByteArray = (new AtlasXMLTest as ByteArray);
 			
@@ -90,7 +104,7 @@ package fr.swapptesting.rebirth
 			_graph1.center(0, 0).into(_wrapper.root);
 			
 			trace(_graph1.width, _graph1.height);
-			
+			*/
 			/*
 			_wrapper.styleCentral.styleData = {
 				".component1" : {
@@ -288,10 +302,17 @@ package fr.swapptesting.rebirth
 		
 		protected function enterFrameHandler (event:Event):void
 		{
+			_graph1.size(mouseX + 1, mouseY + 1);
+			_graph2.size(mouseX, mouseY);
+		}
+		/*
+		protected function enterFrameHandler (event:Event):void
+		{
 			_currentFrame ++;
 			_graph1.bitmapOffset(_currentFrame, - _currentFrame / 2);
 			
 			_graph4.size(Math.sin(_currentFrame / 50) * 100 + 200, Math.cos(_currentFrame / 60) * 100 + 200);
 		}
+		*/
 	}
 }

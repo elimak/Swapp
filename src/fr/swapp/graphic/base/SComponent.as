@@ -187,7 +187,7 @@ package fr.swapp.graphic.base
 		/**
 		 * Le fond (généré à la demande)
 		 */
-		protected var _backgroundGraphic				:SGraphic;
+		protected var _backgroundGraphic			:SGraphic;
 		
 		/**
 		 * Si la stylisation de cet élément est activé.
@@ -204,6 +204,11 @@ package fr.swapp.graphic.base
 		 * Auto-dispose component when removed from DisplayList
 		 */
 		protected var _autoDispose					:Boolean					= true;
+		
+		/**
+		 * Snap position to round pixels
+		 */
+		protected var _snapToPixels					:Boolean;
 		
 		
 		/**
@@ -759,6 +764,15 @@ package fr.swapp.graphic.base
 		 */
 		public function get onDisposed ():ISignal { return _onDisposed; }
 		
+		/**
+		 * Snap position to round pixels
+		 */
+		public function get snapToPixels ():Boolean { return _snapToPixels; }
+		public function set snapToPixels (value:Boolean):void
+		{
+			_snapToPixels = value;
+		}
+		
 		
 		/**
 		 * Constructeur du composant avec gestion des dimensions
@@ -962,7 +976,7 @@ package fr.swapp.graphic.base
 		 * @param	pHeight : Component's height (NaN to ignore).
 		 * @return this
 		 */
-		public function size (pWidth:Number, pHeight:Number):SComponent
+		public function size (pWidth:Number = NaN, pHeight:Number = NaN):SComponent
 		{
 			// Enregistrer les nouvelles dimensions
 			if (pWidth >= 0)
@@ -1010,13 +1024,19 @@ package fr.swapp.graphic.base
 		 * @param	pHeight : Component's height (NaN to ignore).
 		 * @return this
 		 */
-		public function rectPlace (pLeft:Number = NaN, pTop:Number = NaN, pWidth:Number = 0, pHeight:Number = 0):SComponent
+		public function rectPlace (pLeft:Number = NaN, pTop:Number = NaN, pWidth:Number = NaN, pHeight:Number = NaN):SComponent
 		{
 			// Tout enregistrer
 			_left = pLeft;
 			_top = pTop;
-			_localWidth = pWidth;
-			_localHeight = pHeight;
+			
+			// Si la valeur existe, on l'enregistre
+			if (_localWidth >= 0)
+				_localWidth = pWidth;
+			
+			// Si la valeur existe, on l'enregistre
+			if (_localHeight >= 0)
+				_localHeight = pHeight;
 			
 			// Invalider la position
 			invalidatePosition();
@@ -1266,6 +1286,17 @@ package fr.swapp.graphic.base
 		 ******************************************/
 		
 		/**
+		 * Force rendering
+		 */
+		public function forceRender ():void
+		{
+			invalidatePosition();
+			invalidateStyle();
+			
+			renderPhase();
+		}
+		
+		/**
 		 * Invalidate position
 		 */
 		public function invalidatePosition ():void
@@ -1440,6 +1471,14 @@ package fr.swapp.graphic.base
 			// Si le composant a bougé
 			if (super.x != _oldXPosition || super.y != _oldYPosition)
 			{
+				// Si on doit aligner sur les pixels
+				if (_snapToPixels)
+				{
+					// Aligner sur les pixels
+					super.x = int(super.x);
+					super.y = int(super.y);
+				}
+				
 				// Signaler
 				replaced();
 				

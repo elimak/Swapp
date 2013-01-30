@@ -184,6 +184,9 @@ package fr.swapp.graphic.text
 		 */
 		public function SText ()
 		{
+			// Snap to pixels
+			_snapToPixels = true;
+			
 			// Activer les styles
 			_styleEnabled = true;
 			

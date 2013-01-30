@@ -166,6 +166,7 @@ package fr.swapp.graphic.base
 				_stage.align = StageAlign.TOP_LEFT;
 				
 				// Passer en basse qualité
+				//_stage.quality = StageQuality.MEDIUM;
 				_stage.quality = StageQuality.LOW;
 				
 				// Créer la racine

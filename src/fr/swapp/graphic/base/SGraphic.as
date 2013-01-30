@@ -129,16 +129,6 @@ package fr.swapp.graphic.base
 		protected var _slices							:Rectangle;
 		
 		/**
-		 * Le nombre de tranches horizontales
-		 */
-		protected var _horizontalSlices					:uint;
-		
-		/**
-		 * Le nombre de tranches verticales
-		 */
-		protected var _verticalSlices					:uint;
-		
-		/**
 		 * La couleur limite pour le découpage
 		 */
 		protected var _cutThreshold						:uint							= 0x777777;
@@ -158,6 +148,11 @@ package fr.swapp.graphic.base
 		 */
 		protected var _atlasItem						:SAtlasItem;
 		
+		/**
+		 * Image inner offset from all sides
+		 */
+		protected var _frameOffset						:uint;
+		
 		
 		/**
 		 * Le bitmapData pour le fond (null pour utiliser la couleur de fond)
@@ -170,9 +165,6 @@ package fr.swapp.graphic.base
 			{
 				// Enregistrer
 				_bitmapData = value;
-				
-				// On prépare le scale9 si besoin
-				prepareScale9Mode();
 				
 				// Rendre la position invalide
 				invalidatePosition();
@@ -201,9 +193,6 @@ package fr.swapp.graphic.base
 					throw new GraphicalError("SGraphic.renderMode", "Invalid render mode.");
 					return;
 				}
-				
-				// On prépare le scale9 si besoin
-				prepareScale9Mode();
 				
 				// Rendre la position invalide
 				invalidatePosition();
@@ -432,8 +421,8 @@ package fr.swapp.graphic.base
 				// Enregistrer
 				_smoothing = value;
 				
-				// Actualiser les propriétés du bitmap
-				updateBitmapProperties();
+				// Rendre le dessin invalide
+				invalidateDraw();
 			}
 		}
 		
@@ -480,8 +469,11 @@ package fr.swapp.graphic.base
 		public function get bitmapHorizontalOffset ():int { return _bitmapHorizontalOffset; }
 		public function set bitmapHorizontalOffset (value:int):void
 		{
+			// Si on a un bitmapData
 			if (_bitmapData != null)
 			{
+				// On gère le modulo pour le repeat
+				// Cette technique évite pas mal d'overhead sur le renderMode GPU en repeat
 				value %= _bitmapData.width;
 			}
 			
@@ -502,8 +494,11 @@ package fr.swapp.graphic.base
 		public function get bitmapVerticalOffset ():int { return _bitmapVerticalOffset; }
 		public function set bitmapVerticalOffset (value:int):void
 		{
+			// Si on a un bitmapData
 			if (_bitmapData != null)
 			{
+				// On gère le modulo pour le repeat
+				// Cette technique évite pas mal d'overhead sur le renderMode GPU en repeat
 				value %= _bitmapData.height;
 			}
 			
@@ -522,16 +517,10 @@ package fr.swapp.graphic.base
 		 * Les coordonnées des tranches a suivre pour le découpage
 		 */
 		public function get slices ():Rectangle { return _slices; }
-		
-		/**
-		 * Le nombre de tranches horizontales sur le scale9
-		 */
-		public function get horizontalSlices ():uint { return _horizontalSlices; }
-		
-		/**
-		 * Le nombre de tranches verticales sur le scale9
-		 */
-		public function get verticalSlices ():uint { return _verticalSlices; }
+		public function set slices (value:Rectangle):void
+		{
+			_slices = value;
+		}
 		
 		/**
 		 * La couleur limite pour le découpage.
@@ -550,7 +539,6 @@ package fr.swapp.graphic.base
 		 * - HORIZONTAL_SCALE_3_RENDER
 		 * - VERTICAL_SCALE_3_RENDER
 		 * - SCALE_9_RENDER
-		 * - AUTO_SCALE_RENDER
 		 */
 		public function get atlasItem ():SAtlasItem  { return _atlasItem; }
 		public function set atlasItem (value:SAtlasItem):void 
@@ -563,6 +551,23 @@ package fr.swapp.graphic.base
 				
 				// Actualiser l'atlas
 				updateAtlas("atlasItem");
+			}
+		}
+		
+		/**
+		 * Image inner offset from all sides
+		 */
+		public function get frameOffset ():uint { return _frameOffset; }
+		public function set frameOffset (value:uint):void
+		{
+			// Si c'est différent
+			if (value != _frameOffset)
+			{
+				// On enregistre
+				_frameOffset = value;
+				
+				// Besoin de rafraichir l'image
+				invalidateDraw();
 			}
 		}
 		
@@ -579,32 +584,6 @@ package fr.swapp.graphic.base
 		public function SGraphic (pBitmapData:BitmapData = null, pRenderMode:String = null, pDensity:Number = 1)
 		{
 			image(pBitmapData, pRenderMode, pDensity);
-		}
-		
-		
-		/**
-		 * Préparer la découpe pour le scale9
-		 */
-		protected function prepareScale9Mode ():void
-		{
-			/*
-			// Si on est plus en mode scale 9 mais qu'on a encore des slices
-			if (_bitmaps.length > 0)
-			{
-				// Supprimer les slices
-				deleteSlices();
-			}
-			
-			// Si on est en mode de rendu scale9
-			if (_renderMode == SRenderMode.AUTO_SCALE9)
-			{
-				// Récupérer automatiquement les coupures depuis l'image source
-				getSlices();
-				
-				// Couper le bitmap
-				slice();
-			}
-			*/
 		}
 		
 		
@@ -771,8 +750,6 @@ package fr.swapp.graphic.base
 				||
 				_renderMode == SRenderMode.SCALE_9_RENDER
 				||
-				_renderMode == SRenderMode.AUTO_SCALE_RENDER
-				||
 				(
 					// Sinon si on n'a pas d'atlas
 					_atlasItem == null ? (
@@ -824,6 +801,105 @@ package fr.swapp.graphic.base
 				_bitmapHorizontalOffset = 0;
 				_bitmapVerticalOffset = 0;
 			}
+			
+			// Invalider le dessin
+			invalidateDraw();
+		}
+		
+		/**
+		 * Auto-slice current bitmapData.
+		 * RenderMode will be changed.
+		 * FrameOffset will be changed.
+		 * @param	pCutThreshold
+		 */
+		public function autoSlice (pCutThreshold:uint = 0x777777):void
+		{
+			// Vérifier si on a un bitmapData
+			if (_bitmapData == null)
+			{
+				// Sinon on déclenche une erreur
+				throw new GraphicalError("SGraphic.autoSlice", "Can't slice a null bitmapData.");
+				return;
+			}
+			
+			// Vérifier le mode de scale
+			var hs:Boolean = (_bitmapData.getPixel(1, 0) < _cutThreshold);
+			var vs:Boolean = (_bitmapData.getPixel(0, 1) < _cutThreshold);
+			
+			// Si on est en mode horizontal et vertical
+			if (hs && vs)
+			{
+				// On est en scale 9
+				_renderMode = SRenderMode.SCALE_9_RENDER;
+			}
+			
+			// Si on est en horizontal mais pas en vertical
+			else if (hs && !vs)
+			{
+				// On est en scale 3 horizontal
+				_renderMode = SRenderMode.HORIZONTAL_SCALE_3_RENDER;
+			}
+			
+			// Si on est en vertical mais pas en horizontal
+			else if (!hs && vs)
+			{
+				// On est en scale 3 vertical
+				_renderMode = SRenderMode.VERTICAL_SCALE_3_RENDER;
+			}
+			else
+			{
+				// On est en rien du tout donc on déclenche une erreur
+				throw new GraphicalError("SGraphic.autoSlice", "Invalid autoSlice markup in bitmapData. Please follow autoSlicing rules.");
+				return;
+			}
+			
+			// Si on est allé jusqu'ici, alors on sait que le frame offset est bien de 2
+			_frameOffset = 2;
+			
+			// Les limites
+			var x1:uint = _frameOffset;
+			var x2:uint = _bitmapData.width - _frameOffset;
+			var y1:uint = _frameOffset;
+			var y2:uint = _bitmapData.height - _frameOffset;
+			
+			// Si on doit parser le côté horizontal
+			if (hs)
+			{
+				// Récupérer le scale horizontal de gauche
+				while (_bitmapData.getPixel(x1, 0) > _cutThreshold && x1 < x2)
+				{
+					// On va vers la droite
+					x1 ++;
+				}
+				
+				// Récupérer le scale horizontal de droite
+				while (_bitmapData.getPixel(x2, 0) > _cutThreshold && x2 > x1)
+				{
+					// On va vers la gauche
+					x2 --;
+				}
+			}
+			
+			// Si on doit parser le côté vertical
+			if (vs)
+			{
+				// Récupérer le scale vertical du haut
+				while (_bitmapData.getPixel(0, y1) > _cutThreshold && y1 < y2)
+				{
+					// On va vers le bas
+					y1 ++;
+				}
+				
+				// Récupérer le scale vertical du bas
+				while (_bitmapData.getPixel(0, y2) > _cutThreshold && y2 > y1)
+				{
+					// On va vers le haut
+					y2 --;
+				}
+			}
+			
+			// Enregistrer le rectangle
+			_slices = new Rectangle(x1, y1, x2 - x1, y2 - y1);
 			
 			// Invalider le dessin
 			invalidateDraw();
@@ -905,158 +981,237 @@ package fr.swapp.graphic.base
 			// Virer l'ancienne image
 			graphics.clear();
 			
-			// Si on est en mode de rendu scaleNine
-			//if (_renderMode == SRenderMode.AUTO_SCALE9 && _bitmapData != null && _slices != null)
-			/*if (_bitmapData != null)
+			// Si le composant a une taille
+			if (_localWidth > 0 && _localHeight > 0)
 			{
-				// Les dimensions de l'image avec ou sans les coupures
-				//const imageOffset:uint = (_autoSliced ? 2 : 0);
-				const imageOffset:uint = 2;
-				
-				// Les positions des lignes / colonnes
-				var dRows	:Vector.<Number> = Vector.<Number>([
-					0,
-					_slices.top - imageOffset,
-					(_localHeight * _density - (_bitmapData.height - _slices.bottom)),
-					_localHeight * _density
-				]);
-				var dCols	:Vector.<Number> = Vector.<Number>([
-					0,
-					_slices.left - imageOffset,
-					(_localWidth * _density - (_bitmapData.width - _slices.right)),
-					_localWidth * _density
-				]);
-				
-				// Le bitmap traité
-				var currentBitmap:Bitmap;
-				
-				// Parcourir les blocs horizontalement
-				for (var cx:uint = 0; cx < _horizontalSlices; cx++)
+				// Si on a un contour
+				if (_borderSize > 0)
 				{
-					// Parcourir les blocs verticalement
-					for (var cy:uint = 0; cy < _verticalSlices; cy++)
-					{
-						// Cibler le bitmap
-						currentBitmap = _bitmaps[cx][cy];
-						
-						// Placer le bloc
-						currentBitmap.x = int(dCols[cx] / _density + .5);
-						currentBitmap.y = int(dRows[cy] / _density + .5);
-						currentBitmap.width = int((dCols[cx + 1] - dCols[cx]) / _density + .5);
-						currentBitmap.height = int((dRows[cy + 1] - dRows[cy]) / _density + .5);
-					}
+					// On dessine le contour
+					graphics.lineStyle(_borderSize, _borderColor, _borderAlpha, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.MITER);
 				}
-			}
-			else
-			{*/
-				// Si le composant a une taille
-				if (_localWidth > 0 && _localHeight > 0)
+				
+				// Si on a un bitmapData
+				if (_bitmapData != null)
 				{
-					// Si on a un contour
-					if (_borderSize > 0)
-					{
-						// On dessine le contour
-						graphics.lineStyle(_borderSize, _borderColor, _borderAlpha, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.MITER);
-					}
-					
-					// Si on a un bitmapData
-					if (_bitmapData != null)
+					// Si on a un fond
+					// Et si on est sur un mode de rendu ou le contenu peut être plus petit que la zone d'affichage
+					if (_backgroundType != SBackgroundType.NONE && _renderMode != SRenderMode.REPEAT && _renderMode != SRenderMode.AUTO_SIZE && _renderMode != SRenderMode.STRECH && _atlasItem == null)
 					{
 						// Actualiser la matrice
 						updateMatrix();
 						
-						// Si on a un fond
-						// Et si on est sur un mode de rendu ou le contenu peut être plus petit que la zone d'affichage
-						if (_backgroundType != SBackgroundType.NONE && _renderMode != SRenderMode.REPEAT && _renderMode != SRenderMode.AUTO_SIZE && _renderMode != SRenderMode.STRECH && _atlasItem == null)
-						{
-							// Dessiner le background
-							drawBackground();
-							
-							// Si on a des arrondis
-							if (
-									_topLeftRadius != 0
-									||
-									_topRightRadius != 0
-									||
-									_bottomRightRadius != 0
-									||
-									_bottomLeftRadius != 0
-								)
-							{
-								// Avec bords arrondis
-								graphics.drawRoundRectComplex(
-									0,
-									0,
-									_localWidth,
-									_localHeight,
-									_topLeftRadius, _topRightRadius,
-									_bottomLeftRadius, _bottomRightRadius
-								);
-							}
-							else
-							{
-								// Sans bords arrondis
-								graphics.drawRect(
-									0,
-									0,
-									_localWidth,
-									_localHeight
-								);
-							}
-							
-							// Arrêter le style de trait et le remplissage couleur
-							graphics.lineStyle(NaN);
-							graphics.endFill();
-						}
-						
-						// On dessiner le bitmap avec la nouvelle matrice
-						graphics.beginBitmapFill(_bitmapData, _matrix, _renderMode == SRenderMode.REPEAT, _smoothing);
-					}
-					else
-					{
-						// Sinon on n'a pas de dépassement
-						_xDrawDecay = _yDrawDecay = 0;
-						
 						// Dessiner le background
 						drawBackground();
+						
+						// Si on a des arrondis
+						if (
+								_topLeftRadius != 0
+								||
+								_topRightRadius != 0
+								||
+								_bottomRightRadius != 0
+								||
+								_bottomLeftRadius != 0
+							)
+						{
+							// Avec bords arrondis
+							graphics.drawRoundRectComplex(
+								0,
+								0,
+								_localWidth,
+								_localHeight,
+								_topLeftRadius, _topRightRadius,
+								_bottomLeftRadius, _bottomRightRadius
+							);
+						}
+						else
+						{
+							// Sans bords arrondis
+							graphics.drawRect(
+								0,
+								0,
+								_localWidth,
+								_localHeight
+							);
+						}
+						
+						// Arrêter le style de trait et le remplissage couleur
+						graphics.lineStyle(NaN);
+						graphics.endFill();
 					}
 					
-					// Si on a des arrondis
-					if (
-							_topLeftRadius != 0
-							||
-							_topRightRadius != 0
-							||
-							_bottomRightRadius != 0
-							||
-							_bottomLeftRadius != 0
+					// Sinon si on est dans un rendu scale
+					else if (
+							// Si on a des slices
+							_slices != null
+							&&
+							(
+								// Et un mode de rendu compatible
+								_renderMode == SRenderMode.SCALE_9_RENDER
+								||
+								_renderMode == SRenderMode.HORIZONTAL_SCALE_3_RENDER
+								||
+								_renderMode == SRenderMode.VERTICAL_SCALE_3_RENDER
+							)
 						)
 					{
-						// Avec bords arrondis
-						graphics.drawRoundRectComplex(
-							_xDrawDecay,
-							_yDrawDecay,
-							_localWidth - _xDrawDecay * 2,
-							_localHeight - _yDrawDecay * 2,
-							_topLeftRadius, _topRightRadius,
-							_bottomLeftRadius, _bottomRightRadius
-						);
+						// TODO : Finir le mode de rendu SCALE 9 / SCALE 3
+						// TODO : Le rendre compatible avec AtlasItem (revoir positionnement et taille du bitmapData)
+						// TODO : Vérifier les modes SCALE 3
+						// TODO : Vérifier les densité
+						// TODO : Vérifier les offsets
+						// TODO : Tester sur android ou avec un ratio pourri sur le stage
+						// TODO : Revoir les méthodes helper (voir si on peut faire une méthode helper en slice manuel : mode + rectangle)
+						// TODO : Revoir les méthodes helper pour AtlasItem -> manual slice et auto slice
+						
+						// Annuler le trait
+						graphics.lineStyle(NaN);
+						
+						// Calculer le nombre de slices horizontales et verticales
+						var hSlices:uint = (_renderMode == SRenderMode.SCALE_9_RENDER || _renderMode == SRenderMode.HORIZONTAL_SCALE_3_RENDER) ? 3 : 1;
+						var vSlices:uint = (_renderMode == SRenderMode.SCALE_9_RENDER || _renderMode == SRenderMode.VERTICAL_SCALE_3_RENDER) ? 3 : 1;
+						
+						// Les index des blocs horizontaux et verticaux
+						var cx:uint;
+						var cy:uint;
+						
+						// La matrice temporaire pour chaque bloc
+						var matrix:Matrix = new Matrix();
+						
+						// Les positions des blocs horizontaux et verticaux
+						var hPositions:Vector.<Number> = Vector.<Number>([
+							0,
+							_slices.left / _density - _frameOffset,
+							(_localWidth - (_bitmapData.width - _slices.right) / _density),// + _frameOffset,
+							_localWidth
+						]);
+						var vPositions:Vector.<Number> = Vector.<Number>([
+							0,
+							_slices.top / _density - _frameOffset,
+							(_localHeight - (_bitmapData.height - _slices.bottom) / _density),// + _frameOffset,
+							_localHeight
+						]);
+						
+						// Les scales des blocs horizontaux et verticaux
+						var hScales:Vector.<Number> = Vector.<Number>([
+							1 / _density,
+							//(hPositions[2] - hPositions[1]) / _bitmapData.width,
+							_localWidth / _bitmapData.width,
+							1 / _density
+						]);
+						var vScales:Vector.<Number> = Vector.<Number>([
+							1 / _density,
+							//(vPositions[2] / vPositions[1]) / _bitmapData.height,
+							_localHeight / _bitmapData.height,
+							1 / _density
+						]);
+						
+						// Les position sur la texture
+						var hTexturePosition:Vector.<Number> = Vector.<Number>([
+							_frameOffset,
+							_slices.x,
+							_bitmapData.width - _localWidth - _frameOffset
+						]);
+						var vTexturePosition:Vector.<Number> = Vector.<Number>([
+							_frameOffset,
+							_slices.y,
+							_bitmapData.height - _localHeight - _frameOffset
+						]);
+						
+						// Parcourir les blocs horizontaux
+						for (cx = 0; cx < hSlices; cx++)
+						{
+							// Parcourir les blocs verticaux
+							for (cy = 0; cy < vSlices; cy++)
+							{
+								// Remettre la matrice à 0
+								matrix.identity();
+								
+								// Placer la matrice selon le bloc
+								matrix.translate(
+									- hTexturePosition[cx],
+									- vTexturePosition[cy]
+								);
+								
+								// La taille de la matrice selon le bloc
+								matrix.scale(
+									hScales[cx],
+									vScales[cy]
+								);
+								
+								// Dessiner le bitmap grâce à la matrice temporaire
+								graphics.beginBitmapFill(_bitmapData, matrix, false, _smoothing);
+								
+								// Tracer le bloc
+								graphics.drawRect(
+									hPositions[cx],
+									vPositions[cy],
+									hPositions[cx + 1] - hPositions[cx],
+									vPositions[cy + 1] - vPositions[cy]
+								);
+							}
+						}
+						
+						// Terminer le dessin
+						graphics.endFill();
+						
+						// Ne pas aller plus loin
+						return;
 					}
 					else
 					{
-						// Sans bords arrondis
-						graphics.drawRect(
-							_xDrawDecay,
-							_yDrawDecay,
-							_localWidth - _xDrawDecay * 2,
-							_localHeight - _yDrawDecay * 2
-						);
+						// Actualiser la matrice
+						updateMatrix();
+						
+						// Dessiner le bitmap grâce à la matrice
+						graphics.beginBitmapFill(_bitmapData, _matrix, _renderMode == SRenderMode.REPEAT, _smoothing);
 					}
-					
-					// Terminer le dessin
-					graphics.endFill();
 				}
-			//}
+				else
+				{
+					// Sinon on n'a pas de dépassement
+					_xDrawDecay = _yDrawDecay = 0;
+					
+					// Dessiner le background
+					drawBackground();
+				}
+				
+				// Si on a des arrondis
+				if (
+						_topLeftRadius != 0
+						||
+						_topRightRadius != 0
+						||
+						_bottomRightRadius != 0
+						||
+						_bottomLeftRadius != 0
+					)
+				{
+					// Avec bords arrondis
+					graphics.drawRoundRectComplex(
+						_xDrawDecay,
+						_yDrawDecay,
+						_localWidth - _xDrawDecay * 2,
+						_localHeight - _yDrawDecay * 2,
+						_topLeftRadius, _topRightRadius,
+						_bottomLeftRadius, _bottomRightRadius
+					);
+				}
+				else
+				{
+					// Sans bords arrondis
+					graphics.drawRect(
+						_xDrawDecay,
+						_yDrawDecay,
+						_localWidth - _xDrawDecay * 2,
+						_localHeight - _yDrawDecay * 2
+					);
+				}
+				
+				// Terminer le dessin
+				graphics.endFill();
+			}
 		}
 		
 		/**
@@ -1172,205 +1327,6 @@ package fr.swapp.graphic.base
 				
 				// Déplacer selon les offsets
 				_matrix.translate(_bitmapHorizontalOffset, _bitmapVerticalOffset);
-			}
-		}
-		
-		/**
-		 * Actualiser les propriété d'affichage des bitmaps
-		 */
-		protected function updateBitmapProperties ():void
-		{
-			/*
-			// Si on est en mode bitmap
-			if (_bitmap != null)
-			{
-				// Appliquer les valeurs sur le seul bitmap
-				_bitmap.smoothing 		= _smoothing;
-				_bitmap.pixelSnapping 	= _pixelSnapping;
-			}
-			else if (_bitmaps.length > 0)
-			{
-				// Parcourir les blocs horizontalement
-				for (var cx:uint = 0; cx < _horizontalSlices; cx++)
-				{
-					// Parcourir les blocs verticalement
-					for (var cy:uint = 0; cy < _verticalSlices; cy++)
-					{
-						// Cibler le bitmap et appliquer les valeurs
-						_bitmaps[cx][cy].smoothing 		= _smoothing;
-						_bitmaps[cx][cy].pixelSnapping 	= _pixelSnapping;
-					}
-				}
-			}
-			else
-			{
-				// Rendre le dessin invalide
-				invalidateDraw();
-			}
-			*/
-		}
-		
-		
-		/******************************************
-						  Découpe
-		 ******************************************/
-		
-		/**
-		 * Récupérer la position des coupures sur l'image
-		 */
-		protected function getSlices ():void
-		{
-			// Les limites
-			var x1:uint = 1;
-			var x2:uint = _bitmapData.width - 1;
-			var y1:uint = 1;
-			var y2:uint = _bitmapData.height - 1;
-			
-			// Récupérer le scale horizontal de gauche
-			while (_bitmapData.getPixel(x1, 0) > _cutThreshold && x1 < _bitmapData.width)
-			{
-				// On va vers la droite
-				x1 ++;
-			}
-			
-			// Vérifier si on a trouvé un truc
-			if (x1 < x2)
-			{
-				// On a 3 blocs horizontaux
-				_horizontalSlices = 3;
-				
-				// Récupérer le scale horizontal de droite
-				while (_bitmapData.getPixel(x2, 0) > _cutThreshold && x2 > 1)
-				{
-					// On va vers la gauche
-					x2 --;
-				}
-			}
-			else
-			{
-				// On a qu'un seul bloc horizontal
-				_horizontalSlices = 1;
-				
-				// Remettre le premier à la fin
-				x1 = x2;
-			}
-			
-			// Récupérer le scale vertical du haut
-			while (_bitmapData.getPixel(0, y1) > _cutThreshold && y1 < _bitmapData.height)
-			{
-				// On va vers le bas
-				y1 ++;
-			}
-			
-			// Vérifier si on a trouvé un truc
-			if (y1 < y2)
-			{
-				// On a 3 blocs verticaux
-				_verticalSlices = 3;
-				
-				// Récupérer le scale vertical du haut
-				while (_bitmapData.getPixel(0, y2) > _cutThreshold && y2 > 1)
-				{
-					// On va vers le haut
-					y2 --;
-				}
-			}
-			else
-			{
-				// On a qu'un seul bloc vertical
-				_verticalSlices = 1;
-				
-				// Remettre le premier à la fin
-				y1 = y2;
-			}
-			
-			// Enregistrer le rectangle
-			_slices = new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
-		}
-		
-		/**
-		 * Effacer les anciennes coupes
-		 */
-		protected function deleteSlices ():void
-		{
-			/*
-			// Si on a des slices
-			if (_bitmaps != null)
-			{
-				// Parcourir les blocs horizontalement
-				for (var cx:uint = 0; cx < _bitmaps.length; cx++)
-				{
-					// Parcourir les blocs verticalement
-					for (var cy:uint = 0; cy < _bitmaps[cx].length; cy++)
-					{
-						// Disposer le bitmapData
-						_bitmaps[cx][cy].bitmapData.dispose();
-						
-						// Supprimer le bloc de la DisplayList
-						removeChild(_bitmaps[cx][cy]);
-					}
-				}
-			}
-			
-			// Réinitialiser les bitmaps
-			_bitmaps = new Vector.<Vector.<Bitmap>>;
-			*/
-		}
-		
-		/**
-		 * Couper
-		 */
-		protected function slice ():void
-		{
-			// Si on a une image source
-			if (_bitmapData != null && _slices != null)
-			{
-				// Les dimensions de l'image avec ou sans les coupures
-				//const imageOffset:uint = (_autoSliced ? 2 : 0);
-				const imageOffset:uint = 2;
-				
-				// Les positions des lignes / colonnes
-				var rows	:Vector.<Number> = Vector.<Number>([imageOffset, _slices.top, _slices.bottom, _bitmapData.height]);
-				var cols	:Vector.<Number> = Vector.<Number>([imageOffset, _slices.left, _slices.right, _bitmapData.width]);
-				
-				// Les rectangles de placement
-				var origin	:Rectangle;
-				
-				// Le bitmap et ses données qui vont être créés
-				var currentBitmapData	:BitmapData;
-				//var currentBitmap		:Bitmap;
-				
-				// Le point pour la copie (origine)
-				var topPoint			:Point = new Point(0, 0);
-				
-				// Parcourir les blocs horizontalement
-				for (var cx:uint = 0; cx < _horizontalSlices; cx++)
-				{
-					// Créer la seconde dimension du vecteur
-					//_bitmaps[cx] = new Vector.<Bitmap>;
-					
-					// Parcourir les blocs verticalement
-					for (var cy:uint = 0; cy < _verticalSlices; cy++)
-					{
-						// Cibler l'origine de la coupe
-						origin = new Rectangle(cols[cx], rows[cy], cols[cx + 1] - cols[cx], rows[cy + 1] - rows[cy]);
-						
-						// Créer le bitmapData de ce bloc
-						currentBitmapData = new BitmapData(origin.width, origin.height, _bitmapData.transparent);
-						
-						// Copier les pixels du bitmap d'origine vers le bitmap du bloc
-						currentBitmapData.copyPixels(_bitmapData, origin, topPoint);
-						
-						// Créer le bloc et lui associer le bitmapData
-						//currentBitmap = new Bitmap(currentBitmapData, _pixelSnapping ? PixelSnapping.ALWAYS : PixelSnapping.NEVER, _smoothing);
-						
-						// Enregistrer ce bitmap dans le vecteur bi-dimensionnel
-						//_bitmaps[cx][cy] = currentBitmap;
-						
-						// L'ajouter à la scène
-						//addChild(_bitmaps[cx][cy]);
-					}
-				}
 			}
 		}
 		

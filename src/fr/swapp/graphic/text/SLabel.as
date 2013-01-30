@@ -219,9 +219,11 @@ package fr.swapp.graphic.text
 		 */
 		public function SLabel (pAutoSize:Boolean = true, pMultiLine:Boolean = false, pValue:String = "")
 		{
+			// Enregistrer les paramètres
 			autoSize = pAutoSize;
 			multiline = pMultiLine;
 			
+			// Si on a un texte à afficher, on l'applique
 			if (pValue != null && pValue != "")
 				text(pValue);
 		}
@@ -319,7 +321,7 @@ package fr.swapp.graphic.text
 		/**
 		 * Rendu du stage
 		 */
-		override protected function renderPhase():void 
+		override protected function renderPhase ():void
 		{
 			// Si le style est invalide
 			if (_styleInvalidated)
