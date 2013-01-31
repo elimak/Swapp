@@ -12,7 +12,6 @@ package fr.swapp.graphic.base
 	import fr.swapp.touch.dispatcher.TouchDispatcher;
 	import fr.swapp.touch.emulator.MouseToTouchEmulator;
 	import fr.swapp.utils.EnvUtils;
-	import fr.swapp.utils.Stats;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -24,7 +23,7 @@ package fr.swapp.graphic.base
 		/**
 		 * Ratio rounded slices
 		 */
-		public static var ratioRoundSlices			:Number 				= 6;
+		public static var ratioRoundSlices				:Number 				= 6;
 		
 		
 		/**
@@ -80,11 +79,6 @@ package fr.swapp.graphic.base
 		 * Touch dispatcher
 		 */
 		protected var _touchDispatcher					:TouchDispatcher;
-		
-		/**
-		 * Stats
-		 */
-		protected var _stats							:Stats;
 		
 		/**
 		 * If auto ratio is enabled
@@ -175,11 +169,21 @@ package fr.swapp.graphic.base
 				// Le nom de la racine
 				_root.name = "root";
 				
-				// Ajouter la racine
-				_stage.addChild(_root);
-				
 				// Initialiser le wrapper de DPI automatique
 				initDPIWrapper();
+			}
+		}
+		
+		/**
+		 * Démarrer le stageWrapper
+		 */
+		public function start ():void
+		{
+			// S'il n'est pas déjà démarré
+			if (!_stage.contains(_root))
+			{
+				// Ajouter la racine
+				_stage.addChild(_root);
 				
 				// Ecouter les redimentionnements
 				_stage.addEventListener(Event.RESIZE, stageResizedHandler);
@@ -188,7 +192,6 @@ package fr.swapp.graphic.base
 				stageResizedHandler();
 			}
 		}
-		
 		
 		/**
 		 * Initialize style manager

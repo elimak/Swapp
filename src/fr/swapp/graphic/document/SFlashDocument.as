@@ -10,10 +10,10 @@ package fr.swapp.graphic.document
 	import fr.swapp.core.roles.IDisposable;
 	import fr.swapp.core.roles.IInitializable;
 	import fr.swapp.graphic.base.SWrapper;
+	import fr.swapp.graphic.tools.Stats;
 	import fr.swapp.touch.dispatcher.TouchDispatcher;
 	import fr.swapp.touch.emulator.MouseToTouchEmulator;
 	import fr.swapp.utils.EnvUtils;
-	import fr.swapp.utils.Stats;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -125,6 +125,9 @@ package fr.swapp.graphic.document
 		{
 			// Créer le wrapper
 			_wrapper = SWrapper.getInstance(stage, pAutoDPI);
+			
+			// Le démarrer
+			_wrapper.start();
 			
 			// Si on doit activer le style central
 			if (pEnableStyleCentral)

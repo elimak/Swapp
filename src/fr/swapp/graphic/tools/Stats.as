@@ -1,4 +1,4 @@
-package fr.swapp.utils
+package fr.swapp.graphic.tools
 {
 import flash.display.Bitmap;
 import flash.display.BitmapData;
@@ -144,7 +144,7 @@ public class Stats extends Sprite
 	 * @param	isMonitoring	flag to start monitoring frame execution time. (will not monitor by default.)
 	 * @param	scale			simplified scaling of stat object.
 	 */
-	public function Stats(width:int = 70, x:int = 0, y:int = 0, isMinimized:Boolean = false, isDraggable:Boolean = true, isMonitoring:Boolean = false):void {
+	public function Stats (width:int = 70, x:int = 0, y:int = 0, isMinimized:Boolean = true, isDraggable:Boolean = true, isMonitoring:Boolean = false):void {
 		//
 		this._isDraggable = isDraggable;
 		this._isMonitoring = isMonitoring;

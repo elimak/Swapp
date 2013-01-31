@@ -1,5 +1,8 @@
 package fr.swapp.graphic.atlas
 {
+	import flash.display.BitmapData;
+	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	import fr.swapp.graphic.errors.GraphicalError;
 	
 	/**
@@ -108,6 +111,21 @@ package fr.swapp.graphic.atlas
 			_y 		= parseInt(pData.@y, 10);
 			_width 	= parseInt(pData.@width, 10);
 			_height = parseInt(pData.@height, 10);
+		}
+		
+		/**
+		 * Get the slices bitmapData
+		 */
+		public function extractBitmapData ():BitmapData
+		{
+			// Créer le bitmapData de sortie aux bonnes dimensions
+			var out:BitmapData = new BitmapData(_width, _height, _associatedAtlas.bitmapData.transparent, 0);
+			
+			// Copier les pixels depuis le sprite à la bonne position
+			out.copyPixels(_associatedAtlas.bitmapData, new Rectangle(_x, _y, _width, _height), new Point());
+			
+			// Retourner l'image découpée
+			return out;
 		}
 	}
 }

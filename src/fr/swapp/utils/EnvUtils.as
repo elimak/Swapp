@@ -134,12 +134,14 @@
 		 */
 		protected function precomputeInformations ():void
 		{
+			trace("COMP", Capabilities.version);
 			// Récupérer les informations de la version
 			var result:Object = /^(\w*) (\d*),(\d*),(\d*),(\d*)$/.exec(Capabilities.version);
-			
+			trace("RRR", result);
 			// Si on a des résultats
 			if (result != null)
 			{
+				trace("R");
 				// On enregistre les valeurs
 				_version 				= result.input;
 				_platform 				= result[1];

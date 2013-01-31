@@ -716,7 +716,7 @@ package fr.swapp.graphic.base
 		 * @param	pAtlasItem : AtlasItem to show. Set to null to disable Atlas rendering.
 		 * @param	pRenderMode : Render mode to use if AtlasItem is provided, not all available with atlas mode. Default is AUTO_SIZE.
 		 */
-		public function atlas (pAtlasItem:SAtlasItem, pRenderMode:String = "autoSize"):void
+		public function atlas (pAtlasItem:SAtlasItem, pRenderMode:String = "autoSize"):SGraphic
 		{
 			// Enregistrer l'item
 			_atlasItem = pAtlasItem;
@@ -730,6 +730,9 @@ package fr.swapp.graphic.base
 			
 			// Actualiser
 			updateAtlas("atlas");
+			
+			// Méthode chaînable
+			return this;
 		}
 		
 		/**
@@ -776,6 +779,8 @@ package fr.swapp.graphic.base
 		 */
 		protected function updateAtlas (pFromMethodName:String = null):void
 		{
+			// TODO : AtlasItem stretch mode
+			
 			// Si on a un item
 			if (_atlasItem != null)
 			{

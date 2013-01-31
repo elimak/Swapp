@@ -210,6 +210,16 @@ package fr.swapp.graphic.base
 		 */
 		protected var _snapToPixels					:Boolean;
 		
+		/**
+		 * Current style
+		 */
+		protected var _currentStyle					:Object;
+		
+		/**
+		 * Wrapper on this stage
+		 */
+		protected var _wrapper						:SWrapper;
+		
 		
 		/**
 		 * Les anciennes valeurs pour détécter les changements.
@@ -706,7 +716,8 @@ package fr.swapp.graphic.base
 				invalidatePosition();
 				
 				// Dispatcher le changement
-				_onVisibilityChanged.dispatch();
+				if (_onVisibilityChanged != null)
+					_onVisibilityChanged.dispatch();
 			}
 		}
 		
@@ -773,6 +784,11 @@ package fr.swapp.graphic.base
 			_snapToPixels = value;
 		}
 		
+		/**
+		 * Current style
+		 */
+		public function get currentStyle ():Object { return _currentStyle; }
+		
 		
 		/**
 		 * Constructeur du composant avec gestion des dimensions
@@ -806,6 +822,9 @@ package fr.swapp.graphic.base
 		 */
 		protected function addedHandler (event:Event = null):void
 		{
+			// Récupérer le wrapper
+			_wrapper = SWrapper.getInstance(stage);
+			
 			// Si on a un parent redimensionnable
 			if (parent is SComponent)
 			{
@@ -881,6 +900,12 @@ package fr.swapp.graphic.base
 				_watchedParent.onStyleChanged.remove(parentStyleChangedHandler);
 				_watchedParent.onVisibilityChanged.remove(parentVisibilityChangedHandler);
 			}
+			
+			// Supprimer la référence au wrapper
+			_wrapper = null;
+			
+			// Supprimer le style
+			_currentStyle = null;
 			
 			// On n'a plus de parent
 			_watchedParent = null;
@@ -1371,6 +1396,7 @@ package fr.swapp.graphic.base
 			// Si on est disposé
 			if (_onDisposed == null)
 			{
+				// TODO : Vrai message d'erreur
 				trace("FUU disposed object is disposed");
 				
 				// On n'actualise pas
@@ -1529,24 +1555,30 @@ package fr.swapp.graphic.base
 		 */
 		protected function updateStyle ():void
 		{
-			// Si on a un stage
-			if (stage != null)
+			// Si on a un wrapper et les styles d'activé
+			if (_wrapper != null && _styleEnabled)
 			{
-				// Récupérer le wrapper
-				var wrapper:SWrapper = SWrapper.getInstance(stage);
+				// Récupérer le style depuis le styleCentral
+				_currentStyle = _wrapper.styleCentral.getComputedStyleFromStylable(this);
 				
-				// Si on a un wrapper et si les styles sont autorisés
-				if (wrapper != null && _styleEnabled)
-				{
-					// Récupérer la liste des styles des parents
-					var style:Object = wrapper.styleCentral.getComputedStyleFromStylable(this);
-					
-					// Injecter le style
-					wrapper.styleCentral.injectStyle(this, style);
-					
-					// Le style a été changé
-					styleInjected();
-				}
+				// Injecter ce style
+				injectCurrentStyle();
+			}
+		}
+		
+		/**
+		 * Inject current style
+		 */
+		protected function injectCurrentStyle ():void
+		{
+			// Si on a un wrapper
+			if (_wrapper != null)
+			{
+				// Injecter le style
+				_wrapper.styleCentral.injectStyle(this, _currentStyle);
+				
+				// Le style a été changé
+				styleInjected();
 				
 				// Signaler que le style a changé
 				_onStyleChanged.dispatch();
