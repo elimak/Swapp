@@ -1003,15 +1003,34 @@ package fr.swapp.graphic.base
 		 */
 		public function size (pWidth:Number = NaN, pHeight:Number = NaN):SComponent
 		{
-			// Enregistrer les nouvelles dimensions
-			if (pWidth >= 0)
+			// Si une des propriété a été changée
+			var changed:Boolean;
+			
+			// Si la largeur est réelle et différente
+			if (pWidth >= 0 && pWidth != _localWidth)
+			{
+				// Enregistrer la valeur
 				_localWidth = pWidth;
+				
+				// Signaler qu'on a changer pour invalider
+				changed = true;
+			}
 			
-			if (pHeight >= 0)
+			// Si la hauteur est réelle et différente
+			if (pHeight >= 0 && pHeight != _localHeight)
+			{
+				// Enregistrer la valeur
 				_localHeight = pHeight;
+				
+				// Signaler qu'on a changer pour invalider
+				changed = true;
+			}
 			
-			// Invalider la position
-			invalidatePosition();
+			// Invalider la position si besoin
+			if (changed)
+			{
+				invalidatePosition();
+			}
 			
 			// Méthode chaînable
 			return this;

@@ -80,7 +80,7 @@ package fr.swapptesting.rebirth
 			_graph2 = new SGraphic();
 			_graph2.background(0xFF0000, 0.2).center(0, 0).into(_wrapper.root);
 			
-			_graph1 = new SGraphic(EmbedUtils.getBitmapData(Scale9ImageTest), null, 1);
+			_graph1 = new SGraphic(EmbedUtils.getBitmapData(Scale9ImageTest), null, 2);
 			_graph1.autoSlice();
 			_graph1.center(0, 0).into(_wrapper.root);
 			

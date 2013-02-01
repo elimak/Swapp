@@ -903,8 +903,11 @@ package fr.swapp.graphic.base
 				}
 			}
 			
+			//trace(x1, y1, x2 + 1, y2 + 1);
+			
 			// Enregistrer le rectangle
-			_slices = new Rectangle(x1, y1, x2 - x1, y2 - y1);
+			//_slices = new Rectangle(x1, y1, x2 - x1 + _frameOffset - 1, y2 - y1 + _frameOffset - 1);
+			_slices = new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
 			
 			// Invalider le dessin
 			invalidateDraw();
@@ -1085,43 +1088,41 @@ package fr.swapp.graphic.base
 						var matrix:Matrix = new Matrix();
 						
 						// Les positions des blocs horizontaux et verticaux
-						var hPositions:Vector.<Number> = Vector.<Number>([
-							0,
-							_slices.left / _density - _frameOffset,
-							(_localWidth - (_bitmapData.width - _slices.right) / _density),// + _frameOffset,
-							_localWidth
+						var hPositions			:Vector.<Number> = Vector.<Number>([
+							0,																		// La position horizontale du premier bloc
+							(_slices.left  - _frameOffset) / _density,								// La position horizontale du second bloc
+							(_localWidth - (_bitmapData.width - _slices.right) / _density),			// La position horizontale de la fin du second bloc
+							_localWidth																// La position horizontale de la fin du troisième bloc
 						]);
-						var vPositions:Vector.<Number> = Vector.<Number>([
-							0,
-							_slices.top / _density - _frameOffset,
-							(_localHeight - (_bitmapData.height - _slices.bottom) / _density),// + _frameOffset,
-							_localHeight
+						var vPositions			:Vector.<Number> = Vector.<Number>([
+							0,																		// La position verticale du premier bloc
+							(_slices.top - _frameOffset) / _density,								// La position verticale du second bloc
+							(_localHeight - (_bitmapData.height - _slices.bottom) / _density),		// La position verticale de la fin du second bloc
+							_localHeight															// La position verticale de la fin du troisième bloc
 						]);
 						
 						// Les scales des blocs horizontaux et verticaux
-						var hScales:Vector.<Number> = Vector.<Number>([
-							1 / _density,
-							//(hPositions[2] - hPositions[1]) / _bitmapData.width,
-							_localWidth / _bitmapData.width,
-							1 / _density
+						var hScales				:Vector.<Number> = Vector.<Number>([
+							1 / _density,															// Le ratio horizontal du coin de gauche
+							((hPositions[2] - hPositions[1]) / _slices.width),						// Le ratio horizontal du côté du milieu
+							1 / _density															// Le ratio horizontal du coin de droite
 						]);
-						var vScales:Vector.<Number> = Vector.<Number>([
-							1 / _density,
-							//(vPositions[2] / vPositions[1]) / _bitmapData.height,
-							_localHeight / _bitmapData.height,
-							1 / _density
+						var vScales				:Vector.<Number> = Vector.<Number>([
+							1 / _density,															// Le ratio vertical du coin du haut
+							((vPositions[2] - vPositions[1]) / _slices.height),						// Le ratio vertical du côté du milieu
+							1 / _density															// Le ratio vertical du coin du bas
 						]);
 						
 						// Les position sur la texture
-						var hTexturePosition:Vector.<Number> = Vector.<Number>([
-							_frameOffset,
-							_slices.x,
-							_bitmapData.width - _localWidth
+						var hTexturePosition	:Vector.<Number> = Vector.<Number>([
+							_frameOffset,															// La position horizontale de la texture pour le premier bloc
+							_slices.left - ((_slices.left - _frameOffset) / hScales[1]),			// La position horizontale de la texture pour le second bloc
+							_bitmapData.width / _density - _localWidth								// La position horizontale de la texture pour le troisième bloc
 						]);
-						var vTexturePosition:Vector.<Number> = Vector.<Number>([
-							_frameOffset,
-							_slices.y,
-							_bitmapData.height - _localHeight
+						var vTexturePosition	:Vector.<Number> = Vector.<Number>([
+							_frameOffset,															// La position verticale de la texture pour le premier bloc
+							_slices.top - ((_slices.top - _frameOffset) / vScales[1]),				// La position verticale de la texture pour le second bloc
+							_bitmapData.height / _density - _localHeight							// La position verticale de la texture pour le troisième bloc
 						]);
 						
 						// Parcourir les blocs horizontaux
@@ -1134,16 +1135,10 @@ package fr.swapp.graphic.base
 								matrix.identity();
 								
 								// Placer la matrice selon le bloc
-								matrix.translate(
-									- hTexturePosition[cx],
-									- vTexturePosition[cy]
-								);
+								matrix.translate(- hTexturePosition[cx], - vTexturePosition[cy]);
 								
 								// La taille de la matrice selon le bloc
-								matrix.scale(
-									hScales[cx],
-									vScales[cy]
-								);
+								matrix.scale(hScales[cx], vScales[cy]);
 								
 								// Dessiner le bitmap grâce à la matrice temporaire
 								graphics.beginBitmapFill(_bitmapData, matrix, false, _smoothing);
