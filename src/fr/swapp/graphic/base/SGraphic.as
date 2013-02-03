@@ -11,6 +11,8 @@ package fr.swapp.graphic.base
 	import fr.swapp.graphic.atlas.SAtlasItem;
 	import fr.swapp.graphic.errors.GraphicalError;
 	
+	// TODO : Importer et utiliser IAtlasItem au lieu de SAtlasItem
+
 	/**
 	 * @author ZoulouX
 	 */
