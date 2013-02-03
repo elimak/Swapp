@@ -15,6 +15,7 @@
 		 */
 		public static function difDate (pDateA:Date, pDateB:Date):Date
 		{
+			// TODO : difDate
 			return null;
 		}
 		
@@ -41,6 +42,8 @@
 		 */
 		public static function dateToString (pDate:Date, pTemplate:String):String
 		{
+			// TODO : Afficher une date complète en string
+			// TODO : Rendre compatible avec le moteur de traduction
 			return "";
 		}
 		
@@ -52,6 +55,7 @@
 		 */
 		public static function datDifToString (pDate:Date):String
 		{
+			// TODO : Méthode helper pour afficher des messages du genre "Il y a 10 minutes" ou "Il y a une semaine"
 			return "";
 		}
 	}

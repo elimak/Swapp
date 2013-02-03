@@ -449,9 +449,14 @@ package fr.swapp.touch.dispatcher
 		 */
 		protected function registerTransformDelegate (pDelegate:ITouchTransformDelegate, pEvent:TouchEvent):void
 		{
+			// TODO : Ne pas avoir de limite de move pour un touch si le Delegate n'a pas de TouchDrag ou TouchTransform en parent !
 			// TODO : gestion des delegate transform
 			// TODO : gestion des double tap
-			// TODO : gestion des targets
+			// TODO : Ajouter la source de l'event (mouse ou touch)
+			//			-> VirtualList pourra avoir des propriété "touchEnabled" et "mouseEnabled" pour agir en fonction.
+			//			-> Plus besoin de MouseToTouchEmulator pour dev en mode release pour PC
+			//			-> Rendre compatible avec Flash et Air desktop
+			// TODO : Ajouter ITouchSwipeDelegate
 		}
 		
 		/**

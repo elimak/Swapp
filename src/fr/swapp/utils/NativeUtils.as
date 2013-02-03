@@ -40,6 +40,10 @@ package fr.swapp.utils
 		
 		public function NativeUtils (pStage:Stage)
 		{
+			// TODO : Voir si ça vaut le coup de faire les NativeUtils
+			// TODO : Peut être pas depuis qu'il y a les notifications dans Air pour iOS
+			// TODO : Et peut être que les native extensions permettent de faire tout ça
+			
 			_stage = pStage;
 			
 			

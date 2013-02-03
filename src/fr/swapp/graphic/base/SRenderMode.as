@@ -6,13 +6,10 @@ package fr.swapp.graphic.base
 	public class SRenderMode
 	{
 		// TODO : Ajoute un mode de rendu qui permet de déplacement l'image dans le composant (ex : photo multitouch)
-		// TODO : Implémenter le mode de rendu Scale 9 / Scale 3 et auto
-		// TODO : Implémenter le mode de rendu Atlas (il faudra ajouter une methode helper pour les coordonnées)
-		// TODO : Implémenter le scale 9 et scale 3 en mode Atlas
 		// TODO : Implémenter le fait de continuer le dessin du bitmap ou non (avec le paramètre allowOverflow) en renderMode NO_SCALE / CENTER
+		// TODO : Peut être implémenter des alignements de base ? Peut être pas utile vue qu'on a SCompoent qui le gère bien
 		// TODO : Finir de traduire / refacto SGraphic
 		// TODO : Ajouter un mode qui permet d'animer dans un Atlas, peut être faire un nouvelle classe qui étend SGraphic
-		
 		
 		/**
 		 * Stretch the image to the component size. Image proportions are not respected.

@@ -63,6 +63,11 @@ package fr.swapp.core.pool
 			{
 				_elements.push(new _class);
 			}
+			
+			// TODO : Rendre la pool compatible avec les SComponent sans gestion compiliqué
+			// TODO : Peut-être qu'il faut faire une SComponentPool (dans graphic/tools/)
+			// TODO : Les listes utiliseront cette classe concrête pour un contrôle automatique des suppressions
+			// TODO : Peut être qu'il suffit de faire un visible = false au lieu d'un dispose sur components
 		}
 		
 		/**

@@ -8,6 +8,10 @@
 	 */
 	public class JSONRemote extends HTTPRemote
 	{
+		// TODO : Définir les fonctions de parse de AIR dans le SAirDocument.
+		// TODO : Définir celles de coreLib ou autres (à importer) pour SFlashDocument.
+		// TODO : Mapper les dépendences avec les autres librairies (graphique ?)
+		
 		/**
 		 * La fonction de codage par défaut (null par défaut)
 		 */

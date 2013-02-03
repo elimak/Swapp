@@ -795,6 +795,10 @@ package fr.swapp.graphic.base
 		 */
 		public function SComponent ()
 		{
+			// TODO : Ajoute une méthode helper qui permet d'uploader au GPU sans être vu (alpha = 0 ou un draw add sur le stageWrapper en scale 0...)
+			// TODO : puis de s'afficher une fois chargé et appeler un handler (voir TimerUtils)
+			// TODO : Cette gestion de l'upload GPU permettra de ne pas avoir d'animation qui rame
+			
 			// Signaler que le composant n'est pas disposé pour être sûr qu'on passe bien par le constructeur
 			_onDisposed = new Signal();
 			
@@ -926,7 +930,6 @@ package fr.swapp.graphic.base
 		public function dispose ():void
 		{
 			// TODO : Vérifier les disposes de SComponent. Trouver aussi un moyen pour faire du pooling sans faire de remove.
-			// TODO : Vérifier la propagation de visibility
 			
 			// Ne plus écouter l'ajout et la suppression
 			removeEventListener(Event.ADDED_TO_STAGE, addedHandler);
@@ -1416,6 +1419,7 @@ package fr.swapp.graphic.base
 			if (_onDisposed == null)
 			{
 				// TODO : Vrai message d'erreur
+				// TODO : Trouver un moyen d'éviter que ça passe ici
 				trace("FUU disposed object is disposed");
 				
 				// On n'actualise pas
@@ -1623,6 +1627,8 @@ package fr.swapp.graphic.base
 		 */
 		public function isVisible ():Boolean
 		{
+			// TODO : Vérifier la propagation de la visibilité avec les stageWebView et stageVideo
+			
 			// Si on n'est pas visible
 			if (!_visible)
 				return false;

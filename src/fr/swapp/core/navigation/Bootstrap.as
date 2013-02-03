@@ -156,6 +156,14 @@ package fr.swapp.core.navigation
 		{
 			trace("BOOTSTRAP REQUEST ACTION ", pAction);
 			
+			// TODO : Trouver un moyen d'appeler plusieurs fois la même webview (même action) mais faire des push view quand même
+			// TODO : Par exemple si on a une arborescence de fichiers / dossier à parcourir
+			// TODO : Gérer l'historique
+			// TODO : Créer un routeur?
+			// TODO : Gestion des types de transition (parallèle ou séquenciel ou autre)
+			// TODO : Implémenter la gestion des transitions (avec l'inversion du sens pour le back)
+			// TODO : Tester de bouriner (vérifier la solidité des lock) avec différents types de transitions
+			
 			// Si on a une action
 			if (pAction != null)
 			{

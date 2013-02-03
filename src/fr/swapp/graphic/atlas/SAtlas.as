@@ -67,6 +67,8 @@ package fr.swapp.graphic.atlas
 		 */
 		public function SAtlas (pBitmapData:BitmapData, pAtlasXML:XML, pDensity:Number = 1)
 		{
+			// Rendre complètement compatible avec les atlas générés par texturePacker (offsets, etc)
+			
 			// Vérifier que les valeurs ne soient pas nulles
 			if (pBitmapData == null || pAtlasXML == null)
 			{

@@ -184,6 +184,9 @@ package fr.swapp.graphic.text
 		 */
 		public function SText ()
 		{
+			// TODO : Vérifier le snapToPixels avec l'aligne center (peut être qu'il faut décaller d'un demi justement)
+			// TODO : Vérifier la propagation des positions / dimensions qui ont l'air foireuses dès qu'on veut aligner des éléments avec un texte
+			
 			// Snap to pixels
 			_snapToPixels = true;
 			

@@ -42,6 +42,12 @@ package fr.swapptesting.rebirth
 		[Embed(source="../../../../lib/images/scale-test.png")]
 		public static const Scale9ImageTest:Class
 		
+		[Embed(source="../../../../lib/images/scale-test-3-h.png")]
+		public static const Scale9ImageTest3H:Class
+		
+		[Embed(source="../../../../lib/images/scale-test-3-v.png")]
+		public static const Scale9ImageTest3V:Class
+		
 		[Embed(source="../../../../lib/images/atlas.xml", mimeType='application/octet-stream')]
 		public static const AtlasXMLTest:Class
 		
@@ -77,10 +83,25 @@ package fr.swapptesting.rebirth
 			// Initialiser l'emulateur de touch pour desktop avec les paramètres par défaut
 			enableTouchEmulator();
 			
+			var ba:ByteArray = (new AtlasXMLTest as ByteArray);
+			
+			var atlas:SAtlas = new SAtlas(
+				(new AtlasImageTest as Bitmap).bitmapData,
+				new XML(ba.readUTFBytes(ba.length)),
+				2
+			);
+			
+			trace(atlas.getNames());
+			
+			
 			_graph2 = new SGraphic();
 			_graph2.background(0xFF0000, 0.2).center(0, 0).into(_wrapper.root);
 			
 			_graph1 = new SGraphic(EmbedUtils.getBitmapData(Scale9ImageTest), null, 2);
+			//_graph1 = new SGraphic(EmbedUtils.getBitmapData(Scale9ImageTest3H), null, 2);
+			//_graph1 = new SGraphic(EmbedUtils.getBitmapData(Scale9ImageTest3V), null, 2);
+			//_graph1 = new SGraphic(null, null, 2);
+			//_graph1.atlas(atlas.getAtlasItem("scale9"));
 			_graph1.autoSlice();
 			_graph1.center(0, 0).into(_wrapper.root);
 			

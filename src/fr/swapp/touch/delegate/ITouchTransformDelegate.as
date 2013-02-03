@@ -28,7 +28,6 @@ package fr.swapp.touch.delegate
 		 * @param	pXDelta : La différence de position horizontale depuis le dernier appel
 		 * @param	pYDelta : La différence de position horizontale depuis le dernier appel
 		 * @param	pPoints : La liste des points en fonction pour la transformation
-		 * @return : L'autorisation aux parents de recevoir des touchDragging
 		 */
 		function touchTransformHandler (pTarget:DisplayObject, pScaleDelta:Number, pRotationDelta:Number, pXDelta:Number, pYDelta:Number, pPoints:Vector.<Point>):Boolean;
 	}

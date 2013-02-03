@@ -11,6 +11,8 @@ package fr.swapp.graphic.base
 	public class SContainer extends SComponent
 	{
 		// TODO : Implémenter les layouts
+		// TODO : Vérifier le flow de propagation de l'actualisation (avec une liste dans une liste, il y a un frame qui laisse passer un écran non rafraichir)
+		// TODO : Vérifier les memory leaks avec les disposes un peu chelous
 		
 		/**
 		 * Le layout de positionnement des éléments

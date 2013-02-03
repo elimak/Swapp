@@ -278,7 +278,7 @@ package fr.swapp.core.central
 				{
 					_listeners[pMessage] = [];
 				}
-
+				
 				// Ajouter le handler et son scope
 				_listeners[pMessage].push([pHandler, pOnce, _currentEventId]);
 				

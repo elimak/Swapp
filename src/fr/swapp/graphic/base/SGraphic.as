@@ -779,7 +779,8 @@ package fr.swapp.graphic.base
 		 */
 		protected function updateAtlas (pFromMethodName:String = null):void
 		{
-			// TODO : AtlasItem stretch mode
+			// TODO : AtlasItem stretch mode ne marche pas
+			// TODO : Vérifier AtlasItem autoSize avec density
 			
 			// Si on a un item
 			if (_atlasItem != null)
@@ -827,9 +828,31 @@ package fr.swapp.graphic.base
 				return;
 			}
 			
+			// Les positions et dimensions
+			var bitmapWidth		:uint	= 0;
+			var bitmapHeight	:uint	= 0;
+			var bitmapOriginX	:uint	= 0;
+			var bitmapOriginY	:uint	= 0;
+			
+			// Si on est sur un atlas
+			if (_atlasItem != null)
+			{
+				// Récupérer les valeurs de l'atlas
+				bitmapWidth = _atlasItem.width;
+				bitmapHeight = _atlasItem.height;
+				bitmapOriginX = _atlasItem.x;
+				bitmapOriginY = _atlasItem.y;
+			}
+			else
+			{
+				// Sinon on récupère les valeurs depuis le bitmapData
+				bitmapWidth = _bitmapData.width;
+				bitmapHeight = _bitmapData.height;
+			}
+			
 			// Vérifier le mode de scale
-			var hs:Boolean = (_bitmapData.getPixel(1, 0) < _cutThreshold);
-			var vs:Boolean = (_bitmapData.getPixel(0, 1) < _cutThreshold);
+			var hs:Boolean = (_bitmapData.getPixel(bitmapOriginX + 1, bitmapOriginY) < _cutThreshold);
+			var vs:Boolean = (_bitmapData.getPixel(bitmapOriginX, bitmapOriginY + 1) < _cutThreshold);
 			
 			// Si on est en mode horizontal et vertical
 			if (hs && vs)
@@ -862,23 +885,23 @@ package fr.swapp.graphic.base
 			_frameOffset = 2;
 			
 			// Les limites
-			var x1:uint = _frameOffset;
-			var x2:uint = _bitmapData.width - _frameOffset;
-			var y1:uint = _frameOffset;
-			var y2:uint = _bitmapData.height - _frameOffset;
+			var x1:uint = bitmapOriginX + _frameOffset;
+			var x2:uint = bitmapOriginX + bitmapWidth - _frameOffset;
+			var y1:uint = bitmapOriginY + _frameOffset;
+			var y2:uint = bitmapOriginY + bitmapHeight - _frameOffset;
 			
 			// Si on doit parser le côté horizontal
 			if (hs)
 			{
 				// Récupérer le scale horizontal de gauche
-				while (_bitmapData.getPixel(x1, 0) > _cutThreshold && x1 < x2)
+				while (_bitmapData.getPixel(x1, bitmapOriginY) > _cutThreshold && x1 < x2)
 				{
 					// On va vers la droite
 					x1 ++;
 				}
 				
 				// Récupérer le scale horizontal de droite
-				while (_bitmapData.getPixel(x2, 0) > _cutThreshold && x2 > x1)
+				while (_bitmapData.getPixel(x2, bitmapOriginY) > _cutThreshold && x2 > x1)
 				{
 					// On va vers la gauche
 					x2 --;
@@ -889,25 +912,60 @@ package fr.swapp.graphic.base
 			if (vs)
 			{
 				// Récupérer le scale vertical du haut
-				while (_bitmapData.getPixel(0, y1) > _cutThreshold && y1 < y2)
+				while (_bitmapData.getPixel(bitmapOriginX, y1) > _cutThreshold && y1 < y2)
 				{
 					// On va vers le bas
 					y1 ++;
 				}
 				
 				// Récupérer le scale vertical du bas
-				while (_bitmapData.getPixel(0, y2) > _cutThreshold && y2 > y1)
+				while (_bitmapData.getPixel(bitmapOriginX, y2) > _cutThreshold && y2 > y1)
 				{
 					// On va vers le haut
 					y2 --;
 				}
 			}
 			
-			//trace(x1, y1, x2 + 1, y2 + 1);
-			
 			// Enregistrer le rectangle
-			//_slices = new Rectangle(x1, y1, x2 - x1 + _frameOffset - 1, y2 - y1 + _frameOffset - 1);
 			_slices = new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+			
+			// Définir les tailles min et max selon les slices et le mode de rendu
+			if (_renderMode == SRenderMode.HORIZONTAL_SCALE_3_RENDER)
+			{
+				// Largeur et haute minimum
+				minSize(
+					(bitmapWidth - _slices.width) / _density + _frameOffset * 2,
+					bitmapHeight / _density - _frameOffset * 2
+				);
+				
+				// Hauteur maximum (largeur max inifine)
+				maxSize(
+					NaN,
+					_minHeight
+				);
+			}
+			else if (_renderMode == SRenderMode.VERTICAL_SCALE_3_RENDER)
+			{
+				// Largeur et haute minimum
+				minSize(
+					bitmapWidth / _density - _frameOffset * 2,
+					(bitmapHeight - _slices.height) / _density + _frameOffset * 2
+				);
+				
+				// Largeur maximum (hauteur max inifine)
+				maxSize(
+					_minWidth,
+					NaN
+				);
+			}
+			else
+			{
+				// Largeur et haute minimum, largeur et hauteur maximum infinies
+				minSize(
+					(bitmapWidth - _slices.width) / _density + _frameOffset * 2,
+					(bitmapHeight - _slices.height) / _density + _frameOffset * 2
+				);
+			}
 			
 			// Invalider le dessin
 			invalidateDraw();
@@ -1064,72 +1122,92 @@ package fr.swapp.graphic.base
 							)
 						)
 					{
-						// TODO : Finir le mode de rendu SCALE 9 / SCALE 3
-						// TODO : Le rendre compatible avec AtlasItem (revoir positionnement et taille du bitmapData)
-						// TODO : Vérifier les modes SCALE 3
-						// TODO : Vérifier les densité
-						// TODO : Vérifier les offsets
+						// TODO : Vérifier les scale3 sur les atlas
 						// TODO : Tester sur android ou avec un ratio pourri sur le stage
 						// TODO : Revoir les méthodes helper (voir si on peut faire une méthode helper en slice manuel : mode + rectangle)
 						// TODO : Revoir les méthodes helper pour AtlasItem -> manual slice et auto slice
+						// TODO : Il doit y avoir un problème avec le +1 du slice sur les dimensions, les vPosition et hPosition tombe pas rond si density != 1
+						// TODO : Un dernier coup de refacto (refacto et renommage des helpers / doc en anglais / peut être passer un atlas via le constructeur)
 						
 						// Annuler le trait
 						graphics.lineStyle(NaN);
 						
 						// Calculer le nombre de slices horizontales et verticales
-						var hSlices:uint = (_renderMode == SRenderMode.SCALE_9_RENDER || _renderMode == SRenderMode.HORIZONTAL_SCALE_3_RENDER) ? 3 : 1;
-						var vSlices:uint = (_renderMode == SRenderMode.SCALE_9_RENDER || _renderMode == SRenderMode.VERTICAL_SCALE_3_RENDER) ? 3 : 1;
+						var hSlices:uint = (_renderMode == SRenderMode.SCALE_9_RENDER || _renderMode == SRenderMode.HORIZONTAL_SCALE_3_RENDER) ? 3 : 2;
+						var vSlices:uint = (_renderMode == SRenderMode.SCALE_9_RENDER || _renderMode == SRenderMode.VERTICAL_SCALE_3_RENDER) ? 3 : 2;
 						
 						// Les index des blocs horizontaux et verticaux
 						var cx:uint;
 						var cy:uint;
+						
+						// Les positions et dimensions
+						var bitmapWidth		:uint	= 0;
+						var bitmapHeight	:uint	= 0;
+						var bitmapOriginX	:uint	= 0;
+						var bitmapOriginY	:uint	= 0;
+						
+						// Si on est sur un atlas
+						if (_atlasItem != null)
+						{
+							// Récupérer les valeurs de l'atlas
+							bitmapWidth = _atlasItem.width;
+							bitmapHeight = _atlasItem.height;
+							bitmapOriginX = _atlasItem.x;
+							bitmapOriginY = _atlasItem.y;
+						}
+						else
+						{
+							// Sinon on récupère les valeurs depuis le bitmapData
+							bitmapWidth = _bitmapData.width;
+							bitmapHeight = _bitmapData.height;
+						}
 						
 						// La matrice temporaire pour chaque bloc
 						var matrix:Matrix = new Matrix();
 						
 						// Les positions des blocs horizontaux et verticaux
 						var hPositions			:Vector.<Number> = Vector.<Number>([
-							0,																		// La position horizontale du premier bloc
-							(_slices.left  - _frameOffset) / _density,								// La position horizontale du second bloc
-							(_localWidth - (_bitmapData.width - _slices.right) / _density),			// La position horizontale de la fin du second bloc
-							_localWidth																// La position horizontale de la fin du troisième bloc
+							0,																			// La position horizontale du premier bloc
+							(_slices.left - bitmapOriginX - _frameOffset) / _density,					// La position horizontale du second bloc
+							(_localWidth - (bitmapWidth - _slices.right + bitmapOriginX) / _density),	// La position horizontale de la fin du second bloc
+							_localWidth																	// La position horizontale de la fin du troisième bloc
 						]);
 						var vPositions			:Vector.<Number> = Vector.<Number>([
-							0,																		// La position verticale du premier bloc
-							(_slices.top - _frameOffset) / _density,								// La position verticale du second bloc
-							(_localHeight - (_bitmapData.height - _slices.bottom) / _density),		// La position verticale de la fin du second bloc
-							_localHeight															// La position verticale de la fin du troisième bloc
+							0,																			// La position verticale du premier bloc
+							(_slices.top - bitmapOriginY - _frameOffset) / _density,					// La position verticale du second bloc
+							(_localHeight - (bitmapHeight - _slices.bottom + bitmapOriginY) / _density),// La position verticale de la fin du second bloc
+							_localHeight																// La position verticale de la fin du troisième bloc
 						]);
 						
 						// Les scales des blocs horizontaux et verticaux
 						var hScales				:Vector.<Number> = Vector.<Number>([
-							1 / _density,															// Le ratio horizontal du coin de gauche
-							((hPositions[2] - hPositions[1]) / _slices.width),						// Le ratio horizontal du côté du milieu
-							1 / _density															// Le ratio horizontal du coin de droite
+							1 / _density,												// Le ratio horizontal du coin de gauche
+							((hPositions[2] - hPositions[1]) / _slices.width),			// Le ratio horizontal du côté du milieu
+							1 / _density												// Le ratio horizontal du coin de droite
 						]);
 						var vScales				:Vector.<Number> = Vector.<Number>([
-							1 / _density,															// Le ratio vertical du coin du haut
-							((vPositions[2] - vPositions[1]) / _slices.height),						// Le ratio vertical du côté du milieu
-							1 / _density															// Le ratio vertical du coin du bas
+							1 / _density,												// Le ratio vertical du coin du haut
+							((vPositions[2] - vPositions[1]) / _slices.height),			// Le ratio vertical du côté du milieu
+							1 / _density												// Le ratio vertical du coin du bas
 						]);
 						
 						// Les position sur la texture
 						var hTexturePosition	:Vector.<Number> = Vector.<Number>([
-							_frameOffset,															// La position horizontale de la texture pour le premier bloc
-							_slices.left - ((_slices.left - _frameOffset) / hScales[1]),			// La position horizontale de la texture pour le second bloc
-							_bitmapData.width / _density - _localWidth								// La position horizontale de la texture pour le troisième bloc
+							bitmapOriginX + _frameOffset,															// La position horizontale de la texture pour le premier bloc
+							_slices.left - ((_slices.left - bitmapOriginX - _frameOffset) / hScales[1] / _density),	// La position horizontale de la texture pour le second bloc
+							bitmapOriginX + bitmapWidth - _localWidth * _density									// La position horizontale de la texture pour le troisième bloc
 						]);
 						var vTexturePosition	:Vector.<Number> = Vector.<Number>([
-							_frameOffset,															// La position verticale de la texture pour le premier bloc
-							_slices.top - ((_slices.top - _frameOffset) / vScales[1]),				// La position verticale de la texture pour le second bloc
-							_bitmapData.height / _density - _localHeight							// La position verticale de la texture pour le troisième bloc
+							bitmapOriginY + _frameOffset,															// La position verticale de la texture pour le premier bloc
+							_slices.top - ((_slices.top - bitmapOriginY - _frameOffset) / vScales[1] / _density),	// La position verticale de la texture pour le second bloc
+							bitmapOriginY + bitmapHeight - _localHeight * _density									// La position verticale de la texture pour le troisième bloc
 						]);
 						
 						// Parcourir les blocs horizontaux
-						for (cx = 0; cx < hSlices; cx++)
+						for (cx = (hSlices == 1 ? 1 : 0); cx < hSlices; cx++)
 						{
 							// Parcourir les blocs verticaux
-							for (cy = 0; cy < vSlices; cy++)
+							for (cy = (vSlices == 1 ? 1 : 0); cy < vSlices; cy++)
 							{
 								// Remettre la matrice à 0
 								matrix.identity();
