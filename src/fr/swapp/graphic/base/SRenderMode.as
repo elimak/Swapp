@@ -63,5 +63,10 @@ package fr.swapp.graphic.base
 		 * Use Scale 9 grid to show a fluid image with 9 slices.
 		 */
 		public static const SCALE_9_RENDER				:String								= "scale9";
+		
+		/**
+		 * Use auto scaling mode. Will be converted to HORIZONTAL_SCALE_3_RENDER or VERTICAL_SCALE_3_RENDER or SCALE_9_RENDER immediatly after be applyed.
+		 */
+		public static const AUTO_SCALE_RENDER			:String								= "autoScale";
 	}
 }

@@ -226,13 +226,10 @@ package fr.swapp.graphic.text
 		protected function enableFlatText ():void
 		{
 			// Si le CAB est activé
-			if (DEFAULT_CAB_ENABLED && stage)
+			if (DEFAULT_CAB_ENABLED && _wrapper)
 			{
-				// Récupérer le wrapper
-				var wrapper:SWrapper = SWrapper.getInstance(stage);
-				
 				// Récupérer le facteur d'échelle
-				var scaleFactor:Number = wrapper.ratio;
+				var scaleFactor:Number = _wrapper.ratio;
 				
 				// S'il est supérieur à la densité par défaut
 				if (scaleFactor > DEFAULT_SCALE_LIMIT)

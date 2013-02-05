@@ -97,11 +97,11 @@ package fr.swapptesting.rebirth
 			_graph2 = new SGraphic();
 			_graph2.background(0xFF0000, 0.2).center(0, 0).into(_wrapper.root);
 			
-			_graph1 = new SGraphic(EmbedUtils.getBitmapData(Scale9ImageTest), null, 2);
+			//_graph1 = new SGraphic(EmbedUtils.getBitmapData(Scale9ImageTest), null, 2);
 			//_graph1 = new SGraphic(EmbedUtils.getBitmapData(Scale9ImageTest3H), null, 2);
 			//_graph1 = new SGraphic(EmbedUtils.getBitmapData(Scale9ImageTest3V), null, 2);
-			//_graph1 = new SGraphic(null, null, 2);
-			//_graph1.atlas(atlas.getAtlasItem("scale9"));
+			_graph1 = new SGraphic(null, null, 2);
+			_graph1.atlas(atlas.getAtlasItem("scale9"));
 			_graph1.autoSlice();
 			_graph1.center(0, 0).into(_wrapper.root);
 			

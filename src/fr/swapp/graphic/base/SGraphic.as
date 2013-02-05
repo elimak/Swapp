@@ -155,6 +155,11 @@ package fr.swapp.graphic.base
 		 */
 		protected var _frameOffset						:uint;
 		
+		/**
+		 * Show only wires
+		 */
+		protected var _wireFrames						:int							= -1;
+		
 		
 		/**
 		 * Le bitmapData pour le fond (null pour utiliser la couleur de fond)
@@ -194,6 +199,13 @@ package fr.swapp.graphic.base
 					// S'il n'est pas bon on déclenche un erreur
 					throw new GraphicalError("SGraphic.renderMode", "Invalid render mode.");
 					return;
+				}
+				
+				// Si on est en mode auto slice
+				if (_renderMode == SRenderMode.AUTO_SCALE_RENDER)
+				{
+					// Slicer
+					autoSlice();
 				}
 				
 				// Rendre la position invalide
@@ -573,6 +585,23 @@ package fr.swapp.graphic.base
 			}
 		}
 		
+		/**
+		 * Show only wires (-1 to avoid)
+		 */
+		public function get wireFrames ():int { return _wireFrames; }
+		public function set wireFrames (value:int):void
+		{
+			// Si c'est différent
+			if (value != _wireFrames)
+			{
+				// On enregistre
+				_wireFrames = value;
+				
+				// Besoin de rafraichir l'image
+				invalidateDraw();
+			}
+		}
+		
 		
 		/**
 		 * Constructor
@@ -733,6 +762,13 @@ package fr.swapp.graphic.base
 			// Actualiser
 			updateAtlas("atlas");
 			
+			// Si on est en mode auto scale
+			if (_renderMode == SRenderMode.AUTO_SCALE_RENDER)
+			{
+				// On applique l'autoSlice
+				autoSlice();
+			}
+			
 			// Méthode chaînable
 			return this;
 		}
@@ -754,6 +790,8 @@ package fr.swapp.graphic.base
 				_renderMode == SRenderMode.VERTICAL_SCALE_3_RENDER
 				||
 				_renderMode == SRenderMode.SCALE_9_RENDER
+				||
+				_renderMode == SRenderMode.AUTO_SCALE_RENDER
 				||
 				(
 					// Sinon si on n'a pas d'atlas
@@ -1053,7 +1091,7 @@ package fr.swapp.graphic.base
 			if (_localWidth > 0 && _localHeight > 0)
 			{
 				// Si on a un contour
-				if (_borderSize > 0)
+				if (_borderSize > 0 && _wireFrames < 0)
 				{
 					// On dessine le contour
 					graphics.lineStyle(_borderSize, _borderColor, _borderAlpha, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.MITER);
@@ -1221,7 +1259,14 @@ package fr.swapp.graphic.base
 								matrix.scale(hScales[cx], vScales[cy]);
 								
 								// Dessiner le bitmap grâce à la matrice temporaire
-								graphics.beginBitmapFill(_bitmapData, matrix, false, _smoothing);
+								if (_wireFrames < 0)
+								{
+									graphics.beginBitmapFill(_bitmapData, matrix, false, _smoothing);
+								}
+								else
+								{
+									graphics.lineStyle(1, _wireFrames);
+								}
 								
 								// Tracer le bloc
 								graphics.drawRect(
@@ -1245,7 +1290,14 @@ package fr.swapp.graphic.base
 						updateMatrix();
 						
 						// Dessiner le bitmap grâce à la matrice
-						graphics.beginBitmapFill(_bitmapData, _matrix, _renderMode == SRenderMode.REPEAT, _smoothing);
+						if (_wireFrames < 0)
+						{
+							graphics.beginBitmapFill(_bitmapData, _matrix, _renderMode == SRenderMode.REPEAT, _smoothing);
+						}
+						else
+						{
+							graphics.lineStyle(1, _wireFrames);
+						}
 					}
 				}
 				else
@@ -1299,28 +1351,36 @@ package fr.swapp.graphic.base
 		 */
 		protected function drawBackground ():void
 		{
-			// Si on doit faire un fond avec une couleur pleine
-			if (_backgroundType == SBackgroundType.FLAT)
+			// Si on n'est pas en wireframe
+			if (_wireFrames < 0)
 			{
-				// On commence le déssin avec la première couleur et le premier alpha
-				graphics.beginFill(_backgroundColor1, _backgroundAlpha1);
-			}
-			
-			// Si on doit faire un background avec un dégradé
-			else if (_backgroundType != SBackgroundType.NONE)
-			{
-				// Créer la matrice du dégradé
-				var gradientMatrix:Matrix = new Matrix()
-				gradientMatrix.createGradientBox(_localWidth, _localHeight, _backgroundType == SBackgroundType.VERTICAL_GRADIENT ? Math.PI / 2 : 0, 0, 0);
+				// Si on doit faire un fond avec une couleur pleine
+				if (_backgroundType == SBackgroundType.FLAT)
+				{
+					// On commence le déssin avec la première couleur et le premier alpha
+					graphics.beginFill(_backgroundColor1, _backgroundAlpha1);
+				}
 				
-				// Déssiner le dégradé
-				graphics.beginGradientFill(
-					GradientType.LINEAR,
-					[_backgroundColor1, _backgroundColor2],
-					[_backgroundAlpha1, _backgroundAlpha2],
-					[0, 255],
-					gradientMatrix
-				);
+				// Si on doit faire un background avec un dégradé
+				else if (_backgroundType != SBackgroundType.NONE)
+				{
+					// Créer la matrice du dégradé
+					var gradientMatrix:Matrix = new Matrix()
+					gradientMatrix.createGradientBox(_localWidth, _localHeight, _backgroundType == SBackgroundType.VERTICAL_GRADIENT ? Math.PI / 2 : 0, 0, 0);
+					
+					// Déssiner le dégradé
+					graphics.beginGradientFill(
+						GradientType.LINEAR,
+						[_backgroundColor1, _backgroundColor2],
+						[_backgroundAlpha1, _backgroundAlpha2],
+						[0, 255],
+						gradientMatrix
+					);
+				}
+			}
+			else
+			{
+				graphics.lineStyle(1, _wireFrames);
 			}
 		}
 		
