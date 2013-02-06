@@ -1,5 +1,7 @@
 package fr.swapptesting.rebirth
 {
+	import com.greensock.easing.Strong;
+	import com.greensock.TweenMax;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.BlendMode;
@@ -19,6 +21,7 @@ package fr.swapptesting.rebirth
 	import fr.swapp.graphic.base.SGraphic;
 	import fr.swapp.graphic.base.SRenderMode;
 	import fr.swapp.graphic.controls.SButton;
+	import fr.swapp.graphic.controls.SSlider;
 	import fr.swapp.graphic.document.SAirDocument;
 	import fr.swapp.graphic.lists.IVirtualListDelegate;
 	import fr.swapp.graphic.lists.SFreeList;
@@ -83,6 +86,23 @@ package fr.swapptesting.rebirth
 			// Initialiser l'emulateur de touch pour desktop avec les paramètres par défaut
 			enableTouchEmulator();
 			
+			var slider:SSlider = new SSlider(0, 10, 2, 0, false);
+			
+			slider.button.radius(20).background(0xFF0000).size(20, 20).margin(-10, 0, 0, -10);
+			slider.track.background(0xCCCCCC).radius(4).place(0, 0, 0, 0);
+			slider.inner.background(0x0000FF).radius(4).place(2, 2, 2, 2);
+			
+			slider.center(0, 0).size(300, 10).into(_wrapper.root);
+			
+			/*
+			TweenMax.to(slider, 2, {
+				yoyo: true,
+				repeat: 10,
+				value: 1,
+				ease: Strong.easeInOut
+			});
+			*/
+			/*
 			var ba:ByteArray = (new AtlasXMLTest as ByteArray);
 			
 			var atlas:SAtlas = new SAtlas(
@@ -106,7 +126,7 @@ package fr.swapptesting.rebirth
 			_graph1.center(0, 0).into(_wrapper.root);
 			
 			addEventListener(Event.ENTER_FRAME, enterFrameHandler);
-			
+			*/
 			/*
 			
 			var ba:ByteArray = (new AtlasXMLTest as ByteArray);
