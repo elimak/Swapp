@@ -1,5 +1,6 @@
 package fr.swapp.graphic.styles 
 {
+	import fr.swapp.utils.ObjectUtils;
 	/**
 	 * ...
 	 * @author ZoulouX
@@ -29,6 +30,14 @@ package fr.swapp.graphic.styles
 		protected function setData (pData:Object):void
 		{
 			_styleData = pData;
+		}
+		
+		/**
+		 * Add data if you extend another style class
+		 */
+		protected function appendData (pData:Object):void
+		{
+			ObjectUtils.extra(_styleData, pData);
 		}
 	}
 }

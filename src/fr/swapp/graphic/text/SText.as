@@ -49,6 +49,7 @@ package fr.swapp.graphic.text
 		 */
 		protected var _multiline					:Boolean					= false;
 		
+		
 		/**
 		 * Le textField
 		 */
@@ -218,6 +219,18 @@ package fr.swapp.graphic.text
 			
 			// L'ajouter
 			addChild(_textField);
+		}
+		
+		/**
+		 * Initialisation
+		 */
+		override public function init ():void 
+		{
+			// Force render
+			renderPhase();
+			
+			// Relayer
+			super.init();
 		}
 		
 		/**

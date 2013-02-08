@@ -59,12 +59,12 @@ package fr.swapp.graphic.controls
 		/**
 		 * If rules are invalidates
 		 */
-		protected var _rulesInvalidated			:Boolean					= true;
+		protected var _rulesInvalidated			:Boolean;
 		
 		/**
 		 * If button position is invalidated
 		 */
-		protected var _buttonInvalidated		:Boolean					= true;
+		protected var _buttonInvalidated		:Boolean;
 		
 		/**
 		 * Round value to step when dragging
@@ -80,7 +80,9 @@ package fr.swapp.graphic.controls
 		
 		protected var _onStartDrag				:Signal						= new Signal(SSlider);
 		protected var _onStopDrag				:Signal						= new Signal(SSlider);
-		protected var _onChange					:Signal						= new Signal(SSlider, Boolean);
+		protected var _onChanged				:Signal						= new Signal(SSlider, Boolean);
+		
+		protected var _onButtonMoved			:Signal						= new Signal(SSlider, Boolean);
 		
 		
 		/**
@@ -197,11 +199,13 @@ package fr.swapp.graphic.controls
 			}
 		}
 		
-		public function get onChange ():Signal { return _onChange; }
+		public function get onChanged ():Signal { return _onChanged; }
 		
 		public function get onStartDrag ():Signal { return _onStartDrag; }
 		
 		public function get onStopDrag ():Signal { return _onStopDrag; }
+		
+		public function get onButtonMoved ():Signal { return _onButtonMoved; }
 		
 		
 		/**
@@ -222,15 +226,6 @@ package fr.swapp.graphic.controls
 		
 		
 		/**
-		 * Initialisation
-		 */
-		override public function init ():void
-		{
-			// Relayer l'initialisation
-			super.init();
-		}
-		
-		/**
 		 * Build interface
 		 */
 		protected function buildInterface ():void
@@ -246,6 +241,21 @@ package fr.swapp.graphic.controls
 			// Créer le bouton
 			_button = new SGraphic();
 			_button.center(NaN, 0).into(this);
+		}
+		
+		/**
+		 * Initialisation
+		 */
+		override public function init ():void
+		{
+			// Actualiser la position du bouton
+			updateButtonPosition();
+			
+			// Et de l'inner
+			updateInnerPosition(false);
+			
+			// Relayer
+			super.init();
 		}
 		
 		/**
@@ -297,9 +307,13 @@ package fr.swapp.graphic.controls
 		/**
 		 * Updater inner position
 		 */
-		protected function updateInnerPosition ():void
+		protected function updateInnerPosition (pFromUser:Boolean = true):void
 		{
+			// Appliquer l'inner vu que le bouton a bougé
 			_inner.right = _track.width - _button.horizontalOffset;
+			
+			// Le bouton a bougé
+			_onButtonMoved.dispatch(this, pFromUser);
 		}
 		
 		/**
@@ -330,7 +344,7 @@ package fr.swapp.graphic.controls
 				updateButtonPosition();
 				
 				// Actualiser la position de l'inner
-				updateInnerPosition();
+				updateInnerPosition(false);
 				
 				// Le valider
 				_buttonInvalidated = false;
@@ -413,7 +427,7 @@ package fr.swapp.graphic.controls
 				if (oldValue != _value)
 				{
 					// Dispatcher le changement
-					_onChange.dispatch(this, true);
+					_onChanged.dispatch(this, true);
 				}
 			}
 			

@@ -69,13 +69,26 @@ package fr.swapp.graphic.base
 		/**
 		 * Set style data class. Will be automatically added at init.
 		 */
-		protected function setStyle (pStyleDataClass:Class):void
+		protected function setStyle (pStyleDataClass:Class, pWithClass:Class = null):void
 		{
-			// Définir le nom de style par le nom de class
-			style(ClassUtils.getClassNameFromInstance(this));
-			
-			// Enregistrer l'instance
-			_styleData = DependencesManager.getInstance().instanciate(pStyleDataClass) as IStyleData;
+			// Si on n'a pas déjà un style
+			if (_styleData == null)
+			{
+				// Si une classe est donnée
+				if (pWithClass != null)
+				{
+					// Définir le nom de style par le nom de la classe donnée
+					style(ClassUtils.getClassName(pWithClass));
+				}
+				else
+				{
+					// Définir le nom de style par le nom de classe de l'instance en cours
+					style(ClassUtils.getClassNameFromInstance(this));
+				}
+				
+				// Enregistrer l'instance
+				_styleData = DependencesManager.getInstance().instanciate(pStyleDataClass) as IStyleData;
+			}
 		}
 		
 		/**

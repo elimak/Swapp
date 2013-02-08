@@ -22,7 +22,7 @@ package fr.swapp.graphic.text
 		/**
 		 * Si le textFormat est invalidé
 		 */
-		protected var _textFormatInvalidated			:Boolean;
+		protected var _textFormatInvalidated			:Boolean					= true;
 		
 		
 		/**

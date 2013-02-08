@@ -48,6 +48,9 @@ package fr.swapp.core.mvc
 				// Si on a un nouveau container et une vue
 				if (pValue != null && _container == null && _view != null)
 				{
+					// Enregistrer le container avant l'ajout pour l'avoir dans l'init
+					_container = pValue;
+					
 					// On ajoute cette vue dans le container
 					// Ce qui peut entraîner l'init
 					pValue.addChild(_view.displayObject);

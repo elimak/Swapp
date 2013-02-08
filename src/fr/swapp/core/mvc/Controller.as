@@ -175,6 +175,7 @@ package fr.swapp.core.mvc
 		 */
 		public function init ():void
 		{
+			// Dispatcher l'init
 			_onInit.dispatch();
 		}
 		

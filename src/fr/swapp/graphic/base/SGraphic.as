@@ -968,7 +968,7 @@ package fr.swapp.graphic.base
 			
 			// Enregistrer le rectangle
 			_slices = new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
-			
+			/*
 			// Définir les tailles min et max selon les slices et le mode de rendu
 			if (_renderMode == SRenderMode.HORIZONTAL_SCALE_3_RENDER)
 			{
@@ -1006,7 +1006,7 @@ package fr.swapp.graphic.base
 					(bitmapHeight - _slices.height) / _density + _frameOffset * 2
 				);
 			}
-			
+			*/
 			// Invalider le dessin
 			invalidateDraw();
 		}
