@@ -13,6 +13,7 @@ package fr.swapp.touch.dispatcher
 	import fr.swapp.touch.delegate.ITouchTapDelegate;
 	import fr.swapp.touch.delegate.ITouchTransformDelegate;
 	import fr.swapp.touch.errors.TouchError;
+	import fr.swapp.utils.ArrayUtils;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -52,6 +53,7 @@ package fr.swapp.touch.dispatcher
 			// Retourner l'instance
 			return __instances[pStage];
 		}
+		
 		
 		/**
 		 * Associated stage
@@ -122,6 +124,11 @@ package fr.swapp.touch.dispatcher
 		 * When disposed
 		 */
 		protected var _onDisposed						:Signal			= new Signal();
+		
+		/**
+		 * Reused temp point 
+		 */
+		protected var _tempPoint						:Point			= new Point();
 		
 		
 		/**
@@ -289,13 +296,13 @@ package fr.swapp.touch.dispatcher
 				// Les parcourir
 				var target:DisplayObject;
 				var allowed:Boolean;
-				for each (var delegate:ITouchDragDelegate in _draggables[touchId])
+				for each (var dragDelegate:ITouchDragDelegate in _draggables[touchId])
 				{
-					//trace("DRAG MOVE", delegate);
-					target = (delegate as DisplayObject);
+					// Cibler le delegate en tant que DisplayObject pour calculer la transformation
+					target = (dragDelegate as DisplayObject);
 					
 					// Dispatcher un dragging avec le bon ratio
-					allowed = delegate.touchDragging(
+					allowed = dragDelegate.touchDragging(
 						_targets[touchId],
 						_directions[touchId],
 						_touchDeltas[touchId].x / target.transform.concatenatedMatrix.a,
@@ -310,6 +317,11 @@ package fr.swapp.touch.dispatcher
 					}
 				}
 			}
+		}
+		
+		protected function checkForDispatch ():void
+		{
+			
 		}
 		
 		/**
@@ -353,8 +365,21 @@ package fr.swapp.touch.dispatcher
 						// Dispatcher le release
 						touchTapDelegate.touchReleaseHandler(_targets[touchId]);
 						
-						// Si on n'a pas de direction
-						if (!(touchId in _directions))
+						// La position du point par rapport au stage
+						_tempPoint.x = event.stageX;
+						_tempPoint.y = event.stageY;
+						
+						// Vérifier la validité du tap
+						if (
+								// Vérifier si on est toujours sur le target
+								(_targets[touchId] as DisplayObjectContainer).contains(event.target as DisplayObject)
+								
+								// Si ce point n'est pas aussi sur un draggable ou un transformable qui a bougé
+								&&
+								!(touchId in _draggables && touchId in _directions)
+								&&
+								!(touchId in _transformables && touchId in _directions)
+							)
 						{
 							// Dispatcher le tap
 							touchTapDelegate.touchTapHandler(_targets[touchId], event.isPrimaryTouchPoint);
@@ -449,14 +474,13 @@ package fr.swapp.touch.dispatcher
 		 */
 		protected function registerTransformDelegate (pDelegate:ITouchTransformDelegate, pEvent:TouchEvent):void
 		{
-			// TODO : Ne pas avoir de limite de move pour un touch si le Delegate n'a pas de TouchDrag ou TouchTransform en parent !
 			// TODO : gestion des delegate transform
 			// TODO : gestion des double tap
+			// TODO : gestion des swipes via ITouchSwipeDelegate
 			// TODO : Ajouter la source de l'event (mouse ou touch)
 			//			-> VirtualList pourra avoir des propriété "touchEnabled" et "mouseEnabled" pour agir en fonction.
 			//			-> Plus besoin de MouseToTouchEmulator pour dev en mode release pour PC
 			//			-> Rendre compatible avec Flash et Air desktop
-			// TODO : Ajouter ITouchSwipeDelegate
 		}
 		
 		/**

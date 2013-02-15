@@ -240,6 +240,8 @@ package fr.swapp.graphic.controls
 			
 			// Créer le bouton
 			_button = new SGraphic();
+			_button.mouseChildren = false;
+			_button.styleEnabled = true;
 			_button.center(NaN, 0).into(this);
 		}
 		
@@ -248,6 +250,9 @@ package fr.swapp.graphic.controls
 		 */
 		override public function init ():void
 		{
+			// Récupérer les positions
+			getButtonLimits();
+			
 			// Actualiser la position du bouton
 			updateButtonPosition();
 			

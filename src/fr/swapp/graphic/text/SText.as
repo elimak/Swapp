@@ -260,6 +260,55 @@ package fr.swapp.graphic.text
 		}
 		
 		/**
+		 * Convert this component to GPU Texture. (override for text)
+		 * @param	pMatrixScale : Automatic scale of the bitmap (NaN to ignore)
+		 * @param	pMatrix : CacheAsBitmap matrix (Scale will be ignored if non null)
+		 * @return this
+		 */
+		override public function flatten (pMatrixScale:Number = NaN, pMatrix:Matrix = null):SComponent
+		{
+			// Invalider la position
+			invalidatePosition();
+			
+			// Appliquer le cacheAsBitmap
+			_textField.cacheAsBitmap = true;
+			
+			// Si on a une matrice
+			if (pMatrix != null)
+			{
+				// On l'appliquer
+				_textField.cacheAsBitmapMatrix = pMatrix;
+			}
+			
+			// Sinon si on a un scale
+			else if (pMatrixScale > 0)
+			{
+				// On applique ce scale
+				_textField.cacheAsBitmapMatrix = new Matrix(pMatrixScale, 0, 0, pMatrixScale);
+			}
+			
+			// Méthode chaînable
+			return this;
+		}
+		
+		/**
+		 * Disable GPU Texture and reactive live component. (override for text)
+		 * @return this
+		 */
+		override public function unflatten ():SComponent
+		{
+			// Virer le cacheAsBitmap
+			_textField.cacheAsBitmap = false;
+			_textField.cacheAsBitmapMatrix = null;
+			
+			// Invalider la position
+			invalidatePosition();
+			
+			// Méthode chaînable
+			return this;
+		}
+		
+		/**
 		 * Bordure sur le texte (par défaut une bordure de debug)
 		 * @param	pBorder : Si on doit afficher la bordure
 		 * @param	pBorderColor : La couleur de la bordure à afficher

@@ -746,8 +746,9 @@ package fr.swapp.graphic.base
 		 * - AUTO_SCALE_RENDER
 		 * @param	pAtlasItem : AtlasItem to show. Set to null to disable Atlas rendering.
 		 * @param	pRenderMode : Render mode to use if AtlasItem is provided, not all available with atlas mode. Default is AUTO_SIZE.
+		 * @param	pAutoSetLimitSize : Automatically set min and max size to respect scale9-3 ratios.
 		 */
-		public function atlas (pAtlasItem:SAtlasItem, pRenderMode:String = "autoSize"):SGraphic
+		public function atlas (pAtlasItem:SAtlasItem, pRenderMode:String = "autoSize", pAutoSetLimitSize:Boolean = false):SGraphic
 		{
 			// Enregistrer l'item
 			_atlasItem = pAtlasItem;
@@ -766,7 +767,7 @@ package fr.swapp.graphic.base
 			if (_renderMode == SRenderMode.AUTO_SCALE_RENDER)
 			{
 				// On applique l'autoSlice
-				autoSlice();
+				autoSlice(pAutoSetLimitSize);
 			}
 			
 			// Méthode chaînable
@@ -856,9 +857,10 @@ package fr.swapp.graphic.base
 		 * Auto-slice current bitmapData.
 		 * RenderMode will be changed.
 		 * FrameOffset will be changed.
-		 * @param	pCutThreshold
+		 * @param	pAutoSetLimitSize : Automatically set min and max size to respect scale9-3 ratios.
+		 * @param	pCutThreshold : Limit color between black and white
 		 */
-		public function autoSlice (pCutThreshold:uint = 0x777777):void
+		public function autoSlice (pAutoSetLimitSize:Boolean = false, pCutThreshold:uint = 0x777777):void
 		{
 			// Vérifier si on a un bitmapData
 			if (_bitmapData == null)
@@ -968,45 +970,49 @@ package fr.swapp.graphic.base
 			
 			// Enregistrer le rectangle
 			_slices = new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
-			/*
-			// Définir les tailles min et max selon les slices et le mode de rendu
-			if (_renderMode == SRenderMode.HORIZONTAL_SCALE_3_RENDER)
+			
+			// Si on doit limiter la taille
+			if (pAutoSetLimitSize)
 			{
-				// Largeur et haute minimum
-				minSize(
-					(bitmapWidth - _slices.width) / _density + _frameOffset * 2,
-					bitmapHeight / _density - _frameOffset * 2
-				);
-				
-				// Hauteur maximum (largeur max inifine)
-				maxSize(
-					NaN,
-					_minHeight
-				);
+				// Définir les tailles min et max selon les slices et le mode de rendu
+				if (_renderMode == SRenderMode.HORIZONTAL_SCALE_3_RENDER)
+				{
+					// Largeur et haute minimum
+					minSize(
+						(bitmapWidth - _slices.width) / _density + _frameOffset * 2,
+						bitmapHeight / _density - _frameOffset * 2
+					);
+					
+					// Hauteur maximum (largeur max inifine)
+					maxSize(
+						NaN,
+						_minHeight
+					);
+				}
+				else if (_renderMode == SRenderMode.VERTICAL_SCALE_3_RENDER)
+				{
+					// Largeur et haute minimum
+					minSize(
+						bitmapWidth / _density - _frameOffset * 2,
+						(bitmapHeight - _slices.height) / _density + _frameOffset * 2
+					);
+					
+					// Largeur maximum (hauteur max inifine)
+					maxSize(
+						_minWidth,
+						NaN
+					);
+				}
+				else
+				{
+					// Largeur et haute minimum, largeur et hauteur maximum infinies
+					minSize(
+						(bitmapWidth - _slices.width) / _density + _frameOffset * 2,
+						(bitmapHeight - _slices.height) / _density + _frameOffset * 2
+					);
+				}
 			}
-			else if (_renderMode == SRenderMode.VERTICAL_SCALE_3_RENDER)
-			{
-				// Largeur et haute minimum
-				minSize(
-					bitmapWidth / _density - _frameOffset * 2,
-					(bitmapHeight - _slices.height) / _density + _frameOffset * 2
-				);
-				
-				// Largeur maximum (hauteur max inifine)
-				maxSize(
-					_minWidth,
-					NaN
-				);
-			}
-			else
-			{
-				// Largeur et haute minimum, largeur et hauteur maximum infinies
-				minSize(
-					(bitmapWidth - _slices.width) / _density + _frameOffset * 2,
-					(bitmapHeight - _slices.height) / _density + _frameOffset * 2
-				);
-			}
-			*/
+			
 			// Invalider le dessin
 			invalidateDraw();
 		}
@@ -1397,7 +1403,7 @@ package fr.swapp.graphic.base
 			var verticalScale	:Number	= 1;
 			
 			// Calculer le scale
-			if (_renderMode == SRenderMode.STRECH)
+			if (_atlasItem == null && _renderMode == SRenderMode.STRECH)
 			{
 				// Scaler au composant
 				horizontalScale = _localWidth / _bitmapData.width;
@@ -1465,8 +1471,16 @@ package fr.swapp.graphic.base
 				// Sinon on n'a pas de dépassement
 				_xDrawDecay = _yDrawDecay = 0;
 				
-				// Déplacer selon les offsets
-				_matrix.translate(_bitmapHorizontalOffset, _bitmapVerticalOffset);
+				if (_atlasItem != null && _renderMode == SRenderMode.STRECH)
+				{
+					// Déplacer selon les offsets
+					_matrix.translate(_bitmapHorizontalOffset * horizontalScale, _bitmapVerticalOffset * verticalScale);
+				}
+				else
+				{
+					// Déplacer selon les offsets
+					_matrix.translate(_bitmapHorizontalOffset, _bitmapVerticalOffset);
+				}
 			}
 		}
 		
