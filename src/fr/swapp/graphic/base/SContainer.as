@@ -68,7 +68,7 @@ package fr.swapp.graphic.base
 		
 		
 		/**
-		 * Initialiser le container des éléments
+		 * Initialize container
 		 */
 		protected function initContainer ():void
 		{
