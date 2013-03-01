@@ -27,7 +27,7 @@ package fr.swapp.graphic.base
 		/**
 		 * Events from Central (eventName in key, handler in value)
 		 */
-		protected var _events								:Object							= {};
+		protected var _events								:Object;
 		
 		
 		/**
@@ -111,8 +111,16 @@ package fr.swapp.graphic.base
 		 */
 		protected function setEvents (pEvents:Object):void
 		{
+			_events = (_events == null ? { } : _events);
+			
+			// Virer les anciens events
+			disposeEvents();
+			
 			// Enregistrer
 			ObjectUtils.extra(_events, pEvents);
+			
+			// Initialiser les nouveaux events
+			initEvents();
 		}
 		
 		/**

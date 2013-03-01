@@ -7,6 +7,7 @@ package fr.swapp.core.navigation
 	import fr.swapp.core.dependences.IDependencesManager;
 	import fr.swapp.core.mvc.IController;
 	import fr.swapp.core.mvc.IViewController;
+	import fr.swapp.core.roles.IDisposable;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -249,6 +250,9 @@ package fr.swapp.core.navigation
 				newController.container = _container;
 			}
 			
+			// Ecouter le dispose
+			(newController as IDisposable).onDisposed.add(viewControllerDisposedHandler);
+			
 			// Attendre que le nouveau soit démarré et 
 			newController.onTurnedOn.addOnce(unlock);
 			
@@ -266,6 +270,14 @@ package fr.swapp.core.navigation
 			
 			// Signaler le changement de controller
 			_onViewControllerChanged.dispatch(action, oldController, newController);
+		}
+		
+		/**
+		 * Un controller a été disposé
+		 */
+		protected function viewControllerDisposedHandler ():void
+		{
+			_currentViewController = null;
 		}
 		
 		/**

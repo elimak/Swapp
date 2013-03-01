@@ -332,20 +332,6 @@ package fr.swapp.touch.dispatcher
 			// Cibler l'id du touch
 			var touchId:int = event.touchPointID;
 			
-			// Si des draggables sont référencés sur ce point
-			if (touchId in _draggables)
-			{
-				// Les parcourir
-				for each (var touchDragDelegate:ITouchDragDelegate in _draggables[touchId])
-				{
-					// Dispatcher un unlock
-					touchDragDelegate.touchDragUnlock(_targets[touchId]);
-				}
-				
-				// Supprimer les delegates de ce point qui n'existe plus
-				delete _draggables[touchId];
-			}
-			
 			// Si des touchables sont référencés sur ce point
 			if (touchId in _touchables)
 			{
@@ -388,10 +374,24 @@ package fr.swapp.touch.dispatcher
 						// Virer des pressed
 						delete _pressedDelegates[touchTapDelegate];
 					}
+					
+					// Supprimer les delegates de ce point qui n'existe plus
+					delete _touchables[touchId];
+				}
+			}
+			
+			// Si des draggables sont référencés sur ce point
+			if (touchId in _draggables)
+			{
+				// Les parcourir
+				for each (var touchDragDelegate:ITouchDragDelegate in _draggables[touchId])
+				{
+					// Dispatcher un unlock
+					touchDragDelegate.touchDragUnlock(_targets[touchId]);
 				}
 				
 				// Supprimer les delegates de ce point qui n'existe plus
-				delete _touchables[touchId];
+				delete _draggables[touchId];
 			}
 			
 			

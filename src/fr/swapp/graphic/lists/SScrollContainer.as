@@ -24,17 +24,17 @@ package fr.swapp.graphic.lists
 		/**
 		 * Scroll inertia (delta multiplier)
 		 */
-		protected var _scrollInertia				:Number							= 10;
+		protected var _scrollInertia				:Number							= 12;
 		
 		/**
 		 * Scroll duration (in seconds)
 		 */
-		protected var _scrollDuration				:Number							= 1.1;
+		protected var _scrollDuration				:Number							= 0.9;
 		
 		/**
 		 * Scroll duration when content is out of bounds (in seconds)
 		 */
-		protected var _scrollOutDuration			:Number							= 0.6;
+		protected var _scrollOutDuration			:Number							= 0.5;
 		
 		/**
 		 * Easing effect for scrolling
@@ -54,17 +54,7 @@ package fr.swapp.graphic.lists
 		/**
 		 * Elements boundaries need to be refreshed
 		 */
-		protected var _elementsSizeBoundaries		:Boolean;
-		
-		/**
-		 * Width used by components
-		 */
-		protected var _widthBound					:Number							= 0;
-		
-		/**
-		 * Height used by components
-		 */
-		protected var _heightBound					:Number							= 0;
+		protected var _elementsBoundsInvalidated	:Boolean;
 		
 		/**
 		 * Last horizontal delta dragging
@@ -129,18 +119,29 @@ package fr.swapp.graphic.lists
 		public function get direction ():String { return _direction; }
 		public function set direction (value:String):void
 		{
-			_direction = value;
+			// Si la direction est différente
+			if (_direction != value)
+			{
+				// Enregistrer la nouvelle valeur
+				_direction = value;
+				
+				// A la verticale
+				if (_direction == VERTICAL_DIRECTION)
+				{
+					// Placer en largeur
+					_container.bottom = NaN;
+					_container.right = 0;
+				}
+				
+				// A l'horizontale
+				else if (_direction == HORIZONTAL_DIRECTION)
+				{
+					// Placer en hauteur
+					_container.right = NaN;
+					_container.bottom = 0;
+				}
+			}
 		}
-		
-		/**
-		 * Width used by components
-		 */
-		public function get widthBound ():Number { return _widthBound; }
-		
-		/**
-		 * Height used by components
-		 */
-		public function get heightBound ():Number { return _heightBound; }
 		
 		/**
 		 * If scrolling is enabled
@@ -167,11 +168,11 @@ package fr.swapp.graphic.lists
 		 */
 		public function SScrollContainer (pDirection:String = "vertical")
 		{
-			// Enregister la direction
-			_direction = pDirection;
-			
 			// Relayer
 			super();
+			
+			// Enregister la direction
+			direction = pDirection;
 		}
 		
 		
@@ -189,8 +190,9 @@ package fr.swapp.graphic.lists
 			// Le placer / nommer / ajouter
 			_container.into(this);
 			
-			// Masquer le container
-			_container.clipContent = true;
+			// Placer en haut à droite
+			_container.top = 0;
+			_container.left = 0;
 		}
 		
 		/**
@@ -199,7 +201,7 @@ package fr.swapp.graphic.lists
 		public function udpateScroll (pAnimationDuration:Number = NaN, pForceBoundariesCheck:Boolean = false):void
 		{
 			// Si on n'a pas de durée d'animation
-			if (!(pAnimationDuration >= 0 || pAnimation < 0))
+			if (!(pAnimationDuration >= 0 || pAnimationDuration < 0))
 			{
 				// On récupère celle de base
 				pAnimationDuration = _scrollDuration;
@@ -220,18 +222,18 @@ package fr.swapp.graphic.lists
 			if (_direction == HORIZONTAL_DIRECTION || _direction == BOTH_DIRECTIONS)
 			{
 				// Calculer et ajouter la propriété top
-				tweenProps.left = Math.max(_localWidth - _widthBound, Math.min(_container.left + _lastXDelta * _scrollInertia, 0));
+				tweenProps.left = Math.max(_localWidth - _container.width, Math.min(_container.left + _lastXDelta * _scrollInertia, 0));
 			}
 			
 			// Si on se déplace à la verticale
 			if (_direction == VERTICAL_DIRECTION || _direction == BOTH_DIRECTIONS)
 			{
 				// Calculer et ajouter la propriété left
-				tweenProps.top = Math.max(_localHeight - _heightBound, Math.min(_container.top + _lastYDelta * _scrollInertia, 0));
+				tweenProps.top = Math.max(_localHeight - _container.height, Math.min(_container.top + _lastYDelta * _scrollInertia, 0));
 			}
 			
 			// Animer selon l'objet des tweens
-			TweenMax.to(_fiche, pAnimationDuration, tweenProps);
+			TweenMax.to(_container, pAnimationDuration, tweenProps);
 		}
 		
 		/**
@@ -240,10 +242,10 @@ package fr.swapp.graphic.lists
 		protected function invalidateElementsBoundaries ():void
 		{
 			// Si ce n'est pas déjà invalidé
-			if (!_elementsSizeBoundaries)
+			if (!_elementsBoundsInvalidated)
 			{
 				// Enregistrer l'état
-				_elementsSizeBoundaries = true;
+				_elementsBoundsInvalidated = true;
 			}
 		}
 		
@@ -264,8 +266,12 @@ package fr.swapp.graphic.lists
 			// Relayer
 			super.renderPhase();
 			
-			// Enregistrer
-			getElementsBoundaries();
+			// Si les limite du contenu a été invalidé
+			if (_elementsBoundsInvalidated)
+			{
+				// Enregistrer
+				getElementsBoundaries();
+			}
 		}
 		
 		/**
@@ -273,9 +279,8 @@ package fr.swapp.graphic.lists
 		 */
 		protected function getElementsBoundaries ():void
 		{
-			// Remettre les dimensions à 0
-			_widthBound = 0;
-			_heightBound = 0;
+			// Remettre à 0
+			_container.height = _container.width = 0;
 			
 			// Parcourir les éléments
 			for each (var element:SComponent in _elements)
@@ -284,14 +289,14 @@ package fr.swapp.graphic.lists
 				if (_direction == HORIZONTAL_DIRECTION || _direction == BOTH_DIRECTIONS)
 				{
 					// Récupérer la position de l'élément et garder que le plus grand
-					_widthBound = Math.max(element.x + element.width);
+					_container.width = Math.max(_container.width, element.x + element.width);
 				}
 				
 				// La limite verticale
 				if (_direction == VERTICAL_DIRECTION || _direction == BOTH_DIRECTIONS)
 				{
 					// Récupérer la position de l'élément et garder que le plus grand
-					_heightBound = Math.max(element.y + element.height);
+					_container.height = Math.max(_container.height, element.y + element.height);
 				}
 			}
 		}
@@ -327,17 +332,15 @@ package fr.swapp.graphic.lists
 			
 			// Si on se déplace à l'horizontale
 			if (
-				// Si ce container est déplaçable sur l'axe horizontal
-				(_direction == HORIZONTAL_DIRECTION || _direction == BOTH_DIRECTIONS)
-				&&
-				// Et si la direction du touch le permet
-				(pDirection == TouchDirections.HORIZONTAL_DIRECTION || pDirection == TouchDirections.UNKNOW_DIRECTION || !_dragLockDirection)
+					// Si ce container est déplaçable sur l'axe horizontal
+					(_direction == HORIZONTAL_DIRECTION || _direction == BOTH_DIRECTIONS)
+					&&
+					// Et si la direction du touch le permet
+					(pDirection == TouchDirections.HORIZONTAL_DIRECTION || pDirection == TouchDirections.UNKNOW_DIRECTION || !_dragLockDirection)
+				)
 			{
-				// Enregistrer les derniers deltas
-				_lastXDelta = pXDelta;
-				
 				// Si l'utilisateur dépasse
-				if (_container.left > 0 || _container.left < _localWidth - _widthBound)
+				if (_container.left > 0 || _container.left < _localWidth - _container.width)
 				{
 					// Si notre multiplicateur est positif
 					if (_scrollOutMultiplier > 0)
@@ -351,9 +354,17 @@ package fr.swapp.graphic.lists
 					else
 					{
 						// Limiter la position
-						_container.left = Math.max(_localWidth - _widthBound, Math.min(_container.left, 0));
+						_container.left = Math.max(_localWidth - _container.width, Math.min(_container.left, 0));
 					}
 				}
+				else
+				{
+					// Actualiser la position
+					_container.left += pXDelta;
+				}
+				
+				// Enregistrer les derniers deltas
+				_lastXDelta = pXDelta;
 				
 				// Ne pas autoriser
 				allowDragForChildren = false;
@@ -368,11 +379,8 @@ package fr.swapp.graphic.lists
 					(pDirection == TouchDirections.VERTICAL_DIRECTION || pDirection == TouchDirections.UNKNOW_DIRECTION || !_dragLockDirection)
 				)
 			{
-				// Enregistrer les derniers deltas
-				_lastYDelta = pYDelta;
-				
 				// Si l'utilisateur dépasse
-				if (_container.top > 0 || _container.top < _localHeight - _heightBound)
+				if (_container.top > 0 || _container.top < _localHeight - _container.height)
 				{
 					// Si notre multiplicateur est positif
 					if (_scrollOutMultiplier > 0)
@@ -386,9 +394,17 @@ package fr.swapp.graphic.lists
 					else
 					{
 						// Limiter la position
-						_container.top = Math.max(_localHeight - _heightBound, Math.min(_container.top, 0));
+						_container.top = Math.max(_localHeight - _container.height, Math.min(_container.top, 0));
 					}
 				}
+				else
+				{
+					// Actualiser la position
+					_container.top += pYDelta;
+				}
+				
+				// Enregistrer les derniers deltas
+				_lastYDelta = pYDelta;
 				
 				// Ne pas autoriser
 				allowDragForChildren = false;

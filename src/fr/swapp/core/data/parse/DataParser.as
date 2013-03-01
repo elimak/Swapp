@@ -3,6 +3,7 @@
 	/**
 	 * Les imports
 	 */
+	import flash.events.OutputProgressEvent;
 	import fr.swapp.core.data.collect.IDataCollection;
 	import fr.swapp.core.data.items.IDataItem;
 	import fr.swapp.core.data.parse.IDataParser;
@@ -285,13 +286,42 @@
 					// Retourner la liste
 					return listOut;
 				}
+				
+				// Si c'est un tableau
+				else if (pClass == Array)
+				{
+					// S'il y a plusieurs éléments
+					if (pData.hasComplexContent())
+					{
+						// Créer le tableau
+						out = [];
+						
+						// Récupérer la liste des enfants
+						var children:XMLList = pData.children();
+						
+						// Parcourir cette liste
+						for each (var child:XML in children)
+						{
+							// Ajouter chaque child
+							out.push(child.toString());
+						}
+					}
+					else
+					{
+						// Splitter sur les virgules
+						out = pData.toString().split(",");
+					}
+					
+					// Retourner le tableau de sortie
+					return out;
+				}
 				else
 				{
 					// Créer l'objet mappé
 					out = new pClass () as IDataItem;
 					
 					// Les adapteurs
-					parseAdapters = { };
+					parseAdapters = {};
 					
 					// Parcourir la liste des items
 					for (iItem in _items)
