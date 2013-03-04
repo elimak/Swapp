@@ -84,7 +84,7 @@ package fr.swapp.graphic.lists
 		override protected function mouseWheelHandler (event:MouseEvent):void
 		{
 			// Si la molette est autorisée
-			if (_mouseWheelEnabled)
+			if (_mouseWheelEnabled && _allowScroll)
 			{
 				// On applique la vélocité
 				_velocity -= event.delta * 4;
@@ -96,6 +96,9 @@ package fr.swapp.graphic.lists
 		 */
 		override public function touchDragLock (pTarget:DisplayObject):void
 		{
+			if (!_allowScroll)
+				return;
+			
 			// Si la liste est en mouvement
 			if (_velocity != 0)
 			{
@@ -120,6 +123,9 @@ package fr.swapp.graphic.lists
 		 */
 		override public function touchDragUnlock (pTarget:DisplayObject):void
 		{
+			if (!_allowScroll)
+				return;
+			
 			// Le drag est dévérouillé
 			_dragLocked = false;
 		}
@@ -129,6 +135,9 @@ package fr.swapp.graphic.lists
 		 */
 		override public function touchDragging (pTarget:DisplayObject, pDirection:String, pXDelta:Number, pYDelta:Number):Boolean
 		{
+			if (!_allowScroll)
+				return false;
+			
 			// Vérifier la direction du drag
 			if (
 					pDirection == _dragDirection

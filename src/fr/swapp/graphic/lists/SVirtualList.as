@@ -198,6 +198,11 @@ package fr.swapp.graphic.lists
 		 */
 		protected var _elementsPositionInvalidated	:Boolean					= true;
 		
+		/**
+		 * Si le scroll est autorisé
+		 */
+		protected var _allowScroll					:Boolean					= true;
+		
 		
 		/**
 		 * Lorsque la liste a été déplacée (par l'utilisateur ou le code)
@@ -360,6 +365,15 @@ package fr.swapp.graphic.lists
 				// Invalider la liste
 				invalidateList();
 			}
+		}
+		
+		/**
+		 * Si le scroll est autorisé
+		 */
+		public function get allowScroll ():Boolean { return _allowScroll; }
+		public function set allowScroll (value:Boolean):void
+		{
+			_allowScroll = value;
 		}
 		
 		

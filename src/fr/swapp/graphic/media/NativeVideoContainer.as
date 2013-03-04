@@ -1,4 +1,4 @@
-package fr.swapp.graphic.components.medias 
+package fr.swapp.graphic.media 
 {
 	import flash.events.Event;
 	

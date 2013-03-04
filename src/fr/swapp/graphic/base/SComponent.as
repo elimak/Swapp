@@ -897,7 +897,7 @@ package fr.swapp.graphic.base
 			_onVisibilityChanged = null;
 			
 			// On n'écoute plus le parent
-			if (_watchedParent != null && _watchedParent.onResized != null)
+			if (_watchedParent != null && _watchedParent.onDisposed != null)
 			{
 				_watchedParent.onResized.remove(parentResizedHandler);
 				_watchedParent.onReplaced.remove(parentReplacedHandler);

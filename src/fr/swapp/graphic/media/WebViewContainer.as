@@ -1,4 +1,4 @@
-package fr.swapp.graphic.components.medias 
+package fr.swapp.graphic.media 
 {
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -12,7 +12,7 @@ package fr.swapp.graphic.components.medias
 	import flash.media.StageWebView;
 	import fr.swapp.core.log.Log;
 	import fr.swapp.core.roles.IReadyable;
-	import fr.swapp.graphic.base.ResizableComponent;
+	import fr.swapp.graphic.base.SComponent;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -20,7 +20,7 @@ package fr.swapp.graphic.components.medias
 	 * ...
 	 * @author ZoulouX
 	 */
-	public class WebViewContainer extends ResizableComponent implements IReadyable
+	public class WebViewContainer extends SComponent implements IReadyable
 	{
 		/**
 		 * Le StageWebView
@@ -330,15 +330,19 @@ package fr.swapp.graphic.components.medias
 		 */
 		override public function init ():void
 		{
-			// Construire la webview
-			buildStageWebView();
-			
-			// Charger la structure
-			if (_useInternalStructure)
-				updateStructure();
-			
-			// Ecouter lorsque le stage change de taille
-			stage.addEventListener(Event.RESIZE, stageResizedHandler);
+			// Eviter le double init
+			if (_stageWebView == null)
+			{
+				// Construire la webview
+				buildStageWebView();
+				
+				// Charger la structure
+				if (_useInternalStructure)
+					updateStructure();
+				
+				// Ecouter lorsque le stage change de taille
+				stage.addEventListener(Event.RESIZE, stageResizedHandler);
+			}
 		}
 		
 		/**
@@ -355,6 +359,8 @@ package fr.swapp.graphic.components.medias
 		 */
 		public function updateStructure ():void
 		{
+			trace("UPDATE STRUCTURE", compileHTML().length);
+			
 			// Charger la structure
 			_stageWebView.loadString(compileHTML());
 		}
@@ -485,18 +491,6 @@ package fr.swapp.graphic.components.medias
 		 */
 		override protected function replaced ():void
 		{
-			// Replacer la webview
-			needReplace();
-		}
-		
-		/**
-		 * Besoin de rafraichir la position
-		 */
-		override protected function needReplace ():void 
-		{
-			// Relayer
-			super.needReplace();
-			
 			// Réappliquer au stageWebView
 			refreshPosition();
 			
@@ -543,10 +537,10 @@ package fr.swapp.graphic.components.medias
 		public function refreshPosition ():void 
 		{
 			// Si on a un stageWebView
-			if (_stageWebView != null && _localWidth > 0 && _localHeight > 0 && wrapper != null)
+			if (_stageWebView != null && _localWidth > 0 && _localHeight > 0 && _wrapper != null)
 			{
 				// Récupérer le ratio du stage
-				var ratio:Number = wrapper.ratio;
+				var ratio:Number = _wrapper.ratio;
 				
 				// Si cette webview est visible
 				if (super.visible && !_rasterize && _ready)
