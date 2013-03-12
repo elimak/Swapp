@@ -159,10 +159,6 @@ package fr.swapp.graphic.base
 				_stage.scaleMode = StageScaleMode.NO_SCALE;
 				_stage.align = StageAlign.TOP_LEFT;
 				
-				// Passer en basse qualité
-				_stage.quality = StageQuality.MEDIUM;
-				//_stage.quality = StageQuality.LOW;
-				
 				// Créer la racine
 				_root = new SComponent();
 				
@@ -232,6 +228,7 @@ package fr.swapp.graphic.base
 		
 		/**
 		 * Initialize DPI wrapper (only if autoSize is true at construction)
+		 * And set quality from devices type.
 		 */
 		protected function initDPIWrapper ():void
 		{
@@ -246,6 +243,18 @@ package fr.swapp.graphic.base
 				
 				// Appliquer le ratio
 				_root.scaleX = _root.scaleY = _ratio;
+			}
+			
+			// Configurer la qualité
+			if (EnvUtils.getInstance().isiOSSpecificDevice(EnvUtils.IPAD_1_DEVICE))
+			{
+				// Passer en basse qualité sur iPad 1
+				_stage.quality = StageQuality.LOW;
+			}
+			else
+			{
+				// Sinon qualité moyenne
+				_stage.quality = StageQuality.MEDIUM;
 			}
 		}
 		

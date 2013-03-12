@@ -144,12 +144,12 @@ public class Stats extends Sprite
 	 * @param	isMonitoring	flag to start monitoring frame execution time. (will not monitor by default.)
 	 * @param	scale			simplified scaling of stat object.
 	 */
-	public function Stats (width:int = 70, x:int = 0, y:int = 0, isMinimized:Boolean = true, isDraggable:Boolean = true, isMonitoring:Boolean = false):void {
+	public function Stats (width:int = 70, x:int = 0, y:int = 0, isMinimized:Boolean = true, pIsDraggable:Boolean = true, isMonitoring:Boolean = false):void {
 		//
-		this._isDraggable = isDraggable;
+		_isDraggable = pIsDraggable;
 		this._isMonitoring = isMonitoring;
 		this._isMinimized = isMinimized;
-
+		
 		// calculate increased width.
 		bonusWidth = width - DEFAULT_WIDTH;
 
@@ -220,7 +220,7 @@ public class Stats extends Sprite
 		addEventListener(Event.ENTER_FRAME, handleFrameTick);
 
 		// init draging feature by using setter. 
-		isDraggable = _isDraggable;
+		internalSetDraggable();
 
 		// draw bg and graph
 		initDrawArea();
@@ -537,22 +537,27 @@ public class Stats extends Sprite
 	 * flag for stats beeing dragable or not.
 	 */
 	public function set isDraggable(value:Boolean):void {
-		_isDraggable = value;
+		if (_isDraggable != value)
+		{
+			_isDraggable = value;
+			internalSetDraggable();
+		}
+	}
+	
+	protected function internalSetDraggable ():void
+	{
 		if (_isDraggable) {
+			
 			if (stage) {
-				if (!stage.hasEventListener(MouseEvent.MOUSE_UP)) {
-					stage.addEventListener(MouseEvent.MOUSE_UP, handleMouseUp);
-					stage.addEventListener(Event.MOUSE_LEAVE, mouseLeaveHandler);
-					addEventListener(MouseEvent.MOUSE_DOWN, handleMouseDown);
-				}
+				stage.addEventListener(MouseEvent.MOUSE_UP, handleMouseUp);
+				stage.addEventListener(Event.MOUSE_LEAVE, mouseLeaveHandler);
+				addEventListener(MouseEvent.MOUSE_DOWN, handleMouseDown);
 			}
 		} else {
 			if (stage) {
-				if (stage.hasEventListener(MouseEvent.MOUSE_UP)) {
-					stage.removeEventListener(MouseEvent.MOUSE_UP, handleMouseUp);
-					stage.removeEventListener(Event.MOUSE_LEAVE, mouseLeaveHandler);
-					removeEventListener(MouseEvent.MOUSE_DOWN, handleMouseDown);
-				}
+				stage.removeEventListener(MouseEvent.MOUSE_UP, handleMouseUp);
+				stage.removeEventListener(Event.MOUSE_LEAVE, mouseLeaveHandler);
+				removeEventListener(MouseEvent.MOUSE_DOWN, handleMouseDown);
 			}
 		}
 	}
