@@ -7,6 +7,99 @@
 	public class DateUtils
 	{
 		/**
+		 * Available languages
+		 */
+		public static const FR					:String				= "FR";
+		public static const EN					:String				= "EN";
+		
+		/**
+		 * Days names, starting with "Sunday" (can be overrided without using setLangCode)
+		 */
+		public static var DAYS_NAMES			:Vector.<String>;
+		
+		/**
+		 * Months names (can be overrided without using setLangCode)
+		 */
+		public static var MONTHS_NAMES			:Vector.<String>;
+		
+		/**
+		 * Current used language (can be overrided without using setLangCode)
+		 */
+		public static var currentLang			:String;
+		
+		
+		/**
+		 * Set the lang code to use.
+		 */
+		public static function setLangCode (pLangCode:String):void
+		{
+			// Si c'est différent
+			if (currentLang != pLangCode)
+			{
+				if (pLangCode == FR)
+				{
+					DAYS_NAMES = Vector.<String>([
+						"Dimanche",
+						"Lundi",
+						"Mardi",
+						"Mercredi",
+						"Jeudi",
+						"Vendredi",
+						"Samedi"
+					]);
+					MONTHS_NAMES = Vector.<String>([
+						"Janvier",
+						"Février",
+						"Mars",
+						"Avril",
+						"Mai",
+						"Juin",
+						"Juiller",
+						"Août",
+						"Septembre",
+						"Octobre",
+						"Novembre",
+						"Décembre"
+					]);
+				}
+				else if (pLangCode == EN)
+				{
+					DAYS_NAMES = Vector.<String>([
+						"Sunday",
+						"Monday",
+						"Tuesday",
+						"Wednesday",
+						"Thursday",
+						"Friday",
+						"Saturday"
+					]);
+					MONTHS_NAMES = Vector.<String>([
+						"Janary",
+						"February",
+						"March",
+						"April",
+						"May",
+						"June",
+						"July",
+						"August",
+						"September",
+						"October",
+						"November",
+						"December"
+					]);
+				}
+				else
+				{
+					throw new SwappUtilsError("DateUtils.setLangCode", "Unable to find language code " + pLangCode);
+					return;
+				}
+				
+				// Enregistrer
+				currentLang = pLangCode;
+			}
+		}
+		
+		/**
 		 * Compter le temps entre 2 dates.
 		 * Opération effectuée : dateA - dateB
 		 * @param	pDateA : La première date de la soustraction

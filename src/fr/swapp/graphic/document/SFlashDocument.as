@@ -14,6 +14,7 @@ package fr.swapp.graphic.document
 	import fr.swapp.touch.dispatcher.TouchDispatcher;
 	import fr.swapp.touch.emulator.MouseToTouchEmulator;
 	import fr.swapp.utils.EnvUtils;
+	import fr.swapp.utils.TimerUtils;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -169,8 +170,18 @@ package fr.swapp.graphic.document
 		 * Setup AppViewController and start AppViewController.
 		 * SWrapper will be used if initialised. Else, stage will be provided.
 		 */
-		protected function setupAppViewController (pAppViewControllerClass:Class, pDefaultAction:IAction = null):void
+		protected function setupAppViewController (pAppViewControllerClass:Class, pDefaultAction:IAction = null, pWaitOnSimulator:Boolean = true):void
 		{
+			// Si on est dans le simulateur et qu'on doit attendre
+			if (EnvUtils.getInstance().isPlatformType(EnvUtils.WIN_PLATFORM) && pWaitOnSimulator)
+			{
+				// On attend avant de lancer l'appli pour avoir les bonnes dimensions
+				TimerUtils.wait(this, 1, false, setupAppViewController, [pAppViewControllerClass, pDefaultAction, false]);
+				
+				// Ne pas aller plus loin
+				return;
+			}
+			
 			// Créer l'AppController
 			_appViewController = new pAppViewControllerClass();
 			

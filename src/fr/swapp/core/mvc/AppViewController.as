@@ -29,6 +29,7 @@ package fr.swapp.core.mvc
 			
 		}
 		
+		
 		/**
 		 * Initialize
 		 */
