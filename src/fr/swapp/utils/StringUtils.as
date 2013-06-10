@@ -774,6 +774,14 @@
 			return numStr;
 		}
 		
+		public static function slugify (pSource:String):String
+		{
+			const pattern1:RegExp = /[^\w- ]/g;
+			const pattern2:RegExp = / +/g;
+			var s:String = pSource;
+			return s.replace(pattern1, "").replace(pattern2, "-").toLowerCase();
+		}
+		
 		/* **************************************************************** */
 		/*	These are helper methods used by some of the above methods.		*/
 		/* **************************************************************** */

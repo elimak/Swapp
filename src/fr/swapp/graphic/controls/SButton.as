@@ -28,7 +28,7 @@ package fr.swapp.graphic.controls
 		/**
 		 * When user tap the button
 		 */
-		protected var _onTap				:Signal					= new Signal(SButton);
+		protected var _onTap					:Signal					= new Signal(SButton);
 		
 		/**
 		 * Button interaction mode (see statics)
@@ -92,6 +92,10 @@ package fr.swapp.graphic.controls
 			
 			// Désactiver l'interaction sur les childs
 			mouseChildren = false;
+			
+			// Utiliser le curseur main
+			useHandCursor = true;
+			buttonMode = true;
 			
 			// Initialiser les handlers
 			initHandlers();
@@ -198,9 +202,20 @@ package fr.swapp.graphic.controls
 				)
 			)
 			{
+				// Avant le tap
+				beforeTap();
+				
 				// On dispatch le tap
 				_onTap.dispatch(this);
 			}
+		}
+		
+		/**
+		 * Before tap is dispatched
+		 */
+		protected function beforeTap ():void
+		{
+			
 		}
 		
 		/**
@@ -321,6 +336,10 @@ package fr.swapp.graphic.controls
 				removeEventListener(MouseEvent.MOUSE_DOWN, mouseHandlers);
 				removeEventListener(MouseEvent.CLICK, mouseHandlers);
 			}
+			
+			// ATTENTION BUG
+			// Repasser le focus sur le stage à cause du buttonMode = true
+			stage.focus = stage;
 			
 			// Relayer
 			super.dispose();

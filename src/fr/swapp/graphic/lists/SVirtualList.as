@@ -552,7 +552,7 @@ package fr.swapp.graphic.lists
 		/**
 		 * Actualiser la liste
 		 */
-		protected function updateList ():void
+		public function updateList ():void
 		{
 			//trace("UDPATE LIST");
 			

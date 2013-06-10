@@ -6,7 +6,7 @@ package fr.swapp.graphic.lists
 	import flash.display.DisplayObject;
 	import flash.geom.Point;
 	import fr.swapp.graphic.base.SComponent;
-	import fr.swapp.touch.emulator.TouchEmulator;
+	import fr.swapp.touch.dispatcher.TouchDirections;
 	import org.osflash.signals.Signal;
 	
 	/**
@@ -32,7 +32,7 @@ package fr.swapp.graphic.lists
 		/**
 		 * Le taux de modification de durée de l'animation par rapport à la vélocity (0 pour ne pas prendre en compte la vélocité)
 		 */
-		protected var _velocityAnimationBreak				:Number					= .006;
+		protected var _velocityAnimationBreak				:Number					= .004;
 		
 		/**
 		 * La vélocité minimum pour changer de cran sans être à la moitié du déplacement
@@ -188,13 +188,13 @@ package fr.swapp.graphic.lists
 		/**
 		 * Déplacement
 		 */
-		override public function touchDragging (pTarget:DisplayObject, pDirection:String, pXDelta:Number, pYDelta:Number, pPoints:Vector.<Point>):Boolean
+		override public function touchDragging (pTarget:DisplayObject, pDirection:String, pXDelta:Number, pYDelta:Number):Boolean
 		{
 			// Vérifier la direction du drag
 			if (
 					pDirection == _dragDirection
 					||
-					(pDirection == TouchEmulator.UNKNOW_DIRECTION && _dragAllowUnknownDirection)
+					(pDirection == TouchDirections.UNKNOW_DIRECTION && _dragAllowUnknownDirection)
 					||
 					_dragAllowOppositeDirection
 				)
@@ -239,9 +239,12 @@ package fr.swapp.graphic.lists
 		/**
 		 * Actualiser la liste
 		 */
-		override protected function updateList ():void
+		override public function updateList ():void
 		{
 			//trace("UDPATE LIST");
+			
+			// Récupérer les valeurs du delegate
+			getDelegateValues();
 			
 			// Construire les nouveaux éléments dont on a besoin pour remplir la liste
 			buildElements();
@@ -259,9 +262,9 @@ package fr.swapp.graphic.lists
 			if (_delegate != null)
 			{
 				// On récupérer les index et la taille moyenne
-				_firstElementIndex 	= _delegate.getVListFirstElementIndex(this);
-				_lastElementIndex 	= _delegate.getVListLastElementIndex(this);
-				_typicalElementSize = _delegate.getVListTipicalElementSize(this);
+				_firstElementIndex 	= _delegate.getFirstVirtualIndex(this);
+				_lastElementIndex 	= _delegate.getLastVirtualIndex(this);
+				_typicalElementSize = _delegate.getVirtualTipicalElementSize(this);
 				
 				// Si la taille typique est de 0, on prend la largeur
 				if (_typicalElementSize <= 0)
@@ -295,7 +298,7 @@ package fr.swapp.graphic.lists
 				}
 				
 				// Calculer le décallage par rapport à la moitié
-				var offset:Number = this[_contentSizeVar] / 2 - _typicalElementSize / 2;
+				var halfOffset:Number = this[_contentSizeVar] / 2 - _typicalElementSize / 2;
 				
 				// La destination
 				var destination:Number;
@@ -310,7 +313,7 @@ package fr.swapp.graphic.lists
 					if (pImmediate)
 					{
 						// On calle par rapport à l'index
-						destination = - _selectedIndex * _typicalElementSize + offset;
+						destination = - _selectedIndex * _typicalElementSize + halfOffset;
 					}
 					else
 					{
@@ -328,20 +331,20 @@ package fr.swapp.graphic.lists
 						}
 						
 						// Calculer la position la plus proche
-						destination = Math.round((_container[_positionVar] - offset + (velocityDecay)) / _typicalElementSize) * _typicalElementSize + offset;
+						destination = Math.round((_container[_positionVar] - halfOffset + (velocityDecay)) / _typicalElementSize) * _typicalElementSize + halfOffset;
 					}
 					
 					// Limiter aux positions min et max
 					destination = Math.max(
-						- _lastElementIndex * _typicalElementSize + offset,
+						- _lastElementIndex * _typicalElementSize + halfOffset,
 						Math.min(
 							destination,
-							- _firstElementIndex * _typicalElementSize + offset
+							- _firstElementIndex * _typicalElementSize + halfOffset
 						)
 					);
 					
 					// Récupérer le nouvel index
-					var newIndex:int = ( - destination + offset) / _typicalElementSize;
+					var newIndex:int = ( - destination + halfOffset) / _typicalElementSize;
 					
 					// Si l'index est différent
 					if (_selectedIndex != newIndex)
@@ -374,9 +377,9 @@ package fr.swapp.graphic.lists
 				
 				// Vérifier que ça dépasse
 				else if (
-							_container[_positionVar] < - _lastElementIndex * _typicalElementSize + offset
+							_container[_positionVar] < - _lastElementIndex * _typicalElementSize + halfOffset
 							||
-							_container[_positionVar] > - _firstElementIndex * _typicalElementSize + offset
+							_container[_positionVar] > - _firstElementIndex * _typicalElementSize + halfOffset
 						)
 				{
 					// Limiter la vélocité
@@ -410,6 +413,50 @@ package fr.swapp.graphic.lists
 				selectedIndex = pPositionInformations[0];
 			}
 		}
+		
+		/**
+		 * Aller à un index avec une animation
+		 */
+		public function gotoIndex (pIndex:int):void
+		{
+			// Annuler la vélocité
+			_velocity = 0;
+			
+			// Calculer le décallage par rapport à la moitié
+			var halfOffset:Number = this[_contentSizeVar] / 2 - _typicalElementSize / 2;
+			
+			// On calle par rapport à l'index demandé
+			var destination:Number = - pIndex * _typicalElementSize + halfOffset;
+			
+			// Limiter aux positions min et max
+			destination = Math.max(
+				- _lastElementIndex * _typicalElementSize + halfOffset,
+				Math.min(
+					destination,
+					- _firstElementIndex * _typicalElementSize + halfOffset
+				)
+			);
+			
+			// Récupérer le nouvel index
+			var newIndex:int = ( - destination + halfOffset) / _typicalElementSize;
+			
+			// Si l'index est différent
+			if (_selectedIndex != newIndex)
+			{
+				// Enregistrer le nouvel index
+				_selectedIndex = newIndex;
+				
+				// Signaler
+				_onIndexChange.dispatch();
+			}
+			
+			// Appliquer l'animation
+			_currentScrollTween = TweenMax.to(this, _animationDuration * 1.2, {
+				ease: Strong.easeInOut,
+				currentScroll: destination
+			});
+		}
+		
 		
 		/**
 		 * Destruction

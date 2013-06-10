@@ -1,6 +1,7 @@
 package fr.swapp.graphic.styles 
 {
 	import fr.swapp.utils.ObjectUtils;
+	
 	/**
 	 * ...
 	 * @author ZoulouX
@@ -37,7 +38,7 @@ package fr.swapp.graphic.styles
 		 */
 		protected function appendData (pData:Object):void
 		{
-			ObjectUtils.extra(_styleData, pData);
+			ObjectUtils.extra(_styleData, pData, true, true);
 		}
 	}
 }

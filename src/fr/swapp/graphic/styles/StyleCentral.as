@@ -1,5 +1,7 @@
 package fr.swapp.graphic.styles
 {
+	import flash.display.DisplayObject;
+	import flash.display.DisplayObjectContainer;
 	import flash.utils.getQualifiedClassName;
 	import fr.swapp.core.log.Log;
 	import fr.swapp.core.roles.IDisposable;
@@ -361,11 +363,20 @@ package fr.swapp.graphic.styles
 				// La valeur
 				var value:*;
 				
+				// Si on a trouvé
+				var found:Boolean;
+				
+				// La cible si on passe par un nom de displayObject
+				var displayTarget:DisplayObject;
+				
 				// Parcourir les propriétés de l'objet style
 				for (var property:String in pStyle)
 				{
 					// Cibler la valeur
 					value = pStyle[property];
+					
+					// On n'a pas encode trouvé
+					found = false;
 					
 					// Si la propriété existe bien sur cet objet
 					if (property in pTarget)
@@ -389,8 +400,30 @@ package fr.swapp.graphic.styles
 						{
 							pTarget[property] = value;
 						}
+						
+						// On a trouvé
+						found = true;
 					}
-					else
+					
+					// Sinon si c'est un child de la displayList
+					else if (pTarget is DisplayObjectContainer && getQualifiedClassName(value) == "Object")
+					{
+						// Cibler le child
+						displayTarget = (pTarget as DisplayObjectContainer).getChildByName(property);
+						
+						// Si on a trouvé le child
+						if (displayTarget != null)
+						{
+							// Alors on injecte en récursif
+							injectStyle(displayTarget, value);
+							
+							// On a trouvé
+							found = true;
+						}
+					}
+					
+					// Si on n'a pas trouvé
+					if (!found)
 					{
 						Log.warning("Property \"" + property + "\" not found when applying style \"" + (pTarget is IStylable ? pTarget.styleName : "unknow") + "\" in \"" + pTarget + "\"");
 					}

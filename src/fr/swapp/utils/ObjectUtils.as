@@ -18,7 +18,7 @@
 		 * @param	pExtra : L'objet qui contient les données
 		 * @return : l'objet source agrémenté des propriétés de extra
 		 */
-		public static function extra (pSource:Object, pExtra:Object, pOverride:Boolean = true):Object
+		public static function extra (pSource:Object, pExtra:Object, pOverride:Boolean = true, pRecursive:Boolean = false):Object
 		{
 			// Déclarer la source null
 			if (pSource == null)
@@ -33,7 +33,19 @@
 			{
 				// Ajouter la propriété dans source
 				if (pOverride || !(i in pSource) || pSource[i] == null || pSource[i] is Number)
-					pSource[i] = pExtra[i];
+				{
+					// Si on n'est pas récursif ou pas sur un objet
+					if (!pRecursive || typeof(pSource[i]) != "object")
+					{
+						// On ajoute
+						pSource[i] = pExtra[i];
+					}
+					else
+					{
+						// Sinon on étend en récursif
+						pSource[i] = extra(pSource[i], pExtra[i], pOverride, true);
+					}
+				}
 			}
 			
 			// Retourner source

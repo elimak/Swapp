@@ -1,5 +1,6 @@
 package fr.swapp.graphic.media
 {
+	import flash.events.Event;
 	import flash.events.NetStatusEvent;
 	import flash.events.StageVideoAvailabilityEvent;
 	import flash.events.StageVideoEvent;
@@ -50,6 +51,11 @@ package fr.swapp.graphic.media
 		 * When video is enough loaded to play
 		 */
 		protected var _onLoaded					:Signal						= new Signal();
+		
+		/**
+		 * When video loading fail
+		 */
+		protected var _onLoadError				:Signal						= new Signal();
 		
 		/**
 		 * If StageVideo is available
@@ -121,6 +127,11 @@ package fr.swapp.graphic.media
 		 * When video can be played
 		 */
 		public function get onLoaded ():ISignal { return _onLoaded; }
+		
+		/**
+		 * When video loading fail
+		 */
+		public function get onLoadError ():Signal { return _onLoadError; }
 		
 		/**
 		 * If StageVideo is available
@@ -348,6 +359,11 @@ package fr.swapp.graphic.media
 				// Signaler la fin
 				_onVideoEnded.dispatch();
 			}
+			else if (event.info.code == "NetStream.Play.Failed" || event.info.code == "NetStream.Failed" || event.info.code == "NetStream.Play.StreamNotFound")
+			{
+				// Signaler l'erreur
+				_onLoadError.dispatch(event.info.code);
+			}
 		}
 		
 		/**
@@ -415,7 +431,7 @@ package fr.swapp.graphic.media
 				computedVideoX = _localWidth / 2 - computedVideoWidth / 2;
 				computedVideoY = _localHeight / 2 - computedVideoHeight / 2;
 				
-				trace("VIDEO SIZE", computedVideoX, computedVideoY, computedVideoWidth, computedVideoHeight);
+				trace("VIDEO SIZE", _localWidth, _localHeight, computedVideoX, computedVideoY, computedVideoWidth, computedVideoHeight);
 				
 				// Si on a un StageVideo
 				if (_stageVideoComponent != null)
@@ -498,9 +514,11 @@ package fr.swapp.graphic.media
 			// Virer les signaux
 			_onLoaded.removeAll();
 			_onVideoEnded.removeAll();
+			_onLoadError.removeAll();
 			
 			_onLoaded = null;
 			_onVideoEnded = null;
+			_onLoadError = null;
 			
 			// Relayer
 			super.dispose();

@@ -508,7 +508,7 @@ package fr.swapp.graphic.base
 		{
 			// Si la valeur est différente
 			// Et si la valeur est réelle
-			if (value != _horizontalOffset && (value >= 0 || value < 0))
+			if (value != _horizontalOffset && (value >= 0 || value < 0) && _onReplaced != null)
 			{
 				// Enregistrer la nouvelle valeur
 				_horizontalOffset = value;
@@ -532,7 +532,7 @@ package fr.swapp.graphic.base
 		{
 			// Si la valeur est différente
 			// Et si la valeur est réelle
-			if (value != _verticalOffset && (value >= 0 || value < 0))
+			if (value != _verticalOffset && (value >= 0 || value < 0) && _onReplaced != null)
 			{
 				// Enregistrer la nouvelle valeur
 				_verticalOffset = value;
@@ -1247,6 +1247,22 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
+		 * Set CacheAsBitmapMatrix with Flash fallback
+		 */
+		protected function setCacheAsBitmapMatrix (pValue:Matrix):void
+		{
+			// Le nom de la variable à vérifier
+			const varName:String = "cacheAsBitmapMatrix";
+			
+			// Vérifier si ça existe
+			if (varName in this)
+			{
+				// Ca existe, alors définir
+				this[varName] = pValue;
+			}
+		}
+		
+		/**
 		 * Convert this component to GPU Texture
 		 * @param	pMatrixScale : Automatic scale of the bitmap (NaN to ignore)
 		 * @param	pMatrix : CacheAsBitmap matrix (Scale will be ignored if non null)
@@ -1263,15 +1279,15 @@ package fr.swapp.graphic.base
 			// Si on a une matrice
 			if (pMatrix != null)
 			{
-				// On l'appliquer
-				cacheAsBitmapMatrix = pMatrix;
+				// On l'applique
+				setCacheAsBitmapMatrix(pMatrix);
 			}
 			
 			// Sinon si on a un scale
 			else if (pMatrixScale > 0)
 			{
 				// On applique ce scale
-				cacheAsBitmapMatrix = new Matrix(pMatrixScale, 0, 0, pMatrixScale);
+				setCacheAsBitmapMatrix(new Matrix(pMatrixScale, 0, 0, pMatrixScale));
 			}
 			
 			// Méthode chaînable
@@ -1286,7 +1302,7 @@ package fr.swapp.graphic.base
 		{
 			// Virer le cacheAsBitmap
 			cacheAsBitmap = false;
-			cacheAsBitmapMatrix = null;
+			setCacheAsBitmapMatrix(null);
 			
 			// Invalider la position
 			invalidatePosition();

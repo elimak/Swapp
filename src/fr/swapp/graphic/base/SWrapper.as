@@ -7,6 +7,7 @@ package fr.swapp.graphic.base
 	import flash.events.Event;
 	import flash.utils.Dictionary;
 	import fr.swapp.core.roles.IDisposable;
+	import fr.swapp.core.roles.IReadyable;
 	import fr.swapp.graphic.errors.GraphicalError;
 	import fr.swapp.graphic.styles.StyleCentral;
 	import fr.swapp.touch.dispatcher.TouchDispatcher;
@@ -18,7 +19,7 @@ package fr.swapp.graphic.base
 	/**
 	 * @author ZoulouX
 	 */
-	public class SWrapper implements IDisposable
+	public class SWrapper implements IDisposable, IReadyable
 	{
 		/**
 		 * Ratio rounded slices
@@ -36,9 +37,11 @@ package fr.swapp.graphic.base
 		 * Get an instance of SWrapper. Instances are associated to stages.
 		 * @param	pStage : The native associated stage instance from the document class
 		 * @param	pAutoRatio : Use auto ratio scaling (only if this is the first getInstance for this stage)
+		 * @param	pMinWidth : Minimum stage width. Ratio will be changed if the screen is too small. NaN to ignore.
+		 * @param	pMinHeight : Minimum stage height. Ratio will be changed if the screen is too small. NaN to ignore.
 		 * @return : SWrapper instance
 		 */
-		public static function getInstance (pStage:Stage, pAutoRatio:Boolean = true):SWrapper
+		public static function getInstance (pStage:Stage, pAutoRatio:Boolean = true, pMinWidth:Number = NaN, pMinHeight:Number = NaN, pDontCheckResize:Boolean = false):SWrapper
 		{
 			// Vérifier la validité du stage
 			if (pStage == null)
@@ -51,8 +54,11 @@ package fr.swapp.graphic.base
 			// Si on n'a pas d'instance
 			if (!(pStage in __instances))
 			{
+				// TODO : ATTENTION BUG
+				// Ici l'association __instances / stage n'est toujours pas faite alors que SComponent retape dans SWrapper.getInstance !
+				
 				// On créé l'instance avec la clé et on stoque dans le dico
-				__instances[pStage] = new SWrapper(new MultitonKey(), pStage, pAutoRatio);
+				new SWrapper(new MultitonKey(), pStage, pAutoRatio, pMinWidth, pMinHeight, pDontCheckResize);
 			}
 			
 			// Retourner l'instance
@@ -91,9 +97,34 @@ package fr.swapp.graphic.base
 		protected var _ratio							:Number						= 1;
 		
 		/**
+		 * Minimum stage width
+		 */
+		protected var _minWidth							:Number;
+		
+		/**
+		 * Minimum stage height
+		 */
+		protected var _minHeight						:Number;
+		
+		/**
 		 * When disposed
 		 */
 		protected var _onDisposed						:Signal;
+		
+		/**
+		 * Total resize event fired to get the real size
+		 */
+		protected var _resizeFired						:uint						= 0;
+		
+		/**
+		 * If the wrapper is ready
+		 */
+		protected var _ready							:Boolean					= false;
+		
+		/**
+		 * When the wrapper is ready
+		 */
+		protected var _onReady							:Signal						= new Signal();
 		
 		
 		/**
@@ -127,9 +158,53 @@ package fr.swapp.graphic.base
 		public function get ratio ():Number { return _ratio; }
 		
 		/**
+		 * Minimum stage width
+		 */
+		public function get minWidth ():Number { return _minWidth; }
+		public function set minWidth (value:Number):void
+		{
+			// Si la valeur est différente
+			if (_minWidth != value)
+			{
+				// Enregistrer la valeur
+				_minWidth = value;
+				
+				// Prendre en compte le changement
+				stageResizedHandler();
+			}
+		}
+		
+		/**
+		 * Minimum stage height
+		 */
+		public function get minHeight ():Number { return _minHeight; }
+		public function set minHeight (value:Number):void
+		{
+			// Si la valeur est différente
+			if (_minHeight != value)
+			{
+				// Enregistrer la valeur
+				_minHeight = value;
+				
+				// Prendre en compte le changement
+				stageResizedHandler();
+			}
+		}
+		
+		/**
 		 * When disposed
 		 */
 		public function get onDisposed ():ISignal { return _onDisposed; }
+		
+		/**
+		 * If the wrapper is ready
+		 */
+		public function get ready ():Boolean { return _ready; }
+		
+		/**
+		 * When the wrapper is ready
+		 */
+		public function get onReady ():ISignal { return _onReady; }
 		
 		
 		/**
@@ -138,8 +213,10 @@ package fr.swapp.graphic.base
 		 * @param	pMultitonKey : Private key to secure instanciation
 		 * @param	pStage : The native associated stage instance from the document class
 		 * @param	pAutoRatio : Use auto ratio scaling (only if this is the first getInstance for this stage)
+		 * @param	pMinWidth : Minimum stage width. Ratio will be changed if the screen is too small. NaN to ignore.
+		 * @param	pMinHeight : Minimum stage height. Ratio will be changed if the screen is too small. NaN to ignore.
 		 */
-		public function SWrapper (pMultitonKey:MultitonKey, pStage:Stage, pAutoRatio:Boolean)
+		public function SWrapper (pMultitonKey:MultitonKey, pStage:Stage, pAutoRatio:Boolean = true, pMinWidth:Number = NaN, pMinHeight:Number = NaN, pDontCheckResize:Boolean = false)
 		{
 			// Vérifier la clé pour la création multiton
 			if (pMultitonKey == null)
@@ -149,11 +226,25 @@ package fr.swapp.graphic.base
 			}
 			else
 			{
+				// TODO : Vérifier cette merde
+				// Enregistrer l'instance
+				__instances[pStage] = this;
+				
 				// Enregistrer le stage
 				_stage = pStage;
 				
+				// Enregistrer les tailles min et max
+				_minWidth = pMinWidth;
+				_minHeight = pMinHeight;
+				
 				// Si on est en ratio auto
 				_autoRatio = pAutoRatio;
+				
+				// Créer la racine
+				_root = new SComponent();
+				
+				// Le nom de la racine
+				_root.name = "root";
 				
 				// Ne jamais redimensionner l'UI
 				_stage.scaleMode = StageScaleMode.NO_SCALE;
@@ -162,35 +253,32 @@ package fr.swapp.graphic.base
 				// Qualité au minimum
 				_stage.quality = StageQuality.LOW;
 				
-				// Créer la racine
-				_root = new SComponent();
-				
-				// Le nom de la racine
-				_root.name = "root";
-				
 				// Initialiser le wrapper de DPI automatique
 				initDPIWrapper();
-			}
-		}
-		
-		/**
-		 * Démarrer le stageWrapper
-		 */
-		public function start ():void
-		{
-			// S'il n'est pas déjà démarré
-			if (!_stage.contains(_root))
-			{
-				// Ajouter la racine
-				_stage.addChild(_root);
 				
 				// Ecouter les redimentionnements
 				_stage.addEventListener(Event.RESIZE, stageResizedHandler);
 				
-				// Appliquer une première fois la taille du viewPort
-				stageResizedHandler();
+				// Si on est sur flash ou android
+				//if (EnvUtils.getInstance().isPlayerType(EnvUtils.FLASH) || EnvUtils.getInstance().isPlatformType(EnvUtils.ANDROID_PLATFORM))
+				//if (!EnvUtils.getInstance().isPlatformType(EnvUtils.WIN_PLATFORM))
+				if (
+					EnvUtils.getInstance().isPlatformType(EnvUtils.ANDROID_PLATFORM)
+					||
+					EnvUtils.getInstance().isPlayerType(EnvUtils.FLASH)
+					||
+					pDontCheckResize
+					)
+				{
+					// On met directement le resize
+					_resizeFired = 1;
+					
+					// Appeler une première fois le resize
+					stageResizedHandler();
+				}
 			}
 		}
+		
 		
 		/**
 		 * Initialize style manager
@@ -212,21 +300,94 @@ package fr.swapp.graphic.base
 		 */
 		protected function stageResizedHandler (event:Event = null):void
 		{
-			// Si les dimensions du root et du stage sont différentes
-			if (_root.width != _stage.stageWidth || _root.height != _stage.stageHeight)
+			trace(" >>>>>>>>> stageResizedHandler", _stage.stageWidth, _stage.stageHeight, _resizeFired, _autoRatio, _ready);
+			
+			// Comptabiliser le resize
+			_resizeFired ++;
+			
+			// Si c'est notre premier resize
+			if (_resizeFired == 1)
 			{
-				// Si on a un ratio automatique
-				if (_autoRatio)
+				// On ne va pas plus loin, il est daubé
+				return;
+			}
+			
+			// Si on a un ratio automatique
+			if (_autoRatio && _ready)
+			{
+				// Définir la taille du root
+				updateRootSizeWidthRatio();
+				
+				// Si on a une largeur minimum
+				if (_minWidth >= 0)
 				{
-					// Définir la taille du root
-					_root.size(_stage.stageWidth / _ratio, _stage.stageHeight / _ratio);
+					// Si on est en dessous la largeur minimum
+					if (_root.width < _minWidth)
+					{
+						// On modifie le ratio
+						_ratio = _stage.stageWidth / _minWidth;
+						
+						// Redéfinir la taille du root
+						updateRootSizeWidthRatio(false);
+					}
 				}
-				else
+				
+				// Si on a une hauteur minimum
+				if (_minHeight >= 0)
 				{
-					// Définir la taille du root
-					_root.size(_stage.stageWidth, _stage.stageHeight);
+					// Si on est en dessous de la hauteur minimum
+					if (_root.height < _minHeight)
+					{
+						// On modifie le ratio
+						_ratio = _stage.stageHeight / _minHeight;
+						
+						// Redéfinir la taille du root
+						updateRootSizeWidthRatio(false);
+					}
 				}
 			}
+			else
+			{
+				// Définir la taille du root
+				_root.size(_stage.stageWidth, _stage.stageHeight);
+			}
+			
+			// Si on en est à notre second resize
+			if (_resizeFired == 2)
+			{
+				// On est prêt
+				_ready = true;
+				
+				// Actualiser le ratio et la taille du stage
+				updateRootSizeWidthRatio();
+				
+				// Refaire une passe sur la taille
+				stageResizedHandler();
+				
+				// Ajouter la racine
+				_stage.addChild(_root);
+				
+				// Signaler qu'on est prêt
+				_onReady.dispatch();
+			}
+		}
+		
+		/**
+		 * Update root size
+		 */
+		protected function updateRootSizeWidthRatio (pRound:Boolean = true):void
+		{
+			// Arrondir le ratio
+			if (pRound)
+			{
+				_ratio = Math.round(_ratio * ratioRoundSlices) / ratioRoundSlices;
+			}
+			
+			// Appliquer le ratio
+			_root.scaleX = _root.scaleY = _ratio;
+			
+			// Définir la taille par rapport au ratio
+			_root.size(_stage.stageWidth / _ratio, _stage.stageHeight / _ratio);
 		}
 		
 		/**
@@ -240,26 +401,20 @@ package fr.swapp.graphic.base
 			{
 				// Récupérer le ratio et l'enregistrer
 				_ratio = EnvUtils.getInstance().getRatioForStage();
-				
-				// Arrondir le ratio
-				_ratio = Math.round(_ratio * ratioRoundSlices) / ratioRoundSlices;
-				
-				// Appliquer le ratio
-				_root.scaleX = _root.scaleY = _ratio;
 			}
+		}
+		
+		/**
+		 * Set the minimum size
+		 */
+		public function setMinSize (pMinWidth:Number, pMinHeight:Number):void
+		{
+			// Enregistrer les valeurs
+			_minWidth = pMinWidth;
+			_minHeight = pMinHeight;
 			
-			// Configurer la qualité
-			/*
-			if (EnvUtils.getInstance().isiOSSpecificDevice(EnvUtils.IPAD_1_DEVICE))
-			{
-				// Passer en basse qualité sur iPad 1
-				_stage.quality = StageQuality.LOW;
-			}
-			else
-			{
-				// Sinon qualité moyenne
-				_stage.quality = StageQuality.MEDIUM;
-			}*/
+			// Prendre en compte le changement
+			stageResizedHandler();
 		}
 		
 		/**

@@ -3,8 +3,10 @@ package fr.swapp.touch.dispatcher
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Stage;
+	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.events.TouchEvent;
+	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.utils.Dictionary;
 	import fr.swapp.core.roles.IDisposable;
@@ -61,9 +63,9 @@ package fr.swapp.touch.dispatcher
 		protected var _stage							:Stage;
 		
 		/**
-		 * Direction multiplier. If 1, direction can't be unknown.
+		 * Direction detection multiplier.
 		 */
-		protected var _directionDetectionMultiplier		:Number			= 1;
+		protected var _directionDetectionMultiplier		:Number			= 1.5;
 		
 		/**
 		 * Threshold value to correcting false tap on bad touchscreens
@@ -118,7 +120,12 @@ package fr.swapp.touch.dispatcher
 		/**
 		 * Pressed status for tap delegates
 		 */
-		protected var _pressedDelegates					:Dictionary 	= new Dictionary();
+		protected var _pressedTouchables				:Dictionary 	= new Dictionary();
+		
+		/**
+		 * Pressed status for transform delegates
+		 */
+		protected var _pressedTransformables			:Dictionary 	= new Dictionary();
 		
 		/**
 		 * When disposed
@@ -129,6 +136,28 @@ package fr.swapp.touch.dispatcher
 		 * Reused temp point 
 		 */
 		protected var _tempPoint						:Point			= new Point();
+		
+		/**
+		 * Total loops needed (0 to disable enterFrame loop)
+		 */
+		protected var _currentTransformLoop				:uint;
+		
+		/**
+		 * Current transformation center for TransformDelegates
+		 */
+		protected var _currentCenter					:Dictionary 	= new Dictionary();
+		
+		/**
+		 * Current scale for TransformDelegates
+		 */
+		protected var _currentScale						:Dictionary 	= new Dictionary();
+		
+		/**
+		 * Current rotation for TransformDelegates
+		 */
+		protected var _currentRotation					:Dictionary 	= new Dictionary();
+		protected var _currentTransformType				:uint;
+		
 		
 		
 		/**
@@ -160,6 +189,14 @@ package fr.swapp.touch.dispatcher
 		 */
 		public function TouchDispatcher (pMultitonKey:MultitonKey, pStage:Stage, pEnableMouse:Boolean, pTapThreshold:int)
 		{
+			// TODO : gestion des delegate transform
+			// TODO : gestion des double tap
+			// TODO : gestion des swipes via ITouchSwipeDelegate
+			// TODO : Ajouter la source de l'event (mouse ou touch)
+			//			-> VirtualList pourra avoir des propriété "touchEnabled" et "mouseEnabled" pour agir en fonction.
+			//			-> Plus besoin de MouseToTouchEmulator pour dev en mode release pour PC
+			//			-> Rendre compatible avec Flash et Air desktop
+			
 			// Enregistrer le stage
 			_stage = pStage;
 			
@@ -283,6 +320,9 @@ package fr.swapp.touch.dispatcher
 			// Cibler l'id du touch
 			var touchId:int = event.touchPointID;
 			
+			// Actualiser l'event
+			_events[touchId] = event;
+			
 			// Calculer la nouvelle position et les deltas de ce point
 			computeDeltas(event);
 			
@@ -317,11 +357,16 @@ package fr.swapp.touch.dispatcher
 					}
 				}
 			}
-		}
-		
-		protected function checkForDispatch ():void
-		{
 			
+			// Si des transformables sont référencés sur ce point
+			if (touchId in _transformables)
+			{
+				// Parcourir les delegates 
+				for each (var transformDelegate:ITouchTransformDelegate in _transformables[touchId])
+				{
+					//transformDelegate.touchMatrixTransformHandler();
+				}
+			}
 		}
 		
 		/**
@@ -339,14 +384,14 @@ package fr.swapp.touch.dispatcher
 				for each (var touchTapDelegate:ITouchTapDelegate in _touchables[touchId])
 				{
 					// Si on a encore des points
-					if (_pressedDelegates[touchTapDelegate] > 1)
+					if (_pressedTouchables[touchTapDelegate] > 1)
 					{
 						// On enlève ce point
-						_pressedDelegates[touchTapDelegate] --;
+						_pressedTouchables[touchTapDelegate] --;
 					}
 					
 					// Si on n'a plus de points
-					else if (_pressedDelegates[touchTapDelegate] <= 1)
+					else if (_pressedTouchables[touchTapDelegate] <= 1)
 					{
 						// Dispatcher le release
 						touchTapDelegate.touchReleaseHandler(_targets[touchId]);
@@ -372,7 +417,7 @@ package fr.swapp.touch.dispatcher
 						}
 						
 						// Virer des pressed
-						delete _pressedDelegates[touchTapDelegate];
+						delete _pressedTouchables[touchTapDelegate];
 					}
 					
 					// Supprimer les delegates de ce point qui n'existe plus
@@ -392,6 +437,46 @@ package fr.swapp.touch.dispatcher
 				
 				// Supprimer les delegates de ce point qui n'existe plus
 				delete _draggables[touchId];
+			}
+			
+			// Si des transformables sont référencés sur ce point
+			if (touchId in _transformables)
+			{
+				// Les parcourir
+				for each (var touchTransformDelegate:ITouchTransformDelegate in _transformables[touchId])
+				{
+					// Rechercher si ce delegate est dans un statut pressed de transformables
+					if (touchTransformDelegate in _pressedTransformables)
+					{
+						// Supprimer cet id
+						_pressedTransformables[touchTransformDelegate] = ArrayUtils.deleteElement(_pressedTransformables[touchTransformDelegate], touchId);
+						
+						// Si on a plus qu'un point
+						if (_pressedTransformables[touchTransformDelegate].length == 1)
+						{
+							// On n'a plus besoin de la boucle
+							removeTransformLoop();
+							
+							// On dispatche un stop en lui passant le target
+							touchTransformDelegate.touchTransformStopHandler(_targets[touchId]);
+						}
+						
+						// Si on a plus de point
+						else if (_pressedTransformables[touchTransformDelegate].length == 0)
+						{
+							// On supprime l'entrée
+							delete _pressedTransformables[touchTransformDelegate];
+							
+							// Et on supprime toutes les données de transformation
+							delete _currentCenter[touchTransformDelegate];
+							delete _currentScale[touchTransformDelegate];
+							delete _currentRotation[touchTransformDelegate];
+						}
+					}
+				}
+				
+				// Supprimer les delegates de ce point qui n'existe plus
+				delete _transformables[touchId];
 			}
 			
 			
@@ -452,10 +537,10 @@ package fr.swapp.touch.dispatcher
 			_touchables[touchId].push(pDelegate);
 			
 			// Si le status pressed de ce delegate n'est pas encore enregistrée
-			if (!(pDelegate in _pressedDelegates))
+			if (!(pDelegate in _pressedTouchables))
 			{
 				// L'enregistrer
-				_pressedDelegates[pDelegate] = 0;
+				_pressedTouchables[pDelegate] = 0;
 				
 				// Dispatcher
 				pDelegate.touchPressHandler(_targets[touchId]);
@@ -463,7 +548,7 @@ package fr.swapp.touch.dispatcher
 			else
 			{
 				// Ajouter ce point
-				_pressedDelegates[pDelegate] ++;
+				_pressedTouchables[pDelegate] ++;
 			}
 		}
 		
@@ -474,13 +559,214 @@ package fr.swapp.touch.dispatcher
 		 */
 		protected function registerTransformDelegate (pDelegate:ITouchTransformDelegate, pEvent:TouchEvent):void
 		{
-			// TODO : gestion des delegate transform
-			// TODO : gestion des double tap
-			// TODO : gestion des swipes via ITouchSwipeDelegate
-			// TODO : Ajouter la source de l'event (mouse ou touch)
-			//			-> VirtualList pourra avoir des propriété "touchEnabled" et "mouseEnabled" pour agir en fonction.
-			//			-> Plus besoin de MouseToTouchEmulator pour dev en mode release pour PC
-			//			-> Rendre compatible avec Flash et Air desktop
+			// Cibler l'id du touch
+			var touchId:int = pEvent.touchPointID;
+			
+			// Si ce point n'a pas de transformable référencé
+			if (!(touchId in _transformables))
+			{
+				// On créé un tableau pour pouvoir référencer plusieurs delegate par point
+				_transformables[touchId] = [];
+			}
+			
+			// Référencer ce delegate à ce point
+			_transformables[touchId].push(pDelegate);
+			
+			// Si ce delegate n'est toujours pas enregistré
+			if (!(pDelegate in _pressedTransformables))
+			{
+				// Créer le tableau
+				_pressedTransformables[pDelegate] = [];
+			}
+			
+			// Ajouter cet id de touch
+			_pressedTransformables[pDelegate].push(touchId);
+			
+			// Si on en a 2
+			if (_pressedTransformables[pDelegate].length == 2)
+			{
+				// On dispatch un start en passant le target
+				// Et on récupère la nouvelle cible
+				var newTarget:DisplayObject = pDelegate.touchTransformStartHandler(_targets[touchId]);
+				
+				// Si on a une nouvelle cible
+				if (newTarget != null)
+				{
+					// On écrase cette cible
+					_targets[touchId] = newTarget;
+				}
+				
+				// Ajouter une boucle pour la transformation
+				addTransformLoop();
+			}
+		}
+		
+		/**
+		 * Add a transform loop
+		 */
+		protected function addTransformLoop ():void
+		{
+			// Incrémenter le nombre de boucles voulues
+			_currentTransformLoop ++;
+			
+			// Si on a une boucle
+			if (_currentTransformLoop == 1)
+			{
+				// Démarrer la boucle
+				_stage.addEventListener(Event.ENTER_FRAME, enterFrameHandler);
+			}
+		}
+		
+		/**
+		 * Remove a transform loop
+		 */
+		protected function removeTransformLoop ():void
+		{
+			// Décrémenter le nombre de boucles voulues
+			_currentTransformLoop --;
+			
+			// Si on n'a plus de boucle
+			if (_currentTransformLoop == 0)
+			{
+				// Démarrer la boucle
+				_stage.removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
+			}
+		}
+		
+		/**
+		 * Every frame loop for transform gestures
+		 */
+		protected function enterFrameHandler (event:Event):void
+		{
+			// Le delegate ciblé
+			var transformDelegate		:ITouchTransformDelegate;
+			
+			// Le displayObject cible
+			var target					:DisplayObject;
+			
+			// La matrice de transformation de la cible
+			var matrix					:Matrix;
+			
+			// Les id's de chaque point de ce delegate
+			var pointIds				:Array;
+			
+			// Les 2 points
+			var p1						:Point;
+			var p2						:Point;
+			
+			// Le centre de transformation
+			var center					:Point;
+			
+			// Les valeurs des centres de scale et rotation
+			var a						:Number;
+			var b						:Number;
+			
+			// La distance et l'angle entre les 2 points de transformation
+			var distance				:Number;
+			var angle					:Number;
+			
+			// Le décallage horizontal et vertical par rapport à l'ancienne frame
+			var centerHorizontalOffset	:Number;
+			var centerVerticalOffset	:Number;
+			
+			// La différence de distance et d'angle par rapport à l'ancienne frame
+			var distanceOffset			:Number;
+			var angleOffset				:Number;
+			
+			// Parcourir les delegates transformables
+			for (var i:* in _pressedTransformables)
+			{
+				// Récupérer le delegate
+				transformDelegate = (i as ITouchTransformDelegate);
+				
+				// Récupérer les points de ce délégate
+				pointIds = (_pressedTransformables[i] as Array);
+				
+				// Cibler le displayObject concerné
+				target = (_targets[pointIds[1]] as DisplayObject);
+				
+				// Cibler les 2 points
+				p1 = _touchPositions[pointIds[0]];
+				p2 = _touchPositions[pointIds[1]];
+				
+				// Calculer le centre entre les 2 points
+				center = new Point(
+					((p1.x + p2.x) / 2) / target.parent.transform.concatenatedMatrix.a,
+					((p1.y + p2.y) / 2) / target.parent.transform.concatenatedMatrix.d
+				);
+				
+				// Soustraire les positions des 2 points
+				a = (p2.x - p1.x) / target.parent.transform.concatenatedMatrix.a;
+				b = (p2.y - p1.y) / target.parent.transform.concatenatedMatrix.d;
+				
+				// Calculer la distance entre les 2 points pour le scale, grâce aux soustractions précédentes
+				distance = Math.sqrt(a * a + b * b);
+				
+				// Calculer l'angle que forment ces 2 points, grâce aux soustractions précédentes (en degrés)
+				angle = Math.atan2(b, a) / Math.PI * 180;
+				
+				// Si ce delegate n'a pas déjà de valeurs de transformations
+				if (!(transformDelegate in _currentCenter))
+				{
+					// Demander le type de transformation
+					_currentTransformType = transformDelegate.touchTransformMatrixType(target);
+					
+					// Les créer et enregistrer les valeurs
+					_currentCenter[transformDelegate] = center.clone();
+					_currentScale[transformDelegate] = distance;
+					_currentRotation[transformDelegate] = angle;
+				}
+				else
+				{
+					// Calculer les mouvements du centre
+					centerHorizontalOffset = center.x - _currentCenter[transformDelegate].x;
+					centerVerticalOffset = center.y - _currentCenter[transformDelegate].y;
+					
+					// Calculer les mouvements de distance
+					distanceOffset = (distance / _currentScale[transformDelegate]);
+					
+					// Calculer les mouvements de rotation
+					angleOffset = angle - _currentRotation[transformDelegate];
+					
+					// Actualiser les valeurs
+					_currentCenter[transformDelegate] = center.clone();
+					_currentScale[transformDelegate] = distance;
+					_currentRotation[transformDelegate] = angle;
+					
+					// Dispatcher la transformation
+					transformDelegate.touchTransformHandler(target, distanceOffset, angleOffset, centerHorizontalOffset, centerVerticalOffset, pointIds.length);
+					
+					// Récupérer la matrice du target
+					matrix = target.transform.matrix.clone();
+					
+					// Décaller au centre de transformation
+					matrix.translate(- center.x, - center.y);
+					
+					// Appliquer le scale
+					if (_currentTransformType & TouchMatrixOptions.SCALE_OPTION)
+					{
+						matrix.scale(distanceOffset, distanceOffset);
+					}
+					
+					// Appliquer la rotation
+					if (_currentTransformType & TouchMatrixOptions.ROTATION_OPTION)
+					{
+						matrix.rotate(angleOffset / 180 * Math.PI);
+					}
+					
+					// Replacer le centre de transformation
+					matrix.translate(center.x, center.y);
+					
+					// Appliquer le décallage
+					if (_currentTransformType & TouchMatrixOptions.DRAG_OPTION)
+					{
+						matrix.translate(centerHorizontalOffset, centerVerticalOffset);
+					}
+					
+					// Dispatcher la transformation
+					transformDelegate.touchMatrixTransformHandler(target, matrix, pointIds.length);
+				}
+			}
 		}
 		
 		/**

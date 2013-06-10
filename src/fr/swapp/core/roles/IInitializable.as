@@ -1,6 +1,7 @@
 ﻿package fr.swapp.core.roles 
 {
 	import org.osflash.signals.ISignal;
+	
 	/**
 	 * L'interface des éléments qui peuvent être initialisés
 	 * @author ZoulouX

@@ -3,15 +3,21 @@ package fr.swapp.graphic.lists
 	import com.greensock.easing.Strong;
 	import com.greensock.TweenMax;
 	import flash.display.DisplayObject;
+	import flash.events.MouseEvent;
+	import flash.geom.Matrix;
+	import flash.utils.getTimer;
 	import fr.swapp.graphic.base.SComponent;
 	import fr.swapp.graphic.base.SContainer;
 	import fr.swapp.touch.delegate.ITouchDragDelegate;
+	import fr.swapp.touch.delegate.ITouchTapDelegate;
+	import fr.swapp.touch.delegate.ITouchTransformDelegate;
 	import fr.swapp.touch.dispatcher.TouchDirections;
+	import fr.swapp.touch.dispatcher.TouchMatrixOptions;
 	
 	/**
 	 * @author ZoulouX
 	 */
-	public class SScrollContainer extends SContainer implements ITouchDragDelegate
+	public class SScrollContainer extends SContainer implements ITouchDragDelegate, ITouchTransformDelegate, ITouchTapDelegate
 	{
 		/**
 		 * Available directions
@@ -75,6 +81,26 @@ package fr.swapp.graphic.lists
 		 * If dragging lock direction
 		 */
 		protected var _dragLockDirection			:Boolean 						= true;
+		
+		/**
+		 * If drag is allowed by zooming
+		 */
+		protected var _allowDragging				:Boolean;
+		
+		/**
+		 * If zooming is allowed
+		 */
+		protected var _allowZooming					:Boolean;
+		
+		/**
+		 * Last time the user tapped the frame
+		 */
+		protected var _lastTapTime					:Number;
+		
+		/**
+		 * Max zoom scale
+		 */
+		protected var _maxZoom						:Number							= 2.5;
 		
 		
 		/**
@@ -161,6 +187,21 @@ package fr.swapp.graphic.lists
 			_dragLockDirection = value;
 		}
 		
+		public function get allowZooming ():Boolean { return _allowZooming; }
+		public function set allowZooming (value:Boolean):void
+		{
+			_allowZooming = value;
+		}
+		
+		/**
+		 * Max zoom scale
+		 */
+		public function get maxZoom ():Number { return _maxZoom; }
+		public function set maxZoom (value:Number):void
+		{
+			_maxZoom = value;
+		}
+		
 		
 		
 		/**
@@ -175,6 +216,29 @@ package fr.swapp.graphic.lists
 			direction = pDirection;
 		}
 		
+		/**
+		 * Initialisation
+		 */
+		override public function init():void 
+		{
+			// Relayer
+			super.init();
+			
+			// Ecouter les mouseWheel
+			addEventListener(MouseEvent.MOUSE_WHEEL, mouseWheelHandler);
+		}
+		
+		/**
+		 * MouseWheel event
+		 */
+		protected function mouseWheelHandler (event:MouseEvent):void 
+		{
+			// Enregistrer les derniers deltas
+			_lastYDelta -= (event.delta > 0 ? -1 : 1) * 14;
+			
+			// Actualiser le scroll
+			udpateScroll(.6, true);
+		}
 		
 		/**
 		 * Initialize container
@@ -191,6 +255,8 @@ package fr.swapp.graphic.lists
 			_container.into(this);
 			
 			// Placer en haut à droite
+			_container.verticalOffset = 0;
+			_container.horizontalOffset = 0;
 			_container.top = 0;
 			_container.left = 0;
 		}
@@ -221,18 +287,25 @@ package fr.swapp.graphic.lists
 			// Si on se déplace à l'horizontale
 			if (_direction == HORIZONTAL_DIRECTION || _direction == BOTH_DIRECTIONS)
 			{
-				// Calculer et ajouter la propriété top
-				tweenProps.left = Math.max(_localWidth - _container.width, Math.min(_container.left + _lastXDelta * _scrollInertia, 0));
+				// Calculer et ajouter la propriété horizontalOffset
+				tweenProps.horizontalOffset = Math.max(_localWidth - _container.width * _container.scaleX, Math.min(_container.horizontalOffset + _lastXDelta * _scrollInertia, 0));
+				
+				// Diviser la vitesse
+				_lastXDelta /= 2;
 			}
 			
 			// Si on se déplace à la verticale
 			if (_direction == VERTICAL_DIRECTION || _direction == BOTH_DIRECTIONS)
 			{
-				// Calculer et ajouter la propriété left
-				tweenProps.top = Math.max(_localHeight - _container.height, Math.min(_container.top + _lastYDelta * _scrollInertia, 0));
+				// Calculer et ajouter la propriété verticalOffset
+				tweenProps.verticalOffset = Math.max(_localHeight - _container.height * _container.scaleY, Math.min(_container.verticalOffset + _lastYDelta * _scrollInertia, 0));
+				
+				// Diviser la vitesse
+				_lastYDelta /= 2;
 			}
 			
 			// Animer selon l'objet des tweens
+			TweenMax.killTweensOf(_container);
 			TweenMax.to(_container, pAnimationDuration, tweenProps);
 		}
 		
@@ -306,8 +379,12 @@ package fr.swapp.graphic.lists
 		 */
 		public function touchDragLock (pTarget:DisplayObject):void
 		{
-			// Remettre le dernier delta à 0
+			// Remettre les derniers delta à 0
+			_lastXDelta = 0;
 			_lastYDelta = 0;
+			
+			// Le drag est autorisé
+			_allowDragging = true;
 			
 			// Stopper la tween sur le container
 			TweenMax.killTweensOf(_container);
@@ -318,8 +395,12 @@ package fr.swapp.graphic.lists
 		 */
 		public function touchDragUnlock (pTarget:DisplayObject):void
 		{
-			// Actualiser le scroll
-			udpateScroll();
+			// Si les déplacements sont autorisés
+			if (_allowDragging)
+			{
+				// Actualiser le scroll
+				udpateScroll();
+			}
 		}
 		
 		/**
@@ -327,6 +408,12 @@ package fr.swapp.graphic.lists
 		 */
 		public function touchDragging (pTarget:DisplayObject, pDirection:String, pXDelta:Number, pYDelta:Number):Boolean
 		{
+			// Si le drag est interdit, on coupe
+			if (!_allowDragging)
+			{
+				return true;
+			}
+			
 			// Si on doit autoriser le drag vers les enfants
 			var allowDragForChildren:Boolean = true;
 			
@@ -340,7 +427,7 @@ package fr.swapp.graphic.lists
 				)
 			{
 				// Si l'utilisateur dépasse
-				if (_container.left > 0 || _container.left < _localWidth - _container.width)
+				if (_container.horizontalOffset > 0 || _container.horizontalOffset < _localWidth - _container.width * _container.scaleX)
 				{
 					// Si notre multiplicateur est positif
 					if (_scrollOutMultiplier > 0)
@@ -349,18 +436,18 @@ package fr.swapp.graphic.lists
 						pXDelta *= _scrollOutMultiplier;
 						
 						// Actualiser la position
-						_container.left += pXDelta;
+						_container.horizontalOffset += pXDelta;
 					}
 					else
 					{
 						// Limiter la position
-						_container.left = Math.max(_localWidth - _container.width, Math.min(_container.left, 0));
+						_container.horizontalOffset = Math.max(_localWidth - _container.width * _container.scaleX, Math.min(_container.horizontalOffset, 0));
 					}
 				}
 				else
 				{
 					// Actualiser la position
-					_container.left += pXDelta;
+					_container.horizontalOffset += pXDelta;
 				}
 				
 				// Enregistrer les derniers deltas
@@ -380,7 +467,7 @@ package fr.swapp.graphic.lists
 				)
 			{
 				// Si l'utilisateur dépasse
-				if (_container.top > 0 || _container.top < _localHeight - _container.height)
+				if (_container.verticalOffset > 0 || _container.verticalOffset < _localHeight - _container.height * _container.scaleY)
 				{
 					// Si notre multiplicateur est positif
 					if (_scrollOutMultiplier > 0)
@@ -389,18 +476,18 @@ package fr.swapp.graphic.lists
 						pYDelta *= _scrollOutMultiplier;
 						
 						// Actualiser la position
-						_container.top += pYDelta;
+						_container.verticalOffset += pYDelta;
 					}
 					else
 					{
 						// Limiter la position
-						_container.top = Math.max(_localHeight - _container.height, Math.min(_container.top, 0));
+						_container.verticalOffset = Math.max(_localHeight - _container.height * _container.scaleY, Math.min(_container.verticalOffset, 0));
 					}
 				}
 				else
 				{
 					// Actualiser la position
-					_container.top += pYDelta;
+					_container.verticalOffset += pYDelta;
 				}
 				
 				// Enregistrer les derniers deltas
@@ -413,5 +500,196 @@ package fr.swapp.graphic.lists
 			// Si on doit autoriser le drag vers les enfants
 			return allowDragForChildren;
 		}
+		
+		/**
+		 * Début d'un pinch / zoom
+		 */
+		public function touchTransformStartHandler (pTarget:DisplayObject):DisplayObject
+		{
+			// Si le zoom est autorisé
+			if (_allowZooming)
+			{
+				// On arrête le déplacement
+				TweenMax.killTweensOf(_container);
+				
+				// On interdit les drag
+				_allowDragging = false;
+				
+				// On remet les deltas à 0
+				_lastXDelta = 0;
+				_lastYDelta = 0;
+			}
+			
+			// Toujours cibler le container
+			return _container;
+		}
+		
+		/**
+		 * Fin d'un pinch / zoom
+		 */
+		public function touchTransformStopHandler (pTarget:DisplayObject):void
+		{
+			// Actualiser le scroll
+			udpateScroll();
+		}
+		
+		/**
+		 * Le type de transformation à accepter sur la matrice
+		 */
+		public function touchTransformMatrixType (pTarget:DisplayObject):uint
+		{
+			// Autoriser le scale et le drag
+			return TouchMatrixOptions.SCALE_OPTION | TouchMatrixOptions.DRAG_OPTION;
+		}
+		
+		/**
+		 * Transformation matricielle sur le container
+		 */
+		public function touchMatrixTransformHandler (pTarget:DisplayObject, pTransformationMatrix:Matrix, pPoints:uint):Boolean
+		{
+			// Si on a 2 points et que le zoom est autorisé
+			if (pPoints == 2 && _allowZooming)
+			{
+				// Appliquer le scale
+				_container.scaleX = _container.scaleY = pTransformationMatrix.a;
+				
+				// Si le scale a été limité
+				var scaleLimited:Boolean = false;
+				
+				// Si le scale est trop grand
+				if (_container.scaleX > _maxZoom)
+				{
+					// On limite le scale
+					_container.scaleX = _container.scaleY = _maxZoom;
+					
+					// Le scale a été limité
+					scaleLimited = true;
+				}
+				
+				// Si le scale est trop petit
+				else if (_container.width * _container.scaleX < _localWidth)
+				{
+					// On limite le scale
+					_container.scaleX = _container.scaleY = (_localWidth / _container.width);
+					
+					// Le scale a été limité
+					scaleLimited = true;
+				}
+				
+				// Si le container dépasse horizontalement
+				if (
+					_container.horizontalOffset > 0
+					||
+					_container.horizontalOffset < _localWidth - (_container.width * _container.scaleX)
+					)
+				{
+					// On actualise la position du container
+					pTransformationMatrix.tx -= (pTransformationMatrix.tx - _container.horizontalOffset) * _scrollOutMultiplier;
+				}
+				
+				// Si le container dépasse verticalement
+				if (
+					_container.verticalOffset > 0
+					||
+					_container.verticalOffset < _localHeight - (_container.height * _container.scaleY)
+					)
+				{
+					// On actualise la position du container
+					pTransformationMatrix.ty -= (pTransformationMatrix.ty - _container.verticalOffset) * _scrollOutMultiplier;
+				}
+				
+				if (!scaleLimited)
+				{
+					// On actualise la position du container
+					_container.horizontalOffset = pTransformationMatrix.tx;
+					_container.verticalOffset = pTransformationMatrix.ty;
+				}
+			}
+			
+			// Autoriser les transformations
+			return true;
+		}
+		
+		/**
+		 * Transformation (non utilisé)
+		 */
+		public function touchTransformHandler (pTarget:DisplayObject, pScaleDelta:Number, pRotationDelta:Number, pXDelta:Number, pYDelta:Number, pPoints:uint):Boolean
+		{
+			// Autoriser les transformations
+			return true;
+		}
+		
+		/**
+		 * When user tap
+		 */
+		public function touchTapHandler (pTarget:DisplayObject, pIsPrimary:Boolean):void
+		{
+			// Si le zoom est autorisé
+			if (_allowZooming && pIsPrimary)
+			{
+				// Récupérer le temps lorsque l'utilisateur a fait un tap
+				var currentTime:Number = getTimer();
+				
+				// Si ce tap est court par rapport au dernier tap, alors c'est un double tap
+				if (currentTime - _lastTapTime < 400)
+				{
+					// Interdire le dragging
+					_allowDragging = false;
+					
+					// Calculer le zoom minimum
+					const minZoom:Number = _container.width / _localWidth;
+					
+					// Le zoom de destination
+					var scaleDestination:Number;
+					
+					// Vérifier si on est plus proche de l'état zoomé ou dézoomé
+					//if (Math.abs(_container.scaleX - _maxZoom) > Math.abs(_container.scaleX - minZoom))
+					if (_container.scaleX == minZoom)
+					{
+						// Aller vers le zoom
+						scaleDestination = _maxZoom;
+					}
+					else
+					{
+						// Aller vers le dezoom
+						scaleDestination = minZoom;
+					}
+					
+					// Zoomer
+					TweenMax.killTweensOf(_container);
+					TweenMax.to(_container, .5, {
+						// Appliquer le scale
+						scaleX: scaleDestination,
+						scaleY: scaleDestination,
+						
+						// Centrer horizontalement
+						horizontalOffset: - (_container.width * scaleDestination - _localWidth) / 2,
+						
+						// Centrer verticalement
+						verticalOffset: (
+							scaleDestination == _maxZoom ? (
+								// Si on zoom
+								_container.verticalOffset / _container.scaleX * scaleDestination - _localHeight * scaleDestination / 2
+							) : (
+								// Si on dézoom
+								_container.verticalOffset / _container.scaleX * scaleDestination + _localHeight * scaleDestination / 2
+							)
+						),
+						
+						// Actualiser le scroll une fois terminé
+						onComplete: udpateScroll,
+						
+						ease: Strong.easeInOut
+					});
+				}
+				
+				// Enregistrer le temps de ce tap
+				_lastTapTime = currentTime;
+			}
+		}
+		
+		public function touchPressHandler (pTarget:DisplayObject):void { }
+		
+		public function touchReleaseHandler (pTarget:DisplayObject):void { }
 	}
 }

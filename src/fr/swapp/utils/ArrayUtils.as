@@ -146,7 +146,7 @@
 			var newTab:Array = [];
 			
 			// Mesurer le tableau
-			var total:uint = pArray.length;
+			const total:uint = pArray.length;
 			
 			// Parcourir le tableau passé en paramètres
 			for (var i:int = 0; i < total; i++) 
@@ -176,6 +176,28 @@
 			
 			// Retourner le tableau de sortie
 			return out;
+		}
+		
+		/**
+		 * Récupérer l'index d'une valeur.
+		 * Ne fonctionne que sur les tableaux indexés.
+		 * Retourne -1 si l'index n'a pas été trouvé
+		 */
+		public static function getIndex (pArray:Array, pValue:*):int
+		{
+			// Mesurer le tableau
+			const total:uint = pArray.length;
+			
+			// Parcourir les éléments du tableau indexé
+			for (var i:uint = 0; i < total; i++)
+			{
+				// Si on tombe sur la valeur, on retourne l'index
+				if (pArray[i] == pValue)
+					return i
+			}
+			
+			// On n'a rien trouvé, on retourne -1
+			return -1;
 		}
 	}
 }

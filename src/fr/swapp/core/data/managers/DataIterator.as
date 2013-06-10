@@ -56,7 +56,7 @@
 		public function set dataCollection (value:IDataCollection):void 
 		{
 			// Vérifier que la collection à définir n'est pas nulle
-			if (value is null)
+			if (value == null)
 			{
 				// déclencher une error interne
 				throw new SwappError("DataIterator.dataCollection", "DataCollection can't be null.");

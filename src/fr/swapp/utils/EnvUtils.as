@@ -1,5 +1,6 @@
 ﻿package fr.swapp.utils 
 {
+	import flash.display.Stage;
 	import flash.system.Capabilities;
 	
 	/**
@@ -23,7 +24,7 @@
 			if (__instance == null)
 			{
 				// On la créé
-				__instance = new EnvUtils();
+				new EnvUtils();
 			}
 			
 			// Retourner cette instance
@@ -126,6 +127,8 @@
 		 */
 		public function EnvUtils ():void
 		{
+			__instance = this;
+			
 			precomputeInformations();
 		}
 		
@@ -170,6 +173,14 @@
 		}
 		
 		/**
+		 * If we are on desktop
+		 */
+		protected function isDesktop (pPlatform:String):Boolean
+		{
+			return (pPlatform == MAC_PLATFORM || pPlatform == WIN_PLATFORM || pPlatform == LINUX_PLATFORM) && Capabilities.screenDPI <= 72;
+		}
+		
+		/**
 		 * Get the device type (see statics)
 		 */
 		public function getDeviceType (pAllowDesktop:Boolean = true):String
@@ -181,7 +192,7 @@
 			if (pAllowDesktop)
 			{
 				// On est sur un ordi si on est sur Mac / Pc / Linux et si on a un DPI de 72
-				if ((platform == MAC_PLATFORM || platform == WIN_PLATFORM || platform == LINUX_PLATFORM) && Capabilities.screenDPI <= 72)
+				if (isDesktop(platform))
 				{
 					return DESKTOP;
 				}
@@ -236,7 +247,7 @@
 		 */
 		public function isDeviceType (pDeviceType:String, pAllowDesktop:Boolean = true):Boolean
 		{
-			return getDeviceType(pAllowDesktop) == pDeviceType
+			return getDeviceType(pAllowDesktop) == pDeviceType;
 		}
 		
 		/**
@@ -330,13 +341,15 @@
 		/**
 		 * Get approx screen size (inches)
 		 */
-		public function getScreenSize ():Number
+		public function getScreenSize (pAllowDesktopScreenSize:Boolean = false, pStage:Stage = null):Number
 		{
-			const screenWidth	:Number = Capabilities.screenResolutionX / Capabilities.screenDPI;
-			const screenHeight	:Number = Capabilities.screenResolutionY / Capabilities.screenDPI;
-			const screenSize	:Number = Math.sqrt(screenWidth * screenWidth + screenHeight * screenHeight);
+			// Si on est sur PC
+			var checkDesktop:Boolean = (!pAllowDesktopScreenSize && isDesktop(getPlatformType()) && pStage != null)
 			
-			return screenSize;
+			const screenWidth	:Number = (checkDesktop ? pStage.stageWidth / 100 : Capabilities.screenResolutionX / Capabilities.screenDPI);
+			const screenHeight	:Number = (checkDesktop ? pStage.stageHeight / 100 : Capabilities.screenResolutionY / Capabilities.screenDPI);
+			
+			return Math.sqrt(screenWidth * screenWidth + screenHeight * screenHeight);
 		}
 		
 		/**

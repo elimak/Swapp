@@ -234,6 +234,22 @@ package fr.swapp.graphic.text
 		}
 		
 		/**
+		 * Set CacheAsBitmapMatrix on textField with Flash fallback
+		 */
+		protected function setCacheAsBitmapOnTextFieldMatrix (pValue:Matrix):void
+		{
+			// Le nom de la variable à vérifier
+			const varName:String = "cacheAsBitmapMatrix";
+			
+			// Vérifier si ça existe
+			if (varName in _textField)
+			{
+				// Ca existe, alors définir
+				_textField[varName] = pValue;
+			}
+		}
+		
+		/**
 		 * Activer le cache as bitmap
 		 */
 		protected function enableFlatText ():void
@@ -251,7 +267,7 @@ package fr.swapp.graphic.text
 					scaleFactor = Math.max(DEFAULT_SCALE_LIMIT, scaleFactor * DEFAULT_SCALE_FACTOR);
 					
 					// Et on applique la matrice sur le textField
-					_textField.cacheAsBitmapMatrix = new Matrix(scaleFactor, 0, 0, scaleFactor);
+					setCacheAsBitmapOnTextFieldMatrix(new Matrix(scaleFactor, 0, 0, scaleFactor));
 				}
 				
 				// Activer le stockage bitmap
@@ -277,14 +293,14 @@ package fr.swapp.graphic.text
 			if (pMatrix != null)
 			{
 				// On l'appliquer
-				_textField.cacheAsBitmapMatrix = pMatrix;
+				setCacheAsBitmapOnTextFieldMatrix(pMatrix);
 			}
 			
 			// Sinon si on a un scale
 			else if (pMatrixScale > 0)
 			{
 				// On applique ce scale
-				_textField.cacheAsBitmapMatrix = new Matrix(pMatrixScale, 0, 0, pMatrixScale);
+				setCacheAsBitmapOnTextFieldMatrix(new Matrix(pMatrixScale, 0, 0, pMatrixScale));
 			}
 			
 			// Méthode chaînable
@@ -299,7 +315,7 @@ package fr.swapp.graphic.text
 		{
 			// Virer le cacheAsBitmap
 			_textField.cacheAsBitmap = false;
-			_textField.cacheAsBitmapMatrix = null;
+			setCacheAsBitmapOnTextFieldMatrix(null);
 			
 			// Invalider la position
 			invalidatePosition();

@@ -7,14 +7,12 @@ package fr.swapp.graphic.document
 	import fr.swapp.core.log.Log;
 	import fr.swapp.core.log.TraceLogger;
 	import fr.swapp.core.mvc.AppViewController;
-	import fr.swapp.core.roles.IDisposable;
 	import fr.swapp.core.roles.IInitializable;
 	import fr.swapp.graphic.base.SWrapper;
 	import fr.swapp.graphic.tools.Stats;
 	import fr.swapp.touch.dispatcher.TouchDispatcher;
 	import fr.swapp.touch.emulator.MouseToTouchEmulator;
 	import fr.swapp.utils.EnvUtils;
-	import fr.swapp.utils.TimerUtils;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -46,7 +44,7 @@ package fr.swapp.graphic.document
 		/**
 		 * When document is initialized
 		 */
-		protected var _onInit				:Signal;
+		protected var _onInit				:Signal							= new Signal();
 		
 		
 		/**
@@ -104,8 +102,29 @@ package fr.swapp.graphic.document
 			// Ne plus écouter
 			removeEventListener(Event.ADDED_TO_STAGE, addedHandler);
 			
-			// Lancer l'initialisation
+			// On est prêt
 			init();
+			
+			// Si un wrapper a été créé
+			if (_wrapper != null && !_wrapper.ready)
+			{
+				// Ecouter lorsque le wrapper est prêt
+				_wrapper.onReady.addOnce(ready);
+			}
+			else
+			{
+				// On est prêt
+				ready();
+			}
+		}
+		
+		/**
+		 * When all is ready.
+		 * Setup your app only when it's ready.
+		 */
+		protected function ready ():void
+		{
+			
 		}
 		
 		/**
@@ -119,16 +138,13 @@ package fr.swapp.graphic.document
 		
 		/**
 		 * Init SWrapper
-		 * @param	pAutoDPI : Enable auto DPI
 		 * @param	pEnableStyleCentral : Enable style central
+		 * @param	pAutoDPI : Enable auto DPI
 		 */
-		protected function initWrapper (pAutoDPI:Boolean = true, pEnableStyleCentral:Boolean = true):void
+		protected function initWrapper (pEnableStyleCentral:Boolean = true, pAutoDPI:Boolean = true, pMinWidth:Number = NaN, pMinHeight:Number = NaN, pDontCheckResize:Boolean = false):void
 		{
 			// Créer le wrapper
-			_wrapper = SWrapper.getInstance(stage, pAutoDPI);
-			
-			// Le démarrer
-			_wrapper.start();
+			_wrapper = SWrapper.getInstance(stage, pAutoDPI, pMinWidth, pMinHeight, pDontCheckResize);
 			
 			// Si on doit activer le style central
 			if (pEnableStyleCentral)
@@ -169,19 +185,10 @@ package fr.swapp.graphic.document
 		/**
 		 * Setup AppViewController and start AppViewController.
 		 * SWrapper will be used if initialised. Else, stage will be provided.
+		 * Call this method only in the "ready" method.
 		 */
-		protected function setupAppViewController (pAppViewControllerClass:Class, pDefaultAction:IAction = null, pWaitOnSimulator:Boolean = true):void
+		protected function setupAppViewController (pAppViewControllerClass:Class, pDefaultAction:IAction = null):void
 		{
-			// Si on est dans le simulateur et qu'on doit attendre
-			if (EnvUtils.getInstance().isPlatformType(EnvUtils.WIN_PLATFORM) && pWaitOnSimulator)
-			{
-				// On attend avant de lancer l'appli pour avoir les bonnes dimensions
-				TimerUtils.wait(this, 1, false, setupAppViewController, [pAppViewControllerClass, pDefaultAction, false]);
-				
-				// Ne pas aller plus loin
-				return;
-			}
-			
 			// Créer l'AppController
 			_appViewController = new pAppViewControllerClass();
 			

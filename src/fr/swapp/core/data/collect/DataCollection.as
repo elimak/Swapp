@@ -190,7 +190,7 @@
 		{
 			// Vérifier qu'on soit bien dans les valeurs acceptées, sinon on déclenche une erreur
 			if (pIndex >= _data.length)
-				throw new SwappError("DataCollection.getItem", "Index is out of bounds");
+				throw new SwappError("DataCollection.getItem", "Index " + pIndex + " is out of bounds " + length);
 			
 			// Retourner la valeur
 			return _data[pIndex];

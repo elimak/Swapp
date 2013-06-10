@@ -87,7 +87,7 @@ package fr.swapp.graphic.lists
 			if (_mouseWheelEnabled && _allowScroll)
 			{
 				// On applique la vélocité
-				_velocity -= event.delta * 4;
+				_velocity += event.delta * 4;
 			}
 		}
 		

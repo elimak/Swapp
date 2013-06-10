@@ -143,7 +143,7 @@
 			if (pObject.stage == null)
 			{
 				throw new SwappUtilsError("DiplayObjectUtils.getParentsOf", "pObject.stage can't be null.");
-				return;
+				return null;
 			}
 			
 			// La liste des parents
