@@ -112,9 +112,11 @@ package fr.swapp.core.central
 					}
 				}
 				
+				// Retourner le nombre de handlers qui ont été appelés
 				return handlers.length;
 			}
 			
+			// Personne n'écoute ce message
 			return 0;
 		}
 		

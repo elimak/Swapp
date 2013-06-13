@@ -2,7 +2,6 @@
 {
 	import fr.swapp.core.roles.IEnablable;
 	import fr.swapp.core.roles.IIdentifiable;
-	import org.osflash.signals.DeluxeSignal;
 	
 	/**
 	 * L'item unitaire de stockage de données par défaut
@@ -19,6 +18,7 @@
 		 * Si l'item est actif ou non
 		 */
 		protected var _enabled				:Boolean					= true;
+		
 		
 		/**
 		 * Définir l'id de l'item

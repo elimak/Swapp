@@ -9,7 +9,7 @@
 	public interface IDataItem
 	{
 		/**
-		 * Cette interface doit rester vide pour le polymophisme des objets l'implémentant.
+		 * Cette interface doit rester vide pour autoriser le polymophisme des objets l'implémentant.
 		 */
 	}	
 }

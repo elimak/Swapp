@@ -8,16 +8,15 @@
 	public class Log
 	{
 		/**
-		 * Les différentes actions disponibles
+		 * Les différentes niveaux disponibles
 		 */
-		public static const LOG_ACTION			:String					= "log";
-		public static const DEBUG_ACTION		:String					= "debug";
-		public static const WARNING_ACTION		:String					= "warning";
-		public static const FATAL_ACTION		:String					= "fatal";
-		public static const ERROR_ACTION		:String					= "error";
-		public static const SUCCESS_ACTION		:String					= "success";
-		public static const NOTICE_ACTION		:String					= "notice";
-		public static const CORE_ACTION			:String					= "core";
+		public static const DEBUG_LEVEL			:String					= "debug";
+		public static const WARNING_LEVEL		:String					= "warning";
+		public static const ERROR_LEVEL			:String					= "error";
+		public static const FATAL_LEVEL			:String					= "fatal";
+		public static const SUCCESS_LEVEL		:String					= "success";
+		public static const NOTICE_LEVEL		:String					= "notice";
+		public static const CORE_LEVEL			:String					= "core";
 		
 		/**
 		 * La liste des loggers
@@ -28,14 +27,14 @@
 		 * Les actions activées
 		 */
 		protected static var _enabledActions	:Object					= {
-			LOG_ACTION		: true,
-			DEBUG_ACTION	: true,
-			WARNING_ACTION 	: true,
-			FATAL_ACTION 	: true,
-			ERROR_ACTION 	: true,
-			SUCCESS_ACTION 	: true,
-			NOTICE_ACTION 	: true,
-			CORE_ACTION		: true
+			LOG_LEVEL		: true,
+			DEBUG_LEVEL		: true,
+			WARNING_LEVEL 	: true,
+			FATAL_LEVEL 	: true,
+			ERROR_LEVEL 	: true,
+			SUCCESS_LEVEL 	: true,
+			NOTICE_LEVEL 	: true,
+			CORE_LEVEL		: true
 		};
 		
 		/**
@@ -63,30 +62,19 @@
 		}
 		
 		/**
-		 * Action une action
-		 * @param	pActionName : Le nom de l'action à désactiver (ex: 'trace', 'core', 'debug'...)
+		 * Enable a log level
 		 */
-		public static function enableAction (pActionName:String):void
+		public static function enableLevel (pActionName:String):void
 		{
 			_enabledActions[pActionName] = true;
 		}
 		
 		/**
-		 * Désactiver une action
-		 * @param	pActionName : Le nom de l'action à désactiver (ex: 'trace', 'core', 'debug'...)
+		 * Disable a log level
 		 */
-		public static function disableAction (pActionName:String):void
+		public static function disableLevel (pActionName:String):void
 		{
 			_enabledActions[pActionName] = false;
-		}
-		
-		/**
-		 * Tracer un ou plusieurs éléments
-		 * @param	...rest : Tous les paramètres sont acceptés
-		 */
-		public static function log (...rest):void
-		{
-			dispatchLoggerAction(LOG_ACTION, rest);
 		}
 		
 		/**
@@ -96,7 +84,7 @@
 		 */
 		public static function debug (pDebugName:String, pObject:*):void
 		{
-			dispatchLoggerAction(DEBUG_ACTION, arguments);
+			dispatchLoggerAction(DEBUG_LEVEL, arguments);
 		}
 		
 		/**
@@ -106,7 +94,7 @@
 		 */
 		public static function warning (pString:String, pCode:uint = 0):void
 		{
-			dispatchLoggerAction(WARNING_ACTION, arguments);
+			dispatchLoggerAction(WARNING_LEVEL, arguments);
 		}
 		
 		/**
@@ -116,7 +104,7 @@
 		 */
 		public static function fatal (pString:String, pCode:uint = 0):void
 		{
-			dispatchLoggerAction(FATAL_ACTION, arguments);
+			dispatchLoggerAction(FATAL_LEVEL, arguments);
 		}
 		
 		/**
@@ -126,7 +114,7 @@
 		 */
 		public static function error (pString:String, pCode:uint = 0):void
 		{
-			dispatchLoggerAction(ERROR_ACTION, arguments);
+			dispatchLoggerAction(ERROR_LEVEL, arguments);
 		}
 		
 		/**
@@ -136,7 +124,7 @@
 		 */
 		public static function success (pString:String, pCode:uint = 0):void
 		{
-			dispatchLoggerAction(SUCCESS_ACTION, arguments);
+			dispatchLoggerAction(SUCCESS_LEVEL, arguments);
 		}
 		
 		/**
@@ -145,7 +133,7 @@
 		 */
 		public static function notice (...rest):void
 		{
-			dispatchLoggerAction(NOTICE_ACTION, rest);
+			dispatchLoggerAction(NOTICE_LEVEL, rest);
 		}
 		
 		/**
@@ -156,7 +144,7 @@
 		 */
 		public static function core (pCaller:Object, pMethodName:String = "", pArguments:Array = null):void
 		{
-			dispatchLoggerAction(CORE_ACTION, arguments);
+			dispatchLoggerAction(CORE_LEVEL, arguments);
 		}
 		
 		/**
@@ -172,6 +160,17 @@
 				// Cibler le logger et appeler l'action
 				logger[pAction].apply(null, pParams);
 			}
+		}
+		
+		/**
+		 * Describe an object structure to string
+		 * @param	pObject : The object to parse
+		 * @param	pRecursiveLimit : Recursion limit.
+		 * @return String representation of the object
+		 */
+		public function describeObject (pObject:String, pRecursiveLimit:uint = 10):String
+		{
+			return "";
 		}
 	}
 }

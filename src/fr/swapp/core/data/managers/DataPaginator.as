@@ -31,6 +31,7 @@
 		 */
 		protected var _index					:uint;
 		
+		
 		/**
 		 * Le collecteur à paginer
 		 */

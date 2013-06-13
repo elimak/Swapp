@@ -58,7 +58,7 @@
 		 * @param	pSource
 		 * @return	Un objet clonné.
 		 */
-		public static function cloneObject (pSource:Object):Object
+		public static function clone (pSource:Object):Object
 		{
 			// Créer le ByteArray de copie
 			var cloner:ByteArray = new ByteArray();

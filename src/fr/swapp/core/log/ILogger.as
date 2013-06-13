@@ -6,12 +6,6 @@
 	public interface ILogger
 	{
 		/**
-		 * Tracer un ou plusieurs éléments
-		 * @param	...rest : Tous les paramètres sont acceptés
-		 */
-		function log (...rest):void;
-		
-		/**
 		 * Debugger un objet (afficher son arborescence)
 		 * @param	pDebugName : Nom du debug (pour s'y retrouver)
 		 * @param	pObject : Objet à débugger. Tous les objets sont accéptés et seront parsés. Attentions à la récursivité!

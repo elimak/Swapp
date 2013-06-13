@@ -13,11 +13,6 @@ package fr.swapp.core.log
 			
 		}
 		
-		public function log (...rest):void 
-		{
-			trace.apply(null, rest);
-		}
-		
 		public function debug (pDebugName:String, pObject:*):void 
 		{
 			trace.apply(null, arguments);
