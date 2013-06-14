@@ -10,27 +10,10 @@
 	public class EnvUtils
 	{
 		/**
-		 * EnvUtils is Singleton.
+		 * Inches size to determinate if phone or tablet (only for android).
+		 * This parameter can be changed.
 		 */
-		protected static var __instance				:EnvUtils;
-		
-		/**
-		 * Get EnvUtils only instance.
-		 * EnvUtils is Singleton.
-		 */
-		public static function getInstance ():EnvUtils
-		{
-			// Si l'instance n'existe pas
-			if (__instance == null)
-			{
-				// On la créé
-				new EnvUtils();
-			}
-			
-			// Retourner cette instance
-			return __instance;
-		}
-		
+		public static var TABLET_SIZE_DELIMITATION		:Number				= 6.5;
 		
 		/**
 		 * Unknow platform / device
@@ -54,13 +37,8 @@
 		public static const DESKTOP						:String				= "desktopDevice";
 		
 		/**
-		 * Inches size to determinate if phone or tablet (only for android)
-		 */
-		public static const TABLET_SIZE_DELIMITATION	:Number				= 6.5;
-		
-		/**
 		 * Bases DPIs (only for desktop and iOS).
-		 * iPad mini is excluded from DPI resizing (it will use iPad definition)
+		 * iPad mini is excluded from DPI resizing (it will use iPad 1,2 definition)
 		 */
 		public static const DESKTOP_DPI					:uint				= 72;
 		public static const IPAD_CLASSIC_DPI			:uint				= 132;
@@ -99,64 +77,58 @@
 		/**
 		 * Player runtime type
 		 */
-		public static const FLASH						:String				= "flashPlayer";
-		public static const AIR							:String				= "airRuntime";
+		public static const FLASH_RUNTIME				:String				= "flashPlayer";
+		public static const AIR_RUNTIME					:String				= "airRuntime";
 		
 		
 		/**
 		 * Platform name from Capabilities.version
 		 */
-		protected var _platform							:String;
+		protected static var _platform					:String;
 		
 		/**
 		 * Non computed version (full string)
 		 */
-		protected var _version							:String;
+		protected static var _version					:String;
 		
 		/**
 		 * Version computed parts from _version
 		 */
-		protected var _majorVersion						:uint;
-		protected var _minorVersion						:uint;
-		protected var _buildNumber						:uint;
-		protected var _internalBuildNumber				:uint;
+		protected static var _majorVersion				:uint;
+		protected static var _minorVersion				:uint;
+		protected static var _buildNumber				:uint;
+		protected static var _internalBuildNumber		:uint;
 		
-		
-		/**
-		 * Constructor
-		 */
-		public function EnvUtils ():void
-		{
-			__instance = this;
-			
-			precomputeInformations();
-		}
 		
 		/**
 		 * Pre-compute all informations about environment to ease access.
 		 */
-		protected function precomputeInformations ():void
+		protected static function precomputeInformations ():void
 		{
-			// Récupérer les informations de la version
-			var result:Object = /^(\w*) (\d*),(\d*),(\d*),(\d*)$/.exec(Capabilities.version);
-			
-			// Si on a des résultats
-			if (result != null)
+			// Si la plateforme n'a pas déjà été définie
+			if (__platform == null)
 			{
-				// On enregistre les valeurs
-				_version 				= result.input;
-				_platform 				= result[1];
-				_majorVersion 			= result[2];
-				_minorVersion 			= result[3];
-				_buildNumber 			= result[4];
-				_internalBuildNumber 	= result[5];
+				// Récupérer les informations de la version
+				var result:Object = /^(\w*) (\d*),(\d*),(\d*),(\d*)$/.exec(Capabilities.version);
+				
+				// Si on a des résultats
+				if (result != null)
+				{
+					// On enregistre les valeurs
+					__version 				= result.input;
+					__platform 				= result[1];
+					__majorVersion 			= result[2];
+					__minorVersion 			= result[3];
+					__buildNumber 			= result[4];
+					__internalBuildNumber 	= result[5];
+				}
 			}
 		}
 		
 		/**
-		 * Get raw informations from Capabilities API
+		 * Get text format based informations from Capabilities API
 		 */
-		public function getRawInformations ():String
+		public static function getTextInformations ():String
 		{
 			return <text>
 				Capabilities.version : {Capabilities.version}
@@ -172,10 +144,18 @@
 			</text>.toString().replace(/(\t|\r)/g, "");
 		}
 		
+		
+		
 		/**
-		 * If we are on desktop
+		 * ----------------------------------------------
+		 * 					DEVICE TYPE
+		 * ----------------------------------------------
 		 */
-		protected function isDesktop (pPlatform:String):Boolean
+		
+		/**
+		 * If a platform is as a desktop platform
+		 */
+		protected static function isDesktop (pPlatform:String):Boolean
 		{
 			return (pPlatform == MAC_PLATFORM || pPlatform == WIN_PLATFORM || pPlatform == LINUX_PLATFORM) && Capabilities.screenDPI <= 72;
 		}
@@ -183,7 +163,7 @@
 		/**
 		 * Get the device type (see statics)
 		 */
-		public function getDeviceType (pAllowDesktop:Boolean = true):String
+		public static function getDeviceType (pAllowDesktop:Boolean = true):String
 		{
 			// On est sur un device ?
 			var platform:String = getPlatformType();
@@ -201,8 +181,6 @@
 			// Si on est sur iOS
 			if (platform == IOS_PLATFORM)
 			{
-				// TODO: Gérer le cas de l'iPad mini !
-				
 				// Si on est sur le DPI d'un téléphone
 				if (Capabilities.screenDPI == IPHONE_RETINA_DPI || Capabilities.screenDPI == IPHONE_CLASSIC_DPI)
 				{
@@ -245,15 +223,23 @@
 		/**
 		 * Check a device type (see statics)
 		 */
-		public function isDeviceType (pDeviceType:String, pAllowDesktop:Boolean = true):Boolean
+		public static function isDeviceType (pDeviceType:String, pAllowDesktop:Boolean = true):Boolean
 		{
 			return getDeviceType(pAllowDesktop) == pDeviceType;
 		}
 		
+		
+		
+		/**
+		 * ----------------------------------------------
+		 * 				   PLATFORM TYPE
+		 * ----------------------------------------------
+		 */
+		
 		/**
 		 * Get the platform type (see statics)
 		 */
-		public function getPlatformType ():String
+		public static function getPlatformType ():String
 		{
 			// Passer le nom de la plateforme en minuscules
 			var lowPlatform:String = _platform.toLowerCase();
@@ -274,31 +260,47 @@
 		/**
 		 * Check a platform type (see statics)
 		 */
-		public function isPlatformType (pPlatformType:String):Boolean
+		public static function isPlatformType (pPlatformType:String):Boolean
 		{
 			return getPlatformType() == pPlatformType;
 		}
 		
+		
+		
+		/**
+		 * ----------------------------------------------
+		 * 				   RUNTIME TYPE
+		 * ----------------------------------------------
+		 */
+		
 		/**
 		 * Get the player type (see statics)
 		 */
-		public function getPlayerType ():String
+		public static function getRuntime ():String
 		{
-			return Capabilities.playerType == "Desktop" ? AIR : FLASH;
+			return Capabilities.playerType == "Desktop" ? AIR_RUNTIME : FLASH_RUNTIME;
 		}
 		
 		/**
 		 * Check a player type (see statics)
 		 */
-		public function isPlayerType (pPlayerType:String):Boolean
+		public static function isRuntime (pPlayerType:String):Boolean
 		{
-			return getPlayerType() == pPlayerType;
+			return getRuntime() == pPlayerType;
 		}
+		
+		
+		
+		/**
+		 * ----------------------------------------------
+		 * 				RUNTIME INFORMATION
+		 * ----------------------------------------------
+		 */
 		
 		/**
 		 * If the runtime is in debug mode
 		 */
-		public function isDebug ():Boolean
+		public static function isDebug ():Boolean
 		{
 			return Capabilities.isDebugger;
 		}
@@ -306,42 +308,109 @@
 		/**
 		 * Get the player version
 		 */
-		public function getPlayerVersion ():Vector.<uint>
+		public static function getPlayerVersion ():Vector.<uint>
 		{
-			return new <uint>[_majorVersion, _minorVersion, _buildNumber, _internalBuildNumber];
+			// Récupérer les infos si ce n'est pas déjà fait
+			precomputeInformations();
+			
+			// Retourner les numéros de version dans l'ordre
+			return new <uint>[__majorVersion, __minorVersion, __buildNumber, __internalBuildNumber];
 		}
+		
+		/**
+		 * If the applicatoin runs inside the Standalone Flash Player
+		 */
+		public static function isStandalone ():Boolean
+		{
+			return (Capabilities.playerType == "StandAlone");
+		}
+		
+		/**
+		 * If the applicatoin runs inside the IDE Flash Player
+		 */
+		public static function isInIDE ():Boolean
+		{
+			return Capabilities.playerType == "External";
+		}
+		
+		/**
+		 * If the application runs into the browser
+		 */
+		public static function isInBrowser ():Boolean
+		{
+			return Capabilities.playerType == "PlugIn" || Capabilities.playerType == "ActiveX";
+		}
+		
+		/**
+		 * If the application runs inside Air Runtime
+		 */
+		public static function isAIRApplication ():Boolean
+		{
+			return Capabilities.playerType == "Desktop";
+		}
+		
+		/**
+		 * Récupérer la version de la plateforme
+		 */
+		public static function getOSVersion ():String
+		{
+			return Capabilities.os;
+		}
+		
+		
+		
+		/**
+		 * ----------------------------------------------
+		 * 				      DEVICE TYPE
+		 * ----------------------------------------------
+		 */
 		
 		/**
 		 * Récupérer le nom du device iOS
 		 */
-		protected function getIOSDeviceVersion ():String
+		protected static function getIOSDeviceVersion ():String
+		{
+			return Capabilities.os.substr(Capabilities.os.lastIndexOf(" ") + 1, Capabilities.os.length - 1);
+		}
+		
+		/**
+		 * Get the specific iOS device model
+		 */
+		public static function getiOSDevice ():String
+		{
+			throw new SwappUtilsError("EnvUtils.getiOSDevice", "Not implemented yet");
+			return "";
+		}
+		
+		/**
+		 * Si c'est un device spécifique
+		 */
+		public static function isIOSDevice (pDevice:String):Boolean
+		{
+			throw new SwappUtilsError("EnvUtils.isIOSDevice", "Not implemented yet");
+			return getiOSDevice().indexOf(pDevice) != -1;
+		}
+		
+		/**
+		 * Récupérer la version du device
+		 */
+		public static function getIOSDeviceVersion ():String
 		{
 			return Capabilities.os.substr(Capabilities.os.lastIndexOf(" ") + 1, Capabilities.os.length - 1);
 		}
 		
 		
 		
-		
 		/**
-		 * Get the specific iOS device model
+		 * ----------------------------------------------
+		 * 				 SCREEN INFORMATIONS
+		 * ----------------------------------------------
 		 */
-		public function getiOSSpecificDevice ():String
-		{
-			return "";
-		}
-		
-		/**
-		 * Check if the device is a specific iOS model
-		 */
-		public function isiOSSpecificDevice (pDeviceType:String):Boolean
-		{
-			return false;
-		}
 		
 		/**
 		 * Get approx screen size (inches)
 		 */
-		public function getScreenSize (pAllowDesktopScreenSize:Boolean = false, pStage:Stage = null):Number
+		public static function getScreenSize (pAllowDesktopScreenSize:Boolean = false, pStage:Stage = null):Number
 		{
 			// Si on est sur PC
 			var checkDesktop:Boolean = (!pAllowDesktopScreenSize && isDesktop(getPlatformType()) && pStage != null)
@@ -355,7 +424,7 @@
 		/**
 		 * Get ratio for stage
 		 */
-		public function getRatioForStage ():Number
+		public static function getRatioForStage ():Number
 		{
 			// Récupérer le type de device
 			var deviceType:String = getDeviceType(true);
@@ -384,81 +453,5 @@
 				return 1;
 			}
 		}
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		/**
-		 * Récupérer la version de la plateforme
-		 */
-		public static function getPlateformVersion ():String
-		{
-			return Capabilities.os;
-		}
-		
-		/**
-		 * Récupérer la version du device
-		 */
-		public static function getIOSDeviceVersion ():String
-		{
-			return Capabilities.os.substr(Capabilities.os.lastIndexOf(" ") + 1, Capabilities.os.length - 1);
-		}
-		
-		/**
-		 * Si c'est un device spécifique
-		 */
-		public static function isIOSDevice (pDevice:String):Boolean
-		{
-			return getIOSDeviceVersion().indexOf(pDevice) != -1;
-		}
-		
-		/**
-		 * Savoir si le player possède un debugger
-		 */
-		public static function isPlayerDebug ():Boolean
-		{
-			return Capabilities.isDebugger;
-		}
-		
-		/**
-		 * Savoir si le player est en standAlone.
-		 */
-		public static function isStandalone ():Boolean
-		{
-			return (Capabilities.playerType == "StandAlone");
-		}
-		
-		/**
-		 * On teste si on est dans l'IDE de Flash.
-		 * @return True si on est dans L'IDE sinon false.
-		 */
-		public static function isInIDE ():Boolean
-		{
-			return Capabilities.playerType == "External";
-		}
-		
-		/**
-		 * On test si on est dans un browser ou pas.
-		 * @return	True si on est dans un browser, si non, false.
-		 */
-		public static function isInBrowser ():Boolean
-		{
-			return Capabilities.playerType == "PlugIn" || Capabilities.playerType == "ActiveX";
-		}
-		
-		/**
-		 * On test si on est dans une application AIR
-		 * @return
-		 */
-		public static function isAIRApplication ():Boolean
-		{
-			return Capabilities.playerType == "Desktop";
-		}
-		
 	}
 }

@@ -10,7 +10,15 @@ package fr.swapptesting.env
 	{
 		public function EnvUtilsTest ()
 		{
-			//EnvUtils
+			construct();
+		}
+		
+		protected function construct ():void
+		{
+			// 
+			trace(EnvUtils.isDeviceType(EnvUtils.PHONE));
+			trace(EnvUtils.isDeviceType(EnvUtils.TABLET));
+			trace(EnvUtils.isDeviceType(EnvUtils.DESKTOP));
 		}
 	}
 }

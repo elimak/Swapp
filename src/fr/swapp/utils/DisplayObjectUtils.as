@@ -4,6 +4,7 @@
 	import flash.display.DisplayObjectContainer;
 	import flash.display.FrameLabel;
 	import flash.display.MovieClip;
+	import flash.events.Event;
 	import flash.geom.Matrix;
 	import flash.geom.PerspectiveProjection;
 	import flash.geom.Point;
@@ -14,6 +15,12 @@
 	 */
 	public class DisplayObjectUtils
 	{
+		/**
+		 * ----------------------------------------------
+		 * 					 ANIMATIONS
+		 * ----------------------------------------------
+		 */
+		
 		/**
 		 * Récupérer le numéro d'une image par le nom de son label.
 		 * @param	pMovieClip : Le clip
@@ -34,7 +41,9 @@
 				
 				// Vérifier s'il correspond de près ou de loin
 				if (pStrict && (n == pLabel) || !pStrict && (n.toLowerCase() == pLabel.toLowerCase()))
+				{
 					return FrameLabel(pMovieClip.currentLabels[i]).frame;
+				}
 			}
 			
 			// Sinon on retourne 0
@@ -87,6 +96,14 @@
 			else return false;
 		}
 		
+		
+		
+		/**
+		 * ----------------------------------------------
+		 * 					 STACK ORDER
+		 * ----------------------------------------------
+		 */
+		
 		/**
 		 * Passer au premier plan
 		 * @param	pDisplayObject : Le displayObject
@@ -130,6 +147,14 @@
 			if (pDisplayObject.parent != null)
 				pDisplayObject.parent.setChildIndex(pDisplayObject, Math.max(0, pDisplayObject.parent.getChildIndex(pDisplayObject) - 1));
 		}
+		
+		
+		
+		/**
+		 * ----------------------------------------------
+		 * 					 HIERARCHY
+		 * ----------------------------------------------
+		 */
 		
 		/**
 		 * Récupérer la liste des parents d'un DisplayObject. Le premier parent en premier, jusqu'a stage.
@@ -198,6 +223,14 @@
 			return parent;
 		}
 		
+		
+		
+		/**
+		 * ----------------------------------------------
+		 * 						 3D
+		 * ----------------------------------------------
+		 */
+		
 		/**
 		 * Remettre la matrice 3D d'un DisplayObject à 0.
 		 * Les propriétés x et y seront replacées depuis la matrice 3D.
@@ -235,6 +268,63 @@
 			
 			// Appliquer cette configuration sur l'objet
 			pTarget.transform.perspectiveProjection = perspectiveProjection;
+		}
+		
+		
+		
+		/**
+		 * ----------------------------------------------
+		 * 						TIME
+		 * ----------------------------------------------
+		 */
+		
+		/**
+		 * Wait for a specified frame numbers. Usefull to wait for graphics upload in GPU renderMode.
+		 * @param	pDisplayTarget : DisplayObject target to listen to EnterFrame events. Needs to be on stage.
+		 * @param	pFrames : Total frame number to wait until handler call.
+		 * @param	pHandler : Called when the frame number is reached.
+		 * @param	pHandlerParams : Handler parameters as array.
+		 * @param	pDirectIfNoStage : Directly call handler if DisplayObject is null or not attached to stage. Permit to avoid pepory leaks with the handler.
+		 */
+		public static function wait (pDisplayTarget:DisplayObject, pFrames:uint, pHandler:Function, pHandlerParams:Array = null, pDirectIfNoStage:Boolean = true):void
+		{
+			// Si on a n'a pas de handler on quitte
+			if (pHandler == null)
+				return;
+			
+			// Appelé a chaque frame
+			function waitTick (event:Event = null):void
+			{
+				// Si le nombre de frames est écoulé
+				if (--pFrames == 0 || event == null)
+				{
+					// Ne plus écouter les frames et les suppressions
+					pDisplayTarget.removeEventListener(Event.ENTER_FRAME, waitTick);
+					pDisplayTarget.removeEventListener(Event.REMOVED_FROM_STAGE, waitTick);
+					
+					// Appeler le handler
+					pHandler.apply(pDisplayTarget, pHandlerParams);
+				}
+				else if (event.type == Event.REMOVED_FROM_STAGE)
+				{
+					// Supprimer les listeners si le clip est supprimé
+					pDisplayTarget.removeEventListener(Event.ENTER_FRAME, waitTick);
+					pDisplayTarget.removeEventListener(Event.REMOVED_FROM_STAGE, waitTick);
+				}
+			}
+			
+			// Si on a besoin d'attendre quelques frames
+			if (pFrames > 0 && (pDisplayTarget.stage != null || !pDirectIfNoStage))
+			{
+				// Ecouter les frames sur le clip
+				pDisplayTarget.addEventListener(Event.ENTER_FRAME, waitTick);
+				pDisplayTarget.addEventListener(Event.REMOVED_FROM_STAGE, waitTick);
+			}
+			else
+			{
+				// On lance directement
+				waitTick();
+			}
 		}
 	}
 }
