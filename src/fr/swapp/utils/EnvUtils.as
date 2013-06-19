@@ -4,37 +4,17 @@
 	import flash.system.Capabilities;
 	
 	/**
-	 * Classe utilitaire permettant de récupérer des informations sur l'environnement d'exécution.
+	 * Utils class to get platform / device / environment specific informations.
 	 * @author ZoulouX, Pascal
 	 */
 	public class EnvUtils
 	{
 		/**
-		 * Inches size to determinate if phone or tablet (only for android).
-		 * This parameter can be changed.
+		 * Inches size to determinate if the device is phone, tablet or desktop sized.
+		 * These parameters can be changed.
 		 */
-		public static var TABLET_SIZE_DELIMITATION		:Number				= 6.5;
-		
-		/**
-		 * Unknow platform / device
-		 */
-		public static const UNKNOW						:String				= "unknow";
-		
-		/**
-		 * All possibles platforms
-		 */
-		public static const WIN_PLATFORM				:String				= "winPlatform";
-		public static const MAC_PLATFORM				:String				= "macPlatform";
-		public static const LINUX_PLATFORM				:String				= "linuxPlatform";
-		public static const IOS_PLATFORM				:String				= "iosPlatform";
-		public static const ANDROID_PLATFORM			:String				= "androidPlatform";
-		
-		/**
-		 * All possibles devices
-		 */
-		public static const PHONE						:String				= "phoneDevice";
-		public static const TABLET						:String				= "tabletDevice";
-		public static const DESKTOP						:String				= "desktopDevice";
+		public static var tabletSizeDelimitation		:Number				= 6.5;
+		public static var desktopSizeDelimitation		:Number				= 13;
 		
 		/**
 		 * Bases DPIs (only for desktop and iOS).
@@ -46,8 +26,40 @@
 		public static const IPHONE_CLASSIC_DPI			:uint				= 163;
 		public static const IPHONE_RETINA_DPI			:uint				= 326;
 		
+		
 		/**
-		 * iPhone IDs (for detection)
+		 * Unknow platform / device
+		 */
+		public static const UNKNOW						:String				= "unknow";
+		
+		/**
+		 * All possibles platforms.
+		 * Available for "like" API.
+		 */
+		public static const WIN_PLATFORM				:String				= "winPlatform";
+		public static const MAC_PLATFORM				:String				= "macPlatform";
+		public static const LINUX_PLATFORM				:String				= "linuxPlatform";
+		public static const IOS_PLATFORM				:String				= "iosPlatform";
+		public static const ANDROID_PLATFORM			:String				= "androidPlatform";
+		
+		/**
+		 * High level devices.
+		 * Available for "like" API.
+		 */
+		public static const DESKTOP_DEVICE				:String				= "desktopPlatform";
+		public static const MOBILE_DEVICE				:String				= "mobilePlatform";
+		
+		/**
+		 * All possibles device sizes.
+		 * Available for "like" API.
+		 */
+		public static const PHONE_SIZE					:String				= "phoneSize";
+		public static const TABLET_SIZE					:String				= "tabletSize";
+		public static const DESKTOP_SIZE				:String				= "desktopSize";
+		
+		/**
+		 * iPhone IDs.
+		 * Available for "like" API.
 		 */
 		public static const IPHONE_1_DEVICE				:String				= "iPhone1,1";
 		public static const IPHONE_3G_DEVICE			:String				= "iPhone1,2";
@@ -57,7 +69,8 @@
 		public static const IPHONE_5_DEVICE				:String				= "iPhone5,";
 		
 		/**
-		 * iPod IDs (for detection)
+		 * iPod IDs.
+		 * Available for "like" API.
 		 */
 		public static const IPOD_TOUCH_1_DEVICE			:String				= "iPod1,";
 		public static const IPOD_TOUCH_2_DEVICE			:String				= "iPod2,";
@@ -66,8 +79,9 @@
 		public static const IPOD_TOUCH_5_DEVICE			:String				= "iPod5,";
 		
 		/**
-		 * iPad IDs (for detection)
-		 * iPad mini is excluded from DPI resizing (it will use iPad definition)
+		 * iPad IDs.
+		 * iPad mini is excluded from DPI resizing (it will use iPad definition).
+		 * Available for "like" API.
 		 */
 		public static const IPAD_1_DEVICE				:String				= "iPad1,1";
 		public static const IPAD_2_DEVICE				:String				= "iPad2,";
@@ -75,29 +89,30 @@
 		public static const IPAD_4_DEVICE				:String				= "iPad3,4|iPad3,5|iPad3,6";
 		
 		/**
-		 * Player runtime type
+		 * Player runtime type.
+		 * Available for "like" API.
 		 */
-		public static const FLASH_RUNTIME				:String				= "flashPlayer";
+		public static const FLASH_RUNTIME				:String				= "flashRuntime";
 		public static const AIR_RUNTIME					:String				= "airRuntime";
 		
 		
 		/**
 		 * Platform name from Capabilities.version
 		 */
-		protected static var _platform					:String;
+		protected static var __platform					:String;
 		
 		/**
 		 * Non computed version (full string)
 		 */
-		protected static var _version					:String;
+		protected static var __version					:String;
 		
 		/**
 		 * Version computed parts from _version
 		 */
-		protected static var _majorVersion				:uint;
-		protected static var _minorVersion				:uint;
-		protected static var _buildNumber				:uint;
-		protected static var _internalBuildNumber		:uint;
+		protected static var __majorVersion				:uint;
+		protected static var __minorVersion				:uint;
+		protected static var __buildNumber				:uint;
+		protected static var __internalBuildNumber		:uint;
 		
 		
 		/**
@@ -145,6 +160,16 @@
 		}
 		
 		
+		/**
+		 * Check any "is" like method.
+		 * Include : isPlatformType / isDeviceType / isDeviceType / isIOSDevice / isRuntime
+		 */
+		public static function like (pWhat:String):Boolean
+		{
+			return isPlatformType(pWhat) || isDeviceSize(pWhat) || isDeviceType(pWhat) || isIOSDevice(pWhat) || isRuntime(pWhat);
+		}
+		
+		
 		
 		/**
 		 * ----------------------------------------------
@@ -153,30 +178,159 @@
 		 */
 		
 		/**
-		 * If a platform is as a desktop platform
+		 * If a platform is as a desktop platform.
+		 * Let pPlatform to null to check with the current platform.
+		 * Will also check if DPI is 72 to get only Desktop type platforms.
 		 */
-		protected static function isDesktop (pPlatform:String):Boolean
+		public static function isDesktop (pPlatform:String = null):Boolean
 		{
+			// Si on n'a pas de plateforme de passée
+			if (pPlatform == null || pPlatform == "")
+			{
+				// On récupère la plateforme
+				pPlatform = getPlatformType();
+			}
+			
+			// Si on est sur PC / MAC / Linux
 			return (pPlatform == MAC_PLATFORM || pPlatform == WIN_PLATFORM || pPlatform == LINUX_PLATFORM) && Capabilities.screenDPI <= 72;
 		}
 		
 		/**
-		 * Get the device type (see statics)
+		 * Get the high level device type
 		 */
-		public static function getDeviceType (pAllowDesktop:Boolean = true):String
+		public static function getDeviceType ():String
 		{
-			// On est sur un device ?
+			// Retourner si on est sur mobile ou tablette
+			return isDesktop() ? DESKTOP_DEVICE : MOBILE_DEVICE;
+		}
+		
+		/**
+		 * Check the high level device type (see statics)
+		 */
+		public static function isDeviceType (pDeviceType:String):Boolean
+		{
+			return getDeviceType() == pDeviceType;
+		}
+		
+		
+		/**
+		 * Get the specific iOS device model
+		 */
+		public static function getIOSDevice ():String
+		{
+			return Capabilities.os.substr(Capabilities.os.lastIndexOf(" ") + 1, Capabilities.os.length - 1);
+		}
+		
+		/**
+		 * Si c'est un device spécifique
+		 */
+		public static function isIOSDevice (pDevice:String):Boolean
+		{
+			// Récupérer le device iOS
+			var currentDeviceID:String = getIOSDevice();
+			
+			// Voir si on a déguisé un tableau dans le string de cet id
+			if (pDevice.indexOf("|"))
+			{
+				// On le split
+				var deviceIDs:Array = pDevice.split("|");
+				
+				// Parcourir les IDs
+				for (var i:int = 0, total:uint = deviceIDs.length; i < total; i++) 
+				{
+					// Si ce device ID correspond
+					if (currentDeviceID.indexOf(deviceIDs[i]) != -1)
+					{
+						// On l'a trouvé
+						return true;
+					}
+				}
+				
+				// On n'a pas trouvé ce device
+				return false;
+			}
+			else
+			{
+				// Retourner directement si ce device ID est dans la signature
+				return currentDeviceID.indexOf(pDevice) != -1;
+			}
+		}
+		
+		
+		
+		/**
+		 * ----------------------------------------------
+		 * 					DEVICE SIZE
+		 * ----------------------------------------------
+		 */
+		
+		/**
+		 * Get approx screen size (inches)
+		 */
+		public static function getScreenSize ():Number
+		{
+			// On déclanche une erreur si on n'a pas notre stage
+			StageUtils.throwErrorIfMainStageNotDefined("EnvUtils.getScreenSize");
+			
+			// Si on est sur un environnement desktop
+			var checkDesktop:Boolean = isDesktop();
+			
+			// Récupérer la largeur et la hauteur réelle (pas en pixels mais bien en pouces)
+			const screenWidth	:Number = (checkDesktop ? StageUtils.mainStage.stageWidth / 100 : Capabilities.screenResolutionX / Capabilities.screenDPI);
+			const screenHeight	:Number = (checkDesktop ? StageUtils.mainStage.stageHeight / 100 : Capabilities.screenResolutionY / Capabilities.screenDPI);
+			
+			// Retourner la 
+			return Math.sqrt(screenWidth * screenWidth + screenHeight * screenHeight);
+		}
+		
+		/**
+		 * Get ratio for main stage
+		 */
+		public static function getRatioForMainStage ():Number
+		{
+			// Récupérer le type de device
+			var deviceSize:String = getDeviceSize();
+			
+			// Si on est sur un environnement desktop
+			// Ne pas regarder deviceSize == DESKTOP_SIZE car ça peut être android
+			if (isDesktop())
+			{
+				// On calcul par rapport au DPI de base du Desktop
+				return Capabilities.screenDPI / DESKTOP_DPI;
+			}
+			
+			// Si on est sur téléphone
+			else if (deviceSize == PHONE_SIZE)
+			{
+				// On calcul par rapport au DPI de base de l'iPhone
+				return Capabilities.screenDPI / IPHONE_CLASSIC_DPI;
+			}
+			
+			// Si on est sur tablette
+			else if (deviceSize == TABLET_SIZE)
+			{
+				// On calcul par rapport au DPI de base de l'iPad
+				return Capabilities.screenDPI / IPAD_CLASSIC_DPI;
+			}
+			
+			// Sinon on met un ratio de 1
+			else
+			{
+				return 1;
+			}
+		}
+		
+		/**
+		 * Get the device type (see statics)
+		 * Phone, tablet or desktop size
+		 */
+		public static function getDeviceSize ():String
+		{
+			// Récupérer la platforme
 			var platform:String = getPlatformType();
 			
-			// Si on autorise à retourner un type desktop
-			if (pAllowDesktop)
-			{
-				// On est sur un ordi si on est sur Mac / Pc / Linux et si on a un DPI de 72
-				if (isDesktop(platform))
-				{
-					return DESKTOP;
-				}
-			}
+			// Récupérer la taille de l'écran
+			var screenSize:Number = getScreenSize();
 			
 			// Si on est sur iOS
 			if (platform == IOS_PLATFORM)
@@ -184,36 +338,58 @@
 				// Si on est sur le DPI d'un téléphone
 				if (Capabilities.screenDPI == IPHONE_RETINA_DPI || Capabilities.screenDPI == IPHONE_CLASSIC_DPI)
 				{
-					return PHONE;
+					return PHONE_SIZE;
 				}
 				
 				// Ou sur le DPI d'une tablette
 				else if (Capabilities.screenDPI == IPAD_RETINA_DPI || Capabilities.screenDPI == IPAD_CLASSIC_DPI)
 				{
-					return TABLET
+					return TABLET_SIZE;
 				}
 			}
 			
 			// Si on est sur Android
 			else if (platform == ANDROID_PLATFORM)
 			{
-				// On regarde la taille supposée de l'écran
-				return (getScreenSize() >= TABLET_SIZE_DELIMITATION ? TABLET : PHONE);
-			}
-			
-			// Si on n'autorise pas les return computer
-			else if (!pAllowDesktop)
-			{
-				// 
-				if (getScreenSize() >= TABLET_SIZE_DELIMITATION)
+				// Si c'est une taille de desktop
+				if (screenSize >= desktopSizeDelimitation)
 				{
-					return TABLET;
-				}
-				else
-				{
-					return PHONE;
+					return DESKTOP_SIZE;
 				}
 				
+				// Si c'est une taille de tablette
+				else if (screenSize >= tabletSizeDelimitation)
+				{
+					return TABLET_SIZE;
+				}
+				
+				// Si c'est une taille de téléphone
+				else
+				{
+					return PHONE_SIZE;
+				}
+			}
+			
+			// Sinon, si on est sur desktop
+			else if (isDesktop(platform))
+			{
+				// Si c'est une taille de desktop
+				if (getScreenSize() >= desktopSizeDelimitation)
+				{
+					return DESKTOP_SIZE;
+				}
+				
+				// Si c'est une taille de tablette
+				else if (getScreenSize() >= tabletSizeDelimitation)
+				{
+					return TABLET_SIZE;
+				}
+				
+				// Si c'est une taille de téléphone
+				else
+				{
+					return PHONE_SIZE;
+				}
 			}
 			
 			// Si on est arrivé jusque ici c'est qu'on ne sait pas
@@ -221,11 +397,11 @@
 		}
 		
 		/**
-		 * Check a device type (see statics)
+		 * Check a device size (see statics)
 		 */
-		public static function isDeviceType (pDeviceType:String, pAllowDesktop:Boolean = true):Boolean
+		public static function isDeviceSize (pDeviceSize:String):Boolean
 		{
-			return getDeviceType(pAllowDesktop) == pDeviceType;
+			return getDeviceSize() == pDeviceSize;
 		}
 		
 		
@@ -241,16 +417,19 @@
 		 */
 		public static function getPlatformType ():String
 		{
+			// Récupérer les infos si ce n'est pas déjà fait
+			precomputeInformations();
+			
 			// Passer le nom de la plateforme en minuscules
-			var lowPlatform:String = _platform.toLowerCase();
+			var lowPlatform:String = __platform.toLowerCase();
 			
 			// Le tableau des correspondances des plateformes
 			var correspondingPlatforms:Object = {
-				"win": WIN_PLATFORM,
-				"mac": MAC_PLATFORM,
-				"lnx": LINUX_PLATFORM,
-				"and": ANDROID_PLATFORM,
-				"ios": IOS_PLATFORM
+				"win" : WIN_PLATFORM,
+				"mac" : MAC_PLATFORM,
+				"lnx" : LINUX_PLATFORM,
+				"and" : ANDROID_PLATFORM,
+				"ios" : IOS_PLATFORM
 			};
 			
 			// Retourner si trouvé
@@ -282,11 +461,12 @@
 		}
 		
 		/**
-		 * Check a player type (see statics)
+		 * If the app is runing on a specified runtime (see statics).
+		 * Just Flash or Air
 		 */
-		public static function isRuntime (pPlayerType:String):Boolean
+		public static function isRuntime (pRuntime:String):Boolean
 		{
-			return getRuntime() == pPlayerType;
+			return getRuntime() == pRuntime;
 		}
 		
 		
@@ -320,7 +500,7 @@
 		/**
 		 * If the applicatoin runs inside the Standalone Flash Player
 		 */
-		public static function isStandalone ():Boolean
+		public static function isStandaloneRuntime ():Boolean
 		{
 			return (Capabilities.playerType == "StandAlone");
 		}
@@ -328,7 +508,7 @@
 		/**
 		 * If the applicatoin runs inside the IDE Flash Player
 		 */
-		public static function isInIDE ():Boolean
+		public static function isIDERuntime ():Boolean
 		{
 			return Capabilities.playerType == "External";
 		}
@@ -336,17 +516,9 @@
 		/**
 		 * If the application runs into the browser
 		 */
-		public static function isInBrowser ():Boolean
+		public static function isBrowserRuntime ():Boolean
 		{
 			return Capabilities.playerType == "PlugIn" || Capabilities.playerType == "ActiveX";
-		}
-		
-		/**
-		 * If the application runs inside Air Runtime
-		 */
-		public static function isAIRApplication ():Boolean
-		{
-			return Capabilities.playerType == "Desktop";
 		}
 		
 		/**
@@ -355,103 +527,6 @@
 		public static function getOSVersion ():String
 		{
 			return Capabilities.os;
-		}
-		
-		
-		
-		/**
-		 * ----------------------------------------------
-		 * 				      DEVICE TYPE
-		 * ----------------------------------------------
-		 */
-		
-		/**
-		 * Récupérer le nom du device iOS
-		 */
-		protected static function getIOSDeviceVersion ():String
-		{
-			return Capabilities.os.substr(Capabilities.os.lastIndexOf(" ") + 1, Capabilities.os.length - 1);
-		}
-		
-		/**
-		 * Get the specific iOS device model
-		 */
-		public static function getiOSDevice ():String
-		{
-			throw new SwappUtilsError("EnvUtils.getiOSDevice", "Not implemented yet");
-			return "";
-		}
-		
-		/**
-		 * Si c'est un device spécifique
-		 */
-		public static function isIOSDevice (pDevice:String):Boolean
-		{
-			throw new SwappUtilsError("EnvUtils.isIOSDevice", "Not implemented yet");
-			return getiOSDevice().indexOf(pDevice) != -1;
-		}
-		
-		/**
-		 * Récupérer la version du device
-		 */
-		public static function getIOSDeviceVersion ():String
-		{
-			return Capabilities.os.substr(Capabilities.os.lastIndexOf(" ") + 1, Capabilities.os.length - 1);
-		}
-		
-		
-		
-		/**
-		 * ----------------------------------------------
-		 * 				 SCREEN INFORMATIONS
-		 * ----------------------------------------------
-		 */
-		
-		/**
-		 * Get approx screen size (inches)
-		 */
-		public static function getScreenSize (pAllowDesktopScreenSize:Boolean = false, pStage:Stage = null):Number
-		{
-			// Si on est sur PC
-			var checkDesktop:Boolean = (!pAllowDesktopScreenSize && isDesktop(getPlatformType()) && pStage != null)
-			
-			const screenWidth	:Number = (checkDesktop ? pStage.stageWidth / 100 : Capabilities.screenResolutionX / Capabilities.screenDPI);
-			const screenHeight	:Number = (checkDesktop ? pStage.stageHeight / 100 : Capabilities.screenResolutionY / Capabilities.screenDPI);
-			
-			return Math.sqrt(screenWidth * screenWidth + screenHeight * screenHeight);
-		}
-		
-		/**
-		 * Get ratio for stage
-		 */
-		public static function getRatioForStage ():Number
-		{
-			// Récupérer le type de device
-			var deviceType:String = getDeviceType(true);
-			
-			// Si on est sur PC / MAC
-			if (deviceType == DESKTOP)
-			{
-				return Capabilities.screenDPI / DESKTOP_DPI;
-			}
-			
-			// Si on est sur téléphone
-			else if (deviceType == PHONE)
-			{
-				return Capabilities.screenDPI / IPHONE_CLASSIC_DPI;
-			}
-			
-			// Si on est sur tablette
-			else if (deviceType == TABLET)
-			{
-				return Capabilities.screenDPI / IPAD_CLASSIC_DPI;
-			}
-			
-			// Sinon
-			else
-			{
-				return 1;
-			}
 		}
 	}
 }

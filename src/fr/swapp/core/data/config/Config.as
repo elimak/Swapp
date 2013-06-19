@@ -6,7 +6,7 @@ package fr.swapp.core.data.config
 	/**
 	 * @author ZoulouX
 	 */
-	class Config
+	public class Config
 	{
 		/**
 		 * Available environments
@@ -24,7 +24,7 @@ package fr.swapp.core.data.config
 		 * Get a Config instance.
 		 * @return : Config instance
 		 */
-		public function getInstance ():Config
+		public static function getInstance ():Config
 		{
 			// Si l'instance avec ce nom n'existe pas
 			if (__instance == null)
@@ -75,11 +75,20 @@ package fr.swapp.core.data.config
 		public function get currentEnvironment ():String { return _currentEnvironment; }
 		public function set currentEnvironment (pValue:String):void
 		{
-			// Enregistrer l'environnement
-			_currentEnvironment = pValue;
-			
-			// Calculer les variables d'environnement
-			computeEnvironmentVars();
+			// Si c'est la première fois qu'on le défini
+			if (_currentEnvironment == null)
+			{
+				// Enregistrer l'environnement
+				_currentEnvironment = pValue;
+				
+				// Calculer les variables d'environnement
+				computeEnvironmentVars();
+			}
+			else
+			{
+				// Déclancher une erreur
+				throw new SwappError("Config.currentEnvironment", "Current environment can't be changed in application lifetime.");
+			}
 		}
 		
 		

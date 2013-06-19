@@ -13,37 +13,68 @@ package fr.swapp.core.log
 			
 		}
 		
-		public function debug (pDebugName:String, pObject:*):void 
+		
+		/**
+		 * Log level logging
+		 */
+		public function log (...rest):void
 		{
-			trace.apply(null, arguments);
+			trace.apply(null, rest);
 		}
 		
-		public function warning (pString:String, pCode:uint = 0):void 
+		/**
+		 * Debug level logging
+		 */
+		public function debug (...rest):void
 		{
-			trace.call(null, "2:" + pString + "{code " + pCode + "}");
+			trace.apply(null, rest);
 		}
 		
-		public function fatal (pString:String, pCode:uint = 0):void 
+		/**
+		 * Warning level logging
+		 */
+		public function warning (...rest):void
 		{
-			trace.call(null, "3:" + pString + "{code " + pCode + "}");
+			trace.call(null, "2:" + rest.join(", "));
 		}
 		
-		public function error (pString:String, pCode:uint = 0):void 
+		/**
+		 * Fatal level logging
+		 */
+		public function fatal (...rest):void
 		{
-			trace.call(null, "3:" + pString + "{code " + pCode + "}");
+			trace.call(null, "3:" + rest.join(", "));
 		}
 		
-		public function success (pString:String, pCode:uint = 0):void 
+		/**
+		 * Error level logging
+		 */
+		public function error (...rest):void
 		{
-			trace.call(null, "4:" + pString + "{code " + pCode + "}");
+			trace.call(null, "3:" + rest.join(", "));
 		}
 		
-		public function notice (...rest):void 
+		/**
+		 * Success level loggings
+		 */
+		public function success (...rest):void
+		{
+			trace.call(null, "4:" + rest.join(", "));
+		}
+		
+		/**
+		 * Notice level logging
+		 */
+		public function notice (...rest):void
 		{
 			trace.call(null, "0:" + rest.join(", "));
 		}
 		
-		public function core (pCaller:Object, pMethodName:String = "", pArguments:Array = null):void 
+		/**
+		 * Framework internal level logging.
+		 * If you don't work on the framework internals, don't use.
+		 */
+		public function core (pCaller:Object, pMethodName:String = "", pArguments:Array = null):void
 		{
 			trace.apply(null, arguments);
 		}

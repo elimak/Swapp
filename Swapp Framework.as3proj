@@ -6,13 +6,13 @@
     <movie input="" />
     <movie path="bin\Swapp.swf" />
     <movie fps="60" />
-    <movie width="1024" />
-    <movie height="768" />
+    <movie width="999" />
+    <movie height="999" />
     <movie version="3" />
-    <movie minorVersion="2" />
+    <movie minorVersion="7" />
     <movie platform="AIR Mobile" />
     <movie background="#FFFFFF" />
-    <movie preferredSDK="Flex 4.6.0, AIR 3.5;4.6.0, 3.5;" />
+    <movie preferredSDK="AIR 3.7.0;3.7.0;" />
   </output>
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
@@ -78,7 +78,7 @@
   </library>
   <!-- Class files to compile (other referenced classes will automatically be included) -->
   <compileTargets>
-    <compile path="src\fr\swapptesting\rebirth\RebirthDocument.as" />
+    <compile path="src\fr\swapptesting\document\AirDocumentTest.as" />
   </compileTargets>
   <!-- Paths to exclude from the Project Explorer tree -->
   <hiddenPaths>

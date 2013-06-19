@@ -1,6 +1,7 @@
 package fr.swapp.utils 
 {
 	import flash.utils.getQualifiedClassName;
+	
 	/**
 	 * Classe utilitaire sur les Classes
 	 * @author ZoulouX

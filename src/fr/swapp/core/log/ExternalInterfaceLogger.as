@@ -17,6 +17,7 @@ package fr.swapp.core.log
 		 */
 		protected var _functionName					:String;
 		
+		
 		/**
 		 * Le constructeur
 		 * @param	pLogFunctionName : Le nom de la fonction log à appeler sur l'ExternalInterface
@@ -31,46 +32,77 @@ package fr.swapp.core.log
 		}
 		
 		
-		public function debug (pDebugName:String, pObject:*):void
+		/**
+		 * Log level logging
+		 */
+		public function log (...rest):void
 		{
 			if (_enabled)
-				ExternalInterface.call.apply(null, [_functionName, Log.DEBUG_LEVEL, pDebugName, pObject]);
+				ExternalInterface.call.apply(null, [_functionName, Log.LOG_LEVEL].concat(rest));
 		}
 		
-		public function warning (pString:String, pCode:uint = 0):void
+		/**
+		 * Debug level logging
+		 */
+		public function debug (...rest):void
 		{
 			if (_enabled)
-				ExternalInterface.call.apply(null, [_functionName, Log.WARNING_LEVEL, pString, pCode]);
+				ExternalInterface.call.apply(null, [_functionName, Log.DEBUG_LEVEL].concat(rest));
 		}
 		
-		public function fatal (pString:String, pCode:uint = 0):void
+		/**
+		 * Warning level logging
+		 */
+		public function warning (...rest):void
 		{
 			if (_enabled)
-				ExternalInterface.call.apply(null, [_functionName, Log.FATAL_LEVEL, pString, pCode]);
+				ExternalInterface.call.apply(null, [_functionName, Log.WARNING_LEVEL].concat(rest));
 		}
 		
-		public function error (pString:String, pCode:uint = 0):void
+		/**
+		 * Fatal level logging
+		 */
+		public function fatal (...rest):void
 		{
 			if (_enabled)
-				ExternalInterface.call.apply(null, [_functionName, Log.ERROR_LEVEL, pString, pCode]);
+				ExternalInterface.call.apply(null, [_functionName, Log.FATAL_LEVEL].concat(rest));
 		}
 		
-		public function success (pString:String, pCode:uint = 0):void
+		/**
+		 * Error level logging
+		 */
+		public function error (...rest):void
 		{
 			if (_enabled)
-				ExternalInterface.call.apply(null, [_functionName, Log.SUCCESS_LEVEL, pString, pCode]);
+				ExternalInterface.call.apply(null, [_functionName, Log.ERROR_LEVEL].concat(rest));
 		}
 		
+		/**
+		 * Success level loggings
+		 */
+		public function success (...rest):void
+		{
+			if (_enabled)
+				ExternalInterface.call.apply(null, [_functionName, Log.SUCCESS_LEVEL].concat(rest));
+		}
+		
+		/**
+		 * Notice level logging
+		 */
 		public function notice (...rest):void
 		{
 			if (_enabled)
-				ExternalInterface.call.apply(null, [_functionName, Log.NOTICE_LEVEL, rest]);
+				ExternalInterface.call.apply(null, [_functionName, Log.NOTICE_LEVEL].concat(rest));
 		}
 		
+		/**
+		 * Framework internal level logging.
+		 * If you don't work on the framework internals, don't use.
+		 */
 		public function core (pCaller:Object, pMethodName:String = "", pArguments:Array = null):void
 		{
 			if (_enabled)
-				ExternalInterface.call.apply(null, [_functionName, Log.CORE_LEVEL, String(pCaller), pMethodName, pArguments]);
+				ExternalInterface.call.apply(null, [_functionName, Log.CORE_LEVEL].concat(arguments));
 		}
 	}
 }

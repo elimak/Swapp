@@ -10,6 +10,7 @@
 		/**
 		 * Les différentes niveaux disponibles
 		 */
+		public static const LOG_LEVEL			:String					= "log";
 		public static const DEBUG_LEVEL			:String					= "debug";
 		public static const WARNING_LEVEL		:String					= "warning";
 		public static const ERROR_LEVEL			:String					= "error";
@@ -78,58 +79,55 @@
 		}
 		
 		/**
-		 * Debugger un objet (afficher son arborescence)
-		 * @param	pDebugName : Nom du debug (pour s'y retrouver)
-		 * @param	pObject : Objet à débugger. Tous les objets sont accéptés et seront parsés. Attentions à la récursivité!
+		 * Log level logging
 		 */
-		public static function debug (pDebugName:String, pObject:*):void
+		public static function log (...rest):void
 		{
-			dispatchLoggerAction(DEBUG_LEVEL, arguments);
+			dispatchLoggerAction(LOG_LEVEL, rest);
 		}
 		
 		/**
-		 * Afficher un avertissement
-		 * @param	pString : Nom de l'avertissement
-		 * @param	pCode : Code de l'avertissements
+		 * Debug level logging
 		 */
-		public static function warning (pString:String, pCode:uint = 0):void
+		public static function debug (...rest):void
 		{
-			dispatchLoggerAction(WARNING_LEVEL, arguments);
+			dispatchLoggerAction(DEBUG_LEVEL, rest);
 		}
 		
 		/**
-		 * Afficher une erreur fatale
-		 * @param	pString : Nom de l'erreur fatale
-		 * @param	pCode : Code de l'erreur fatale
+		 * Warning level logging
 		 */
-		public static function fatal (pString:String, pCode:uint = 0):void
+		public static function warning (...rest):void
 		{
-			dispatchLoggerAction(FATAL_LEVEL, arguments);
+			dispatchLoggerAction(WARNING_LEVEL, rest);
 		}
 		
 		/**
-		 * Afficher une erreur
-		 * @param	pString : Nom de l'erreur
-		 * @param	pCode : Code de l'erreur
+		 * Fatal level logging
 		 */
-		public static function error (pString:String, pCode:uint = 0):void
+		public static function fatal (...rest):void
 		{
-			dispatchLoggerAction(ERROR_LEVEL, arguments);
+			dispatchLoggerAction(FATAL_LEVEL, rest);
 		}
 		
 		/**
-		 * Afficher une réussite
-		 * @param	pString : Nom de la réussite
-		 * @param	pCode : Code de la réussite
+		 * Error level logging
 		 */
-		public static function success (pString:String, pCode:uint = 0):void
+		public static function error (...rest):void
 		{
-			dispatchLoggerAction(SUCCESS_LEVEL, arguments);
+			dispatchLoggerAction(ERROR_LEVEL, rest);
 		}
 		
 		/**
-		 * Afficher un élément à noter (peu important)
-		 * @param	...rest : Tous les paramètres sont acceptés
+		 * Success level loggings
+		 */
+		public static function success (...rest):void
+		{
+			dispatchLoggerAction(SUCCESS_LEVEL, rest);
+		}
+		
+		/**
+		 * Notice level logging
 		 */
 		public static function notice (...rest):void
 		{
@@ -137,10 +135,8 @@
 		}
 		
 		/**
-		 * Log interne au framework
-		 * @param	pCaller : l'objet appelant (la plupart du temps, 'this' suffit)
-		 * @param	pMethodName : Le nomde la méthode appelée
-		 * @param	pArguments : Les arguments associés (la plupart du temps, 'arguments' suffit)
+		 * Framework internal level logging.
+		 * If you don't work on the framework internals, don't use.
 		 */
 		public static function core (pCaller:Object, pMethodName:String = "", pArguments:Array = null):void
 		{
@@ -149,8 +145,6 @@
 		
 		/**
 		 * Dispatcher une action sur les debuggers
-		 * @param	pAction
-		 * @param	pParams
 		 */
 		protected static function dispatchLoggerAction (pAction:String, pParams:Array):void
 		{

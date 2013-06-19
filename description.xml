@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?> 
-<application xmlns="http://ns.adobe.com/air/application/3.5">
+<application xmlns="http://ns.adobe.com/air/application/3.7">
 	<!-- 
 	AIR options:
 	http://livedocs.adobe.com/flex/3/html/File_formats_1.html#1043413
@@ -12,10 +12,10 @@
 	-->
 	
 	<!-- ID de l'appli de type bundle name (com.example.app) -->
-	<id>fr.swapp.sample</id>
+	<id>fr.swapp.swapptesting</id>
 	
 	<!-- Version de l'appli (en 3 parties obligatoirement), dernière partie incrémentée automatiquement  -->
-	<versionNumber>0.1.101</versionNumber>
+	<versionNumber>1.2.15</versionNumber>
 	
 	<!-- Nom de fichier a l'export -->
 	<filename>Swapp</filename>

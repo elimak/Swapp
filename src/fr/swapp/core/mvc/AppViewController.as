@@ -52,6 +52,16 @@ package fr.swapp.core.mvc
 		}
 		
 		/**
+		 * Handle native input from Document.
+		 * @param	pCode : This is the native input code. On android, Keyboard.BACK and Keyboard.MENU are sended.
+		 * @return : Return true to cancel native behavior.
+		 */
+		public function handleNativeInput (pCode:uint):Boolean
+		{
+			return false;
+		}
+		
+		/**
 		 * Initialize application models
 		 */
 		protected function initModels ():void

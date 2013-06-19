@@ -6,52 +6,44 @@
 	public interface ILogger
 	{
 		/**
-		 * Debugger un objet (afficher son arborescence)
-		 * @param	pDebugName : Nom du debug (pour s'y retrouver)
-		 * @param	pObject : Objet à débugger. Tous les objets sont accéptés et seront parsés. Attentions à la récursivité!
+		 * Log level logging
 		 */
-		function debug (pDebugName:String, pObject:*):void;
+		function log (...rest):void
 		
 		/**
-		 * Afficher un avertissement
-		 * @param	pString : Nom de l'avertissement
-		 * @param	pCode : Code de l'avertissements
+		 * Debug level logging
 		 */
-		function warning (pString:String, pCode:uint = 0):void;
+		function debug (...rest):void
 		
 		/**
-		 * Afficher une erreur fatale
-		 * @param	pString : Nom de l'erreur fatale
-		 * @param	pCode : Code de l'erreur fatale
+		 * Warning level logging
 		 */
-		function fatal (pString:String, pCode:uint = 0):void;
+		function warning (...rest):void
 		
 		/**
-		 * Afficher une erreur
-		 * @param	pString : Nom de l'erreur
-		 * @param	pCode : Code de l'erreur
+		 * Fatal level logging
 		 */
-		function error (pString:String, pCode:uint = 0):void;
+		function fatal (...rest):void
 		
 		/**
-		 * Afficher une réussite
-		 * @param	pString : Nom de la réussite
-		 * @param	pCode : Code de la réussite
+		 * Error level logging
 		 */
-		function success (pString:String, pCode:uint = 0):void;
+		function error (...rest):void
 		
 		/**
-		 * Afficher un élément à noter (peu important)
-		 * @param	...rest : Tous les paramètres sont acceptés
+		 * Success level loggings
 		 */
-		function notice (...rest):void;
+		function success (...rest):void
 		
 		/**
-		 * Log interne au framework
-		 * @param	pCaller : l'objet appelant (la plupart du temps, 'this' suffit)
-		 * @param	pMethodName : Le nomde la méthode appelée
-		 * @param	pArguments : Les arguments associés (la plupart du temps, 'arguments' suffit)
+		 * Notice level logging
 		 */
-		function core (pCaller:Object, pMethodName:String = "", pArguments:Array = null):void;
+		function notice (...rest):void
+		
+		/**
+		 * Framework internal level logging.
+		 * If you don't work on the framework internals, don't use.
+		 */
+		function core (pCaller:Object, pMethodName:String = "", pArguments:Array = null):void
 	}	
 }

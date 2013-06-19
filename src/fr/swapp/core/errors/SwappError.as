@@ -1,21 +1,23 @@
 package fr.swapp.core.errors 
 {
+	import fr.swapp.utils.ClassUtils;
+	
 	/**
-	 * Une erreur interne au core du framework Swapp
+	 * Internal swapp core error
 	 * @author ZoulouX
 	 */
 	public class SwappError extends Error 
 	{
 		/**
-		 * déclencher une erreur d'exécution du framework Swapp
-		 * @param	pMethod : Le nom de la classe et de la méthode sous cette forme : "MyClass.myMethod"
-		 * @param	pMessage : Le message associé à l'erreur
-		 * @param	pId : L'id du message
+		 * Throw runtime error for internal framework
+		 * @param	pMethod : Class and method name firing the error like : "MyClass.myMethod"
+		 * @param	pMessage : Associated message to the error
+		 * @param	pId : Error ID (optionnal)
 		 */
 		public function SwappError (pMethod:String, pMessage:String, pId:uint = 0)
 		{
 			// Afficher l'erreur
-			super("# Internal error in " + pMethod + " : " + pMessage + "\n" + getStackTrace(), pId);
+			super("# " + ClassUtils.getClassNameFromInstance(this) + " in " + pMethod + " : " + pMessage + "\n" + getStackTrace(), pId);
 		}
 	}
 }
