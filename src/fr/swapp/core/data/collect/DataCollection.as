@@ -1,95 +1,90 @@
 ﻿package fr.swapp.core.data.collect 
 {
-	/**
-	 * Les imports
-	 */
 	import fr.swapp.core.data.items.IDataItem;
-	import fr.swapp.core.data.managers.DataIterator;
-	import fr.swapp.core.data.managers.IDataIterator;
 	import fr.swapp.core.errors.SwappError;
-	import fr.swapp.core.roles.IChangeable;
-	import fr.swapp.core.roles.ILockable;
 	import fr.swapp.utils.ArrayUtils;
 	import fr.swapp.utils.ClassUtils;
-	import org.osflash.signals.DeluxeSignal;
 	import org.osflash.signals.ISignal;
+	import org.osflash.signals.Signal;
 	
 	/**
-	 * Le collecteur classique, associant un objet IDataItem à un index.
+	 * Base data colector.
+	 * Only to keep IDataItem objects.
+	 * More concrete dataType can be setted.
 	 * @author ZoulouX
 	 */
 	public class DataCollection implements IDataCollection
 	{
 		/**
-		 * Les données
+		 * All data
 		 */
-		protected var _data							:Array;
+		protected var _data							:Array						= [];
 		
 		/**
-		 * Le type de IDataItem forcé
+		 * Concrete IDataItem type for all data
 		 */
-		protected var _dataType						:Class;
+		protected var _dataType						:Class						= IDataItem;
 		
 		/**
-		 * L'itérateur associé
+		 * When data change
 		 */
-		protected var _iterator						:IDataIterator;
+		protected var _onChange						:Signal						= new Signal(IDataCollection);
 		
 		/**
-		 * Le signal de changement
-		 */
-		protected var _onChange						:DeluxeSignal;
-		
-		/**
-		 * Si la collection est vérouillée (pas d'envoie d'events)
+		 * If collection is locked. When locked, no onChange will be fired.
 		 */
 		protected var _locked						:Boolean					= false;
 		
 		/**
-		 * Si un changement a été fait pendant un lock
+		 * If a change occured when locked.
 		 */
 		protected var _needDispatchUpdate			:Boolean					= false;
 		
 		
 		/**
-		 * Récupérer le signal de changement
+		 * When data change
 		 */
-		public function get onChange ():ISignal
-		{
-			return _onChange;
-		}
+		public function get onChange ():ISignal { return _onChange;}
 		
 		/**
-		 * Récupérer le tableau des données.
-		 * Attention, aucune copie n'est générée, le tableau modifé à l'extérieur modifira donc le tableau interne
-		 * à la collection.
-		 */
-		public function get data ():Array
-		{
-			return _data;
-		}
-		
-		/**
-		 * Le type de IDataItem forcé.
+		 * Forced data type for all stored items.
+		 * Have to be a class that implements IDataItem.
+		 * Default is IDataItem.
 		 */
 		public function get dataType ():Class { return _dataType; }
 		public function set dataType (pValue:Class):void
 		{
-			// Enregistrer le type sans vérifier
-			_dataType = pValue;
-			
-			/*
-			if (pValue is IDataItem)
-				_dataType = pValue;
-			else
-				throw new SwappError("DataCollection.dataType", "DataType must implement IDataItem.");
-			*/
+			// Vérifier si c'est différent
+			if (pValue != _dataType)
+			{
+				// Si on n'a pas de données
+				if (_data.length == 0)
+				{
+					// On déclanche une erreur car la collection doit être vide pour changer le type
+					throw new SwappError("DataCollection.dataType", "DataCollection have to be empty when changing dataType.");
+				}
+				else if (!(pValue is IDataItem) && pValue != IDataItem)
+				{
+					// Le type n'est pas IDataItem
+					throw new SwappError("DataCollection.dataType", "DataType have to be a class that implements IDataItem.");
+				}
+				else
+				{
+					// Enregistrer le type
+					_dataType = pValue;
+				}
+			}
 		}
 		
 		/**
-		 * Récupérer tous les éléments sous forme de tableau indexé.
-		 * Ce tableau est une copie du tableau interne à la collection.
-		 * Les éléments stockés ne sont pas copié.
+		 * All data.
+		 * Warning, returned data array is not a copy, any external modification can cause DataCollection malfunction.
+		 */
+		public function get data ():Array { return _data; }
+		
+		/**
+		 * All data.
+		 * This is a safe copy of references from DataCollection.data.
 		 */
 		public function get all ():Array
 		{
@@ -98,60 +93,28 @@
 		}
 		
 		/**
-		 * Récupérer le nombre d'élément
+		 * Total elements in data array.
 		 */
-		public function get length ():uint
-		{
-			return _data.length;
-		}
+		public function get length ():uint { return _data.length; }
 		
 		/**
-		 * Récupérer le premier élément
+		 * Get the first element.
+		 * Will return null if there is no element to get.
 		 */
 		public function get first ():IDataItem
 		{
 			// Vérifier si la collection n'est pas vide
-			if (_data.length > 0)
-				return _data[0];
-			else
-				throw new SwappError("DataCollection.first", "Collection is void.");
+			return _data.length > 0 ? _data[0] : null;
 		}
 		
 		/**
-		 * Récupérer le dernier élément
+		 * Get the last element.
+		 * Will return null if there is no element to get.
 		 */
 		public function get last ():IDataItem
 		{
 			// Vérifier si la collection n'est pas vide
-			if (_data.length > 0)
-				return _data[_data.length - 1];
-			else
-				throw new SwappError("DataCollection.last", "Collection is void.");
-		}
-		
-		/**
-		 * Récupérer l'itérator
-		 */
-		public function get iterator ():IDataIterator
-		{
-			// Instancier l'iterator au moins une fois
-			if (_iterator == null)
-				_iterator = new DataIterator(this);
-			
-			// Retourner l'iterator
-			return _iterator;
-		}
-		
-		/**
-		 * Définir l'iterator
-		 */
-		public function set iterator (value:IDataIterator):void
-		{
-			// Vérifier que l'iterateur ne soit pas null
-			if (value != null)
-				_iterator = value;
-			else
-				throw new SwappError("DataCollection.iterator", "Can't associate null iterator.");
+			return _data.length > 0 ? _data[_data.length - 1] : null;
 		}
 		
 		/**
@@ -161,45 +124,89 @@
 		
 		
 		/**
-		 * Le constructeur
-		 * @param	pDataType : Type d'IDataItem forcé
-		 * @param	pData : Tableau contenant les données
+		 * Constructor
+		 * @param	pDataType : Forced DataType. If null, IDataItem will be used.
+		 * @param	pData : Data to insert at construction.
 		 */
 		public function DataCollection (pDataType:Class = null, pData:Array = null)
 		{
-			// Créer le tableau stockant les données
-			_data = [];
-			
 			// Enregistrer le type d'IDataItem et bien vérifier que ça implémente IDataItem
 			dataType = pDataType;
-			
-			// Créer le signal de changement
-			_onChange = new DeluxeSignal(this);
 			
 			// Vérifier si on a un tableau en paramètres, si oui on ajoute les éléments de ce tableau
 			if (pData != null)
 				addAll(pData);
 		}
 		
+		
 		/**
-		 * Récupérer un élément à un index donné
-		 * @param	pIndex : L'index de l'élément à récupérer
-		 * @return : L'élément de type IDataItem
+		 * ----------------------------------------------------
+		 * 					Internal utilities
+		 * ----------------------------------------------------
+		 */
+		
+		/**
+		 * Check an item type before add.
+		 */
+		protected function checkDataItem (pDataItem:IDataItem):void
+		{
+			// Vérifier si l'item est null
+			if (_dataType == null)
+			{
+				// Signaler le problème
+				throw new SwappError("DataCollection.forceDataItemType", "DataItem can't be null.");
+			}
+			
+			// Vérifier si l'item à le bon type
+			else (!(pDataItem is _dataType))
+			{
+				// Signaler le pronlème
+				throw new SwappError("DataCollection.forceDataItemType", "DataItem must implement " + ClassUtils.getClassName(_dataType) + " (forced by DataCollection.dataType).");
+			}
+		}
+		
+		/**
+		 * Dispatch change if not locked. Else, will store changed state.
+		 */
+		protected function dispatchChange ():void
+		{
+			if (!_locked)
+				_onChange.dispatch();
+			else
+				_needDispatchUpdate = true;
+		}
+		
+		
+		/**
+		 * ----------------------------------------------------
+		 * 					  	  Items
+		 * ----------------------------------------------------
+		 */
+		
+		/**
+		 * Get item from index
+		 * @param	pIndex : Index to get item from
+		 * @return : IDataItem typed item.
 		 */
 		public function getItem (pIndex:uint):IDataItem
 		{
 			// Vérifier qu'on soit bien dans les valeurs acceptées, sinon on déclenche une erreur
 			if (pIndex >= _data.length)
+			{
 				throw new SwappError("DataCollection.getItem", "Index " + pIndex + " is out of bounds " + length);
-			
-			// Retourner la valeur
-			return _data[pIndex];
+				return null;
+			}
+			else
+			{
+				// Retourner la valeur
+				return _data[pIndex];
+			}
 		}
 		
 		/**
-		 * Savoir si un élément est contenu dans la collection
-		 * @param	pDataItem : L'item en question
-		 * @return : true si l'élément à été trouvé
+		 * Check if an item is stored in this collection.
+		 * @param	pDataItem : Searched item
+		 * @return : true if the item is in the collection.
 		 */
 		public function contains (pDataItem:IDataItem):Boolean
 		{
@@ -208,151 +215,142 @@
 		}
 		
 		/**
-		 * Ajouter un élément dans la collection.
-		 * @param	pDataItem : L'item à ajouter
+		 * Add an item to the collection.
+		 * Will check the dataType.
+		 * @param	pDataItem : Item to add
+		 * @param	pAt : Index where add item at, -1 to add at end.
 		 */
-		public function add (pDataItem:IDataItem):void
+		public function add (pDataItem:IDataItem, pAt:int = -1):void
 		{
-			// Forcer le type si besoin
-			forceDataItemType(pDataItem);
-			
-			// Ajouter à la fin
-			_data[_data.length] = pDataItem;
-			
-			// Les données ont été changées
-			if (!_locked)
-				_onChange.dispatch();
-			else
-				_needDispatchUpdate = true;
+			// Vérifier l'item
+			if (checkDataItem(pDataItem))
+			{
+				// Si on doit le placer à -1 (la fin)
+				if (pAt == -1)
+				{
+					// Ajouter à la fin
+					_data[_data.length] = pDataItem;
+				}
+				else
+				{
+					// Ajouter au bon endroit
+					_data = ArrayUtils.insertAt(_data, pDataItem, pAt);
+				}
+				
+				// Les données ont été changées
+				dispatchChange();
+			}
 		}
 		
 		/**
-		 * Vérifier et forcer le type d'un IDataItem
-		 * @param	pDataItem : L'item à tester
-		 */
-		protected function forceDataItemType (pDataItem:IDataItem):void
-		{
-			// Forcer le type si besoin
-			if (_dataType != null && !(pDataItem is _dataType))
-				throw new SwappError("DataCollection.add", "This DataItem must implement " + ClassUtils.getClassName(_dataType) + " (forced by DataCollection.dataType)");
-		}
-		
-		/**
-		 * Ajouter un tableau d'éléments à la collection
-		 * @param	pData : Le tableau d'éléments IDataItem
+		 * Add all items to the collection.
+		 * Same restrictions as DataCollection.add method.
+		 * @param	pData : All items to add.
 		 */
 		public function addAll (pData:Array):void
 		{
-			// Mesurer le tableau
-			var arrayLength:uint = pData.length;
-			
-			// Parcourir les valeurs indéxées uniquement
-			for (var i:int = 0; i < arrayLength; i++) 
+			// Si le tableau des données à ajouter est ok
+			if (pData != null && pData.length > 0)
 			{
-				// Si la donnée est de type IDataItem
-				if (pData[i] != null && pData[i] is IDataItem)
+				// Parcourir les valeurs indéxées uniquement
+				for (var i:int = 0, total:uint = pData.length; i < total; i++) 
 				{
 					// Forcer le type si besoin
-					forceDataItemType(pData[i]);
-					
-					// On peut la stocker
-					_data[_data.length] = pData[i];
+					if (checkDataItem(pData[i]))
+					{
+						// On peut la stocker
+						_data[_data.length] = pData[i];
+					}
 				}
-				else
-					throw new SwappError("DataCollection.getItem", "IDataCollector can only manage IDataItem");
+				
+				// Les données ont été changées
+				dispatchChange();
 			}
-			
-			// Les données ont été changées
-			if (!_locked)
-				_onChange.dispatch();
-			else
-				_needDispatchUpdate = true;
 		}
 		
 		/**
-		 * Ajouter un élément à un endroit spécifique de la collection.
-		 * @param	pDataItem : L'item à ajouter
-		 * @param	pAt : L'index auquel l'item doit être placé
+		 * Delete an item from collection
+		 * @param	pDataItem : Item to delete.
+		 * @return : If data has changed.
 		 */
-		public function addAt (pDataItem:IDataItem, pAt:uint = 0):void
+		public function remove (pDataItem:IDataItem):Boolean
 		{
-			// Forcer le type si besoin
-			forceDataItemType(pDataItem);
+			// Mesurer les données
+			var oldLength:Boolean = _data.length;
 			
-			// Ajouter à l'endroit spécifié
-			_data = ArrayUtils.insertAt(_data, pDataItem, pAt);
-			
-			// Les données ont été changées
-			if (!_locked)
-				_onChange.dispatch();
-			else
-				_needDispatchUpdate = true;
-		}
-		
-		/**
-		 * Effacer un élément de la collection
-		 * @param	pDataItem : L'item qui doit être supprimé
-		 */
-		public function remove (pDataItem:IDataItem):void
-		{
 			// Effacer cet élément
 			_data = ArrayUtils.deleteElement(_data, pDataItem);
 			
-			// Les données ont été changées
-			if (!_locked)
-				_onChange.dispatch();
+			// Si la taille des données à changée
+			if (_data.length != oldLength)
+			{
+				// Les données ont été changées
+				dispatchChange();
+				
+				// Les données ont été modifiées
+				return true;
+			}
 			else
-				_needDispatchUpdate = true;
+			{
+				// Les données n'ont pas été modifiées
+				return false;
+			}
 		}
 		
 		/**
-		 * Effacer un élément par son index
-		 * @param	pAt : L'index qui doit être supprimé
+		 * Remove an element by index
+		 * @param	pAt : Index where the element to remove is.
+		 * @return : If data has changed.
 		 */
-		public function removeAt (pAt:uint):void
+		public function removeAt (pAt:uint):Boolean
 		{
+			// Mesurer les données
+			var oldLength:Boolean = _data.length;
+			
 			// Effacer cet index
 			_data = ArrayUtils.deleteIndex(_data, pAt);
 			
-			// Les données ont été changées
-			if (!_locked)
-				_onChange.dispatch();
+			// Si la taille des données à changée
+			if (_data.length != oldLength)
+			{
+				// Les données ont été changées
+				dispatchChange();
+				
+				// Les données ont été modifiées
+				return true;
+			}
 			else
-				_needDispatchUpdate = true;
+			{
+				// Les données n'ont pas été modifiées
+				return false;
+			}
 		}
 		
 		/**
-		 * Vider la collection
+		 * Clear all collection data
 		 */
 		public function clear ():void
 		{
 			// Remettre le tableau à 0
 			_data = [];
 			
-			// Les données ont été updatées
-			if (!_locked)
-				_onChange.dispatch();
-			else
-				_needDispatchUpdate = true;
+			// Les données ont été changées
+			dispatchChange();
 		}
 		
+		
 		/**
-		 * Appèle une méthode sur chaque élément de cette collection.
-		 * La méthode doit accueillir les paramètres suivants :
-		 * 1. Récéption du IDataItem
-		 * 2. Récéption de l'index
-		 * Les paramètres optionnels seront ajoutés aux paramètres de la méthode.
-		 * Par exemple, pour:
-		 * myCollection.forEach(myHandler, [myCollection]);
-		 * 
-		 * Il faut que le handler ai cette signature:
-		 * function myHandler (pItem:IDataItem, pIndex:uint, pCollection:DataCollection = null):void
-		 * 
-		 * Sinon le handler de base doit avoir cette signature
-		 * function myHandler (pItem:IDataItem, pIndex:uint):void
-		 * 
-		 * @param	pHandler : La méthode appelée pour chaque élément.
-		 * @param	pParams : Les paramètres en plus des 2 obligatoires.
+		 * ----------------------------------------------------
+		 * 					  Transformations
+		 * ----------------------------------------------------
+		 */
+		
+		/**
+		 * Call a function on every stored item in this collection.
+		 * The handler have to be like : function (pIndex:uint, pItem:IDataItem):void
+		 * Optional parameters will be added from pParams.
+		 * @param	pHandler : Function called for every item.
+		 * @param	pParams : Additional parameters added to the handler.
 		 */
 		public function forEach (pHandler:Function, pParams:Array = null):void
 		{
@@ -360,54 +358,67 @@
 			if (pParams == null)
 				pParams = [];
 			
-			// Compter le nombre d'élément maintenant pour éviter de le faire dans la boucle
-			var arrayLength:uint = _data.length;
-			
 			// La boucle
-			for (var i:int = 0; i < arrayLength; i++) 
+			for (var i:int = 0, arrayLength:uint = _data.length; i < arrayLength; i++) 
 			{
 				// Appeler la méthode et lui passer les paramètres
-				pHandler.apply(null, [_data[i] as IDataItem, i].concat(pParams));
+				pHandler.apply(null, [i, _data[i] as IDataItem].concat(pParams));
 			}
 		}
 		
 		/**
-		 * Trier la collection selon un ou plusieurs champs des items.
-		 * @param	pFields : Les champs à trier. Ce tableau doit être composé de string uniquement. ex: ['id', 'name']
-		 * @param	pAscending : L'ordre de tri. Par défaut l'ordre est ascendant (le plus bas en premier)
-		 * @param	pCaseSensitive : La prise en compte de la casse. Par défaut la casse n'est pas prise en compte.
-		 * @param	pNumeric : Valeurs numériques, par défaut le filtre se comporte pour des tri non numériques (10 est trié avant 2)
+		 * Call a function on every stored item in this collection.
+		 * If handler return false, the item is removed. If true, the item is kept.
+		 * The handler have to be like : function (pIndex:uint, pItem:IDataItem):void
+		 * Optional parameters will be added from pParams.
+		 * @param	pHandler : Function called for every item.
+		 * @param	pParams : Additional parameters added to the handler.
+		 */
+		public function filter (pHandler:Function, pParams:Array = null):void
+		{
+			// Les paramètres par défaut
+			if (pParams == null)
+				pParams = [];
+			
+			// Le nouveau tableau
+			var newArray:Array = [];
+			
+			// La boucle
+			for (var i:int = 0, arrayLength:uint = _data.length; i < arrayLength; i++) 
+			{
+				// Appeler la méthode et lui passer les paramètres
+				pHandler.apply(null, [i, _data[i] as IDataItem].concat(pParams));
+			}
+			
+			// Les données ont été changées
+			dispatchChange();
+		}
+		
+		/**
+		 * Sort collection
+		 * @param	pFields : Strings array containing names of properties to sort on. If items have all a property "id", and "name", you can sort on ["id", "name"]
+		 * @param	pAscending : Sort order (default is lower in first)
+		 * @param	pCaseSensitive : If the sort algorythm is case sensitive.
+		 * @param	pNumeric : If the sort algoryth have to sort on numeric values. (default is none, for ex, 10 will be before 2)
 		 */
 		public function sort (pFields:Array, pAscending:Boolean = true, pCaseSensitive:Boolean = false, pNumeric:Boolean = false):void
 		{
 			// Trier le tableau sans faire de copie
 			_data = _data.sortOn(pFields, (pAscending ? 0 : Array.DESCENDING) | (pCaseSensitive ? 0 : Array.CASEINSENSITIVE) | (pNumeric ? Array.NUMERIC : 0));
 			
-			// Les données ont été updatées
-			if (!_locked)
-				_onChange.dispatch();
-			else
-				_needDispatchUpdate = true;
+			// Les données ont été changées
+			dispatchChange();
 		}
 		
+		
 		/**
-		 * Filtrer la collection grâce à une méthode callback.
-		 * @param	pCallback : Le callback permettant de filtrer la collection. Se référer à la documentation de Array.filter.
+		 * ----------------------------------------------------
+		 * 						  Lock
+		 * ----------------------------------------------------
 		 */
-		public function filterCollection (pCallback:Function):void
-		{
-			// On filtre avec l'array
-			_data = _data.filter(pCallback);
-			
-			// Les données ont changées
-			if (!_locked)
-				_onChange.dispatch();
-			else
-				_needDispatchUpdate = true;
-		}
 		
 		/**
-		 * Vérouiller la collection (les signaux ne seront plus envoyés)
+		 * Lock the collection (onChange will not fire when locked)
 		 */
 		public function lock ():void
 		{
@@ -415,18 +426,15 @@
 		}
 		
 		/**
-		 * Dévérouiller la collection (elle pourra renvoyer des signaux)
-		 * @param	pUnlockSystem : -1 pour dispatch auto, 0 pour interdiction de dispatch, 1 pour dispatch forcé
+		 * Unlock the collection (onChange will instatly fire if changes occured when locked)
 		 */
-		public function unlock ():void//pUnlockSystem:int = -1):void
+		public function unlock ():void
 		{
-			var pUnlockSystem:int = -1;
-			
 			// Ce n'est plus vérouillé
 			_locked = false;
 			
 			// Si des changements on été effectués pendant le lock
-			if ((_needDispatchUpdate || pUnlockSystem == 1) && pUnlockSystem != 0)
+			if (_needDispatchUpdate)
 			{
 				// On redispatch
 				_onChange.dispatch();
@@ -436,21 +444,27 @@
 			}
 		}
 		
+		
 		/**
-		 * La méthode toString
+		 * ----------------------------------------------------
+		 * 					 Object utilities
+		 * ----------------------------------------------------
+		 */
+		
+		/**
+		 * Convert object to string representation
 		 */
 		public function toString ():String
 		{
-			return "DataCollection {length: " + length + "}";
+			return "DataCollection {length: " + length + ", dataType: " + ClassUtils.getClassName(_dataType) + "}";
 		}
 		
 		/**
-		 * Cloner cette collection.
+		 * Clone this collection (same dataType and data)
 		 */
 		public function clone ():DataCollection
 		{
-			// Copier
-			return new DataCollection(_dataType, all);
+			return new DataCollection(_dataType, data);
 		}
 	}
 }

@@ -1,136 +1,142 @@
 ﻿package fr.swapp.core.data.collect 
 {
-	/**
-	 * Les imports
-	 */
 	import fr.swapp.core.data.items.IDataItem;
-	import fr.swapp.core.data.managers.IDataIterator;
 	import fr.swapp.core.roles.IChangeable;
 	import fr.swapp.core.roles.ILockable;
+	import org.osflash.signals.ISignal;
 	
 	/**
-	 * L'interface du DataCollection.
+	 * Base data colector interface.
+	 * Only to keep IDataItem objects.
+	 * More concrete dataType can be setted.
 	 * @author ZoulouX
 	 */
 	public interface IDataCollection extends ICollection, IChangeable, ILockable
 	{
 		/**
-		 * Récupérer le tableau des données.
-		 * Attention, aucune copie n'est générée, le tableau modifé à l'extérieur modifira donc le tableau interne
-		 * à la collection.
+		 * When data change
 		 */
-		function get data ():Array;
+		function get onChange ():ISignal;
 		
 		/**
-		 * Le type de IDataItem forcé.
+		 * Forced data type for all stored items.
+		 * Have to be a class that implements IDataItem.
+		 * Default is IDataItem.
 		 */
 		function get dataType ():Class;
 		function set dataType (pValue:Class):void;
 		
 		/**
-		 * Récupérer tous les éléments sous forme de tableau indexé.
-		 * Ce tableau est une copie du tableau interne à la collection.
-		 * Les éléments stockés ne sont pas copié.
+		 * All data.
+		 * Warning, returned data array is not a copy, any external modification can cause DataCollection malfunction.
+		 */
+		function get data ():Array;
+		
+		/**
+		 * All data.
+		 * This is a safe copy of references from DataCollection.data.
 		 */
 		function get all ():Array;
 		
 		/**
-		 * Récupérer le premier élément
+		 * Get the first element.
+		 * Will return null if there is no element to get.
 		 */
 		function get first ():IDataItem;
 		
 		/**
-		 * Récupérer le dernier élément
+		 * Get the last element.
+		 * Will return null if there is no element to get.
 		 */
 		function get last ():IDataItem;
 		
-		/**
-		 * Récupérer l'itérator
-		 */
-		function get iterator ():IDataIterator;
 		
 		/**
-		 * Récupérer un élément à un index donné
-		 * @param	pIndex : L'index de l'élément à récupérer
-		 * @return : L'élément de type IDataItem
+		 * Get item from index
+		 * @param	pIndex : Index to get item from
+		 * @return : IDataItem typed item.
 		 */
 		function getItem (pIndex:uint):IDataItem;
 		
 		/**
-		 * Savoir si un élément est contenu dans la collection
-		 * @param	pDataItem : L'item en question
-		 * @return : true si l'élément à été trouvé
+		 * Check if an item is stored in this collection.
+		 * @param	pDataItem : Searched item
+		 * @return : true if the item is in the collection.
 		 */
 		function contains (pDataItem:IDataItem):Boolean;
 		
 		/**
-		 * Ajouter un élément dans la collection
+		 * Add an item to the collection.
+		 * Will check the dataType.
+		 * @param	pDataItem : Item to add
+		 * @param	pAt : Index where add item at, -1 to add at end.
 		 */
-		function add (pDataItem:IDataItem):void;
+		function add (pDataItem:IDataItem, pAt:int = -1):void;
 		
 		/**
-		 * Ajouter un tableau d'éléments à la collection
-		 * @param	pData : Le tableau d'éléments IDataItem
+		 * Add all items to the collection.
+		 * Same restrictions as DataCollection.add method.
+		 * @param	pData : All items to add.
 		 */
 		function addAll (pData:Array):void;
 		
 		/**
-		 * Ajouter un élément à un endroit spécifique de la collection
+		 * Delete an item from collection
+		 * @param	pDataItem : Item to delete.
+		 * @return : If data has changed.
 		 */
-		function addAt (pDataItem:IDataItem, pAt:uint = 0):void;
+		function remove (pDataItem:IDataItem):Boolean;
 		
 		/**
-		 * Effacer un élément de la collection
-		 * @param	pDataItem : L'item qui doit être supprimé
+		 * Remove an element by index
+		 * @param	pAt : Index where the element to remove is.
+		 * @return : If data has changed.
 		 */
-		function remove (pDataItem:IDataItem):void;
+		function removeAt (pAt:uint):Boolean;
 		
 		/**
-		 * Effacer un élément par son index
-		 * @param	pAt : L'index qui doit être supprimé
-		 */
-		function removeAt (pAt:uint):void;
-		
-		/**
-		 * Vider la collection
+		 * Clear all collection data
 		 */
 		function clear ():void;
 		
+		
 		/**
-		 * Appèle une méthode sur chaque élément de cette collection.
-		 * La méthode doit accueillr les paramètres suivants :
-		 * 1. Récéption du IDataItem
-		 * 2. Récéption de l'index
-		 * Les paramètres optionnels seront ajoutés aux paramètres de la méthode.
-		 * Par exemple, si vous faites:
-		 * myCollection.forEach(myHandler, myCollection);
-		 * 
-		 * Il faut que votre handler ai cette signature:
-		 * public function myHandler (pItem:IDataItem, pIndex:uint, pCollection:DataCollection = null):void
-		 * 
-		 * @param	pHandler : La méthode appelée pour chaque élément.
-		 * @param	pParams : Les paramètres en plus des 2 obligatoires.
+		 * Call a function on every stored item in this collection.
+		 * The handler have to be like : function (pIndex:uint, pItem:IDataItem):void
+		 * Optional parameters will be added from pParams.
+		 * @param	pHandler : Function called for every item.
+		 * @param	pParams : Additional parameters added to the handler.
 		 */
 		function forEach (pHandler:Function, pParams:Array = null):void;
 		
 		/**
-		 * Trier la collection selon un ou plusieurs champs des items.
-		 * @param	pFields : Les champs à trier. Ce tableau doit être composé de string uniquement. ex: ['id', 'name']
-		 * @param	pAscending : L'ordre de tri. Par défaut l'ordre est ascendant (le plus bas en premier)
-		 * @param	pCaseSensitive : La prise en compte de la casse. Par défaut la casse n'est pas prise en compte.
-		 * @param	pNumeric : Valeurs numériques, par défaut le filtre se comporte pour des tri non numériques (10 est trié avant 2)
+		 * Call a function on every stored item in this collection.
+		 * If handler return false, the item is removed. If true, the item is kept.
+		 * The handler have to be like : function (pIndex:uint, pItem:IDataItem):void
+		 * Optional parameters will be added from pParams.
+		 * @param	pHandler : Function called for every item.
+		 * @param	pParams : Additional parameters added to the handler.
+		 */
+		function filter (pHandler:Function, pParams:Array = null):void;
+		
+		/**
+		 * Sort collection
+		 * @param	pFields : Strings array containing names of properties to sort on. If items have all a property "id", and "name", you can sort on ["id", "name"]
+		 * @param	pAscending : Sort order (default is lower in first)
+		 * @param	pCaseSensitive : If the sort algorythm is case sensitive.
+		 * @param	pNumeric : If the sort algoryth have to sort on numeric values. (default is none, for ex, 10 will be before 2)
 		 */
 		function sort (pFields:Array, pAscending:Boolean = true, pCaseSensitive:Boolean = false, pNumeric:Boolean = false):void;
 		
-		/**
-		 * Filtrer la collection grâce à une méthode callback.
-		 * @param	pCallback : Le callback permettant de filtrer la collection. Se référer à la documentation de Array.filter.
-		 */
-		function filterCollection (pCallback:Function):void;
 		
 		/**
-		 * La méthode toString
+		 * Convert object to string representation
 		 */
 		function toString ():String;
+		
+		/**
+		 * Clone this collection (same dataType and data)
+		 */
+		function clone ():DataCollection;
 	}
 }

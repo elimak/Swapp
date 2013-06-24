@@ -237,7 +237,7 @@ package fr.swapp.graphic.base
 		 * Please use SWrapper.getInstance to create a new instance of SWrapper.
 		 */
 		public function SWrapper (
-									pMultitonKey		:Object, 
+									pMultitonKey		:MultitonKey, 
 									pStage				:Stage,
 									pAutoRatio			:Boolean,
 									pRatioRoundSlices	:Number,
@@ -247,7 +247,7 @@ package fr.swapp.graphic.base
 								)
 		{
 			// Vérifier la clé pour la création multiton
-			if (pMultitonKey == null || !(pMultitonKey is MultitonKey))
+			if (pMultitonKey == null)
 			{
 				// déclencher l'erreur singleton
 				throw new GraphicalError("SWrapper.construct", "Direct instancation not allowed, please use SWrapper.getInstance instead.");
@@ -372,7 +372,53 @@ package fr.swapp.graphic.base
 			else
 			{
 				// On appel directement le handler
-				pHandler();
+				if (pHandler != null)
+					pHandler();
+			}
+		}
+		
+		/**
+		 * Remove last aspect ratio restriction.
+		 * @param	pHandler : Called when the new aspect ratio is fully setted
+		 * @param	pDontRemoveLast : If false, this method can throw an error if there is no more aspectRatio to delete. At least one aspect ratio is mandatory.
+		 * @return : the last aspect ratio restriction removed
+		 */
+		public function popAspectRatio (pHandler:Function = null, pDontRemoveLast:Boolean = true):String
+		{
+			// Si c'est le dernier
+			if (_aspectRatios.length == 1)
+			{
+				// Si on ne doit pas virer le dernier
+				if (!pDontRemoveLast)
+				{
+					// On déclanche une erreur
+					throw new GraphicalError("SWrapper.popAspectRatio", "Can't delete last aspect ratio. Please pop only pushed aspect ratios.");
+					return null;
+				}
+			}
+			else
+			{
+				// Supprimer le dernier et le retourner
+				var last:String =  _aspectRatios.pop();
+				
+				// Si on est sur Air
+				if (_isAirRuntime)
+				{
+					// Attendre pour le dispatch du handler
+					waitHandlerDispatch(last, pHandler);
+					
+					// On actualise
+					updateAspectRatio();
+				}
+				else
+				{
+					// On appel directement le handler
+					if (pHandler != null)
+						pHandler();
+				}
+				
+				// Retourner le ratio qui a été supprimé
+				return last;
 			}
 		}
 		
@@ -400,70 +446,38 @@ package fr.swapp.graphic.base
 		 */
 		protected function waitHandlerDispatch (pNewAspectRatio:String, pHandler:Function):void
 		{
-			// Si on est sur le bon ratio
-			if (isAspectRatioSetted(pNewAspectRatio))
+			// Si on a un handler
+			if (pHandler != null)
 			{
-				// Appeler directement le handler
-				pHandler();
-			}
-			
-			// Sinon attendre qu'on tombe sur le bon ratio
-			else
-			{
-				// Appelé à chaque resize pour vérifier que l'orientation est bien appliquée
-				function checkStageResizedHandler (event:Event):void
+				// Si on est sur le bon ratio
+				if (isAspectRatioSetted(pNewAspectRatio))
 				{
-					Log.notice("- checkStageResizedHandler", _stage.stageWidth, _stage.stageHeight);
-					
-					// Si on est sur le bon ratio
-					if (isAspectRatioSetted(pNewAspectRatio))
-					{
-						// On n'écoute plus
-						_stage.removeEventListener(Event.RESIZE, checkStageResizedHandler);
-						
-						// Et on appel le handler
-						pHandler();
-					}
-				}
-				
-				// Ecouter les resizes
-				_stage.addEventListener(Event.RESIZE, checkStageResizedHandler);
-			}
-		}
-		
-		/**
-		 * Remove last aspect ratio restriction.
-		 * @param	pHandler : Called when the new aspect ratio is fully setted
-		 * @return : the last aspect ratio restriction removed
-		 */
-		public function popAspectRatio (pHandler:Function):String
-		{
-			// Si c'est le dernier
-			if (_aspectRatios.length == 1)
-			{
-				// On déclanche une erreur
-				throw new GraphicalError("SWrapper.popAspectRatio", "Can't delete last aspect ratio. Please pop only pushed aspect ratios.");
-				return null;
-			}
-			else
-			{
-				// Supprimer le dernier et le retourner
-				var last:String =  _aspectRatios.pop();
-				
-				// Si on est sur Air
-				if (_isAirRuntime)
-				{
-					// On actualise
-					updateAspectRatio();
-				}
-				else
-				{
-					// On appel directement le handler
+					// Appeler directement le handler
 					pHandler();
 				}
 				
-				// Retourner le ratio qui a été supprimé
-				return last;
+				// Sinon attendre qu'on tombe sur le bon ratio
+				else
+				{
+					// Appelé à chaque resize pour vérifier que l'orientation est bien appliquée
+					function checkStageResizedHandler (event:Event):void
+					{
+						Log.notice("- checkStageResizedHandler", _stage.stageWidth, _stage.stageHeight);
+						
+						// Si on est sur le bon ratio
+						if (isAspectRatioSetted(pNewAspectRatio))
+						{
+							// On n'écoute plus
+							_stage.removeEventListener(Event.RESIZE, checkStageResizedHandler);
+							
+							// Et on appel le handler
+							pHandler();
+						}
+					}
+					
+					// Ecouter les resizes
+					_stage.addEventListener(Event.RESIZE, checkStageResizedHandler);
+				}
 			}
 		}
 		
@@ -474,7 +488,7 @@ package fr.swapp.graphic.base
 		protected function updateAspectRatio ():void
 		{
 			// Appliquer le dernier ratio
-			_stage.setAspectRatio(_aspectRatios[_aspectRatios.length == 0 ? 0 : _aspectRatios.length - 1]);
+			_stage["setAspectRatio"](_aspectRatios[_aspectRatios.length == 0 ? 0 : _aspectRatios.length - 1]);
 		}
 		
 		/**

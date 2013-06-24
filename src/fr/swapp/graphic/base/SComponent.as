@@ -5,6 +5,7 @@ package fr.swapp.graphic.base
 	import flash.events.Event;
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
+	import fr.swapp.core.log.Log;
 	import fr.swapp.core.roles.IDataContainer;
 	import fr.swapp.core.roles.IDisposable;
 	import fr.swapp.core.roles.IIndexable;
@@ -871,7 +872,7 @@ package fr.swapp.graphic.base
 			if (_onDisposed == null)
 			{
 				// C'est un problème OUPS
-				trace("Multiple dispose detected in SComponent");
+				Log.error("Multiple dispose detected in SComponent");
 				return;
 			}
 			
@@ -1217,11 +1218,11 @@ package fr.swapp.graphic.base
 		/**
 		 * Place this component into another. This will start the reflow process and show the component.
 		 * @param	pParent : Any DisplayObjectContainer object
-		 * @param	pName : Name of this component (optionnal)
 		 * @param	pAt : Which level (optionnal, -1 to place on front, 0 to place behind)
+		 * @param	pName : Name of this component (optionnal)
 		 * @return this
 		 */
-		public function into (pParent:DisplayObjectContainer, pName:String = "", pAt:int = -1):SComponent
+		public function into (pParent:DisplayObjectContainer, pAt:int = -1, pName:String = ""):SComponent
 		{
 			// Définir le nom si besoin
 			if (pName != "")
@@ -1353,9 +1354,11 @@ package fr.swapp.graphic.base
 		 */
 		public function forceRender ():void
 		{
+			// Invalider les styles et la position
 			invalidatePosition();
 			invalidateStyle();
 			
+			// Activer la phase de rendu
 			renderPhase();
 		}
 		
@@ -1434,9 +1437,8 @@ package fr.swapp.graphic.base
 			// Si on est disposé
 			if (_onDisposed == null)
 			{
-				// TODO : Vrai message d'erreur
-				// TODO : Trouver un moyen d'éviter que ça passe ici
-				trace("FUU disposed object is disposed");
+				// Afficher l'erreur
+				Log.error("Trying to update a disposed component");
 				
 				// On n'actualise pas
 				return;

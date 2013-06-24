@@ -73,6 +73,9 @@ package fr.swapptesting.document
 			createButton(10, 130, 100, 50, 0x000000, function ():void {
 				_wrapper.pushAspectRatio(StageAspectRatio.ANY, logStageDimension);
 			});
+			createButton(10, 190, 100, 50, 0x000DDD, function ():void {
+				Log.notice(_wrapper.popAspectRatio(logStageDimension));
+			});
 		}
 		
 		protected function logStageDimension ():void

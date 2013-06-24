@@ -27,7 +27,7 @@ package fr.swapp.core.dependences
 			if (!(pName in __instances))
 			{
 				// Créer l'instance
-				__instances[pName] = new DependencesManager(new MultitonKey(), pName);
+				new DependencesManager(new MultitonKey(), pName);
 			}
 			
 			// Retourner l'instance avec ce nom
@@ -82,6 +82,9 @@ package fr.swapp.core.dependences
 			}
 			else
 			{
+				// Enregistrer l'instance
+				__instances[pName] = this;
+				
 				// Enregistrer le nom
 				_name = pName;
 				

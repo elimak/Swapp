@@ -15,6 +15,8 @@ package fr.swapp.graphic.tools
 	import fr.swapp.core.log.Log;
 	import fr.swapp.core.roles.IDisposable;
 	import fr.swapp.graphic.errors.GraphicalError;
+	import fr.swapp.utils.EnvUtils;
+	import fr.swapp.utils.StageUtils;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -24,52 +26,85 @@ package fr.swapp.graphic.tools
 	public class BitmapCache implements IDisposable
 	{
 		/**
-		 * Les instances associées aux clips
+		 * Associated BitmapCache to displayObject instances
 		 */
-		protected static const __instances:Dictionary = new Dictionary();
+		protected static const __instances					:Dictionary					= new Dictionary();
+		
 		
 		/**
-		 * Créer un cache et l'associer à un clip
-		 * @param	pTarget : Le clip à associer
+		 * Instanciate a bitmapCache a associate it to a displayObject.
+		 * @param	pTarget : Associated displayObject. If null, mainStage will be used.
 		 */
-		public static function create (pTarget:DisplayObject):BitmapCache
+		public static function create (pTarget:DisplayObject = null):BitmapCache
 		{
+			// Si le clip cible est null
+			if (pTarget == null && StageUtils.throwErrorIfMainStageNotDefined("BitmapCache.create"))
+			{
+				// Récupérer le mainStage
+				pTarget = StageUtils.mainStage;
+			}
+			
+			// Si l'instance de ce clip cible n'est pas déjà créée
 			if (!(pTarget in __instances))
 			{
-				Log.notice("+ BitmapCache");
+				// Loguer l'ajout
+				Log.core("BitmapCache.create", [pTarget]);
 				
-				__instances[pTarget] = new BitmapCache();
+				// Créer l'instance
+				__instances[pTarget] = new BitmapCache(new MultitonKey());
 				
+				// Ecouter lorsque le clip est supprimé du stage
 				pTarget.addEventListener(Event.REMOVED_FROM_STAGE, associatedTargetRemovedFromStage);
 			}
 			
+			// Retourner l'instance, qu'elle soit fraichement créée ou non
 			return __instances[pTarget];
 		}
 		
+		/**
+		 * When associated displayObject is removed from stage.
+		 */
 		protected static function associatedTargetRemovedFromStage (event:Event):void 
 		{
+			// Ne plus écouter
 			event.currentTarget.removeEventListener(Event.REMOVED_FROM_STAGE, associatedTargetRemovedFromStage);
 			
+			// Détruire le bitmapCache associé
 			destroy(event.currentTarget as DisplayObject);
 		}
 		
 		/**
-		 * Détruire un cache associé à un clip
-		 * @param	pTarget : Le clip associé
+		 * Distroy a bitmapCache instance.
+		 * @param	pTarget : The displayObject target associated. If null, mainStage, will be used.
 		 */
-		public static function destroy (pTarget:DisplayObject):void
+		public static function destroy (pTarget:DisplayObject = null):void
 		{
-			// S'il existe
+			// Si le clip cible est null
+			if (pTarget == null && StageUtils.throwErrorIfMainStageNotDefined("BitmapCache.destroy"))
+			{
+				// Récupérer le mainStage
+				pTarget = StageUtils.mainStage;
+			}
+			
+			// Si l'instance de bitmapCache associée à ce clip existe
 			if (__instances[pTarget] != null)
 			{
+				// Loguer l'ajout
+				Log.core("BitmapCache.destroy", [pTarget]);
+				
 				// On le dispose
 				IDisposable(__instances[pTarget]).dispose();
 				
-				// Et on le vire du dico
-				__instances[pTarget] = null;
+				// Virer l'instance du dico
 				delete __instances[pTarget];
 			}
+			else
+			{
+				// Déclancher l'erreur
+				throw new GraphicalError("BitmapCache.destroy", "Associated BitmapCache to this DisplayObject target was not found.");
+			}
 		}
+		
 		
 		/**
 		 * La liste des bitmaps stockés
@@ -107,9 +142,28 @@ package fr.swapp.graphic.tools
 		
 		
 		/**
-		 * Le constructeur
+		 * Private constructor.
+		 * Please use BitmapCache.getInstance to create a new instance of BitmapCache.
 		 */
-		public function BitmapCache ()
+		public function BitmapCache (pMultitonKey:MultitonKey)
+		{
+			// Vérifier la clé pour la création multiton
+			if (pMultitonKey == null)
+			{
+				// déclencher l'erreur singleton
+				throw new GraphicalError("SWrapper.construct", "Direct instancation not allowed, please use SWrapper.getInstance instead.");
+			}
+			else
+			{
+				// Lancer le sous-constructeur
+				construct();
+			}
+		}
+		
+		/**
+		 * Sub-constructor
+		 */
+		protected function construct ():void
 		{
 			// Créer le contexte de chargement
 			_loaderContext = new LoaderContext();
@@ -121,9 +175,9 @@ package fr.swapp.graphic.tools
 			_loaderContext.allowCodeImport = false;
 		}
 		
+		
 		/**
-		 * Charger un BitmapData et le stocker en cache.
-		 * Utiliser le BitmapData en cache si possible.
+		 * Load a BitmapData and keep it in cache.
 		 * @param	pURL : L'URL de l'image a charger / récupérer
 		 * @param	pSuccessHandler : Le callback appelé lorsque l'image est prête (avec le BitmapData en paramètre 0 et un boolean pour signaler si l'image vient du cache en paramètre 1)
 		 * @param	pErrorHandler : Le callback appelé lorsque n'arrive pas à être chargée (avec une erreur passée en paramètre)
@@ -196,26 +250,26 @@ package fr.swapp.graphic.tools
 		 * Charger un BitmapData directement dans un Bitmap.
 		 * Utiliser le BitmapData en cache si possible.
 		 * @param	pURL : L'URL de l'image a charger / récupérer
-		 * @param	pBitmap : Le Bitmap sur lequel l'image sera chargée
+		 * @param	pBitmapContainer : Le Bitmap sur lequel l'image sera chargée
 		 * @param	pDisposeOldBitmapData : Si l'ancien bitmapData doit être vidé de la mémoire
 		 */
-		public function loadIntoBitmap (pURL:String, pBitmap:Object, pDisposeOldBitmapData:Boolean = false):void
+		public function loadInto (pURL:String, pBitmapContainer:Object, pDisposeOldBitmapData:Boolean = false):void
 		{
 			// Charger l'image
 			load(pURL, function (pBitmapData:BitmapData, pFromCache:Boolean):void
 			{
 				// L'image est chargée, la définir dans le bitmap
-				if (pBitmap != null && "bitmapData" in pBitmap)
+				if (pBitmapContainer != null && "bitmapData" in pBitmapContainer)
 				{
 					// Si on doit disposer l'ancien bitmapData et que ce bitmapData existe
-					if (pDisposeOldBitmapData && pBitmap.bitmapData != null && pBitmap.bitmapData is BitmapData)
+					if (pDisposeOldBitmapData && pBitmapContainer.bitmapData != null && pBitmapContainer.bitmapData is BitmapData)
 					{
 						// On le dispose
-						(pBitmap.bitmapData as BitmapData).dispose();
+						(pBitmapContainer.bitmapData as BitmapData).dispose();
 					}
 					
 					// On applique le nouveau bitmapData
-					pBitmap.bitmapData = pBitmapData;
+					pBitmapContainer.bitmapData = pBitmapData;
 				}
 			});
 		}
@@ -264,11 +318,8 @@ package fr.swapp.graphic.tools
 		 */
 		public function dispose ():void
 		{
-			Log.notice("- BitmapCache");
-			
 			// Parcourir le tableau
-			var total:uint = _bitmaps.length;
-			for (var i:uint = 0; i < total; i++)
+			for (var i:uint = 0, total = _bitmaps.length; i < total; i++)
 			{
 				// Dispose ce bitmapData
 				(_bitmaps as BitmapData).dispose();
@@ -284,3 +335,8 @@ package fr.swapp.graphic.tools
 		}
 	}
 }
+
+/**
+ * Private key to secure multiton providing.
+ */
+internal class MultitonKey {}

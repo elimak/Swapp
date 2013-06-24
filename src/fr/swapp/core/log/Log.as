@@ -138,7 +138,7 @@
 		 * Framework internal level logging.
 		 * If you don't work on the framework internals, don't use.
 		 */
-		public static function core (pCaller:Object, pMethodName:String = "", pArguments:Array = null):void
+		public static function core (pMethodName:String, pArguments:Array = null):void
 		{
 			dispatchLoggerAction(CORE_LEVEL, arguments);
 		}

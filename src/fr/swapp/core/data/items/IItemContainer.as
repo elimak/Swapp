@@ -4,7 +4,7 @@
 	 * Cet objet peut contenir un item.
 	 * @author ZoulouX
 	 */
-	public interface IItemContainer extends IDataItem
+	public interface IItemContainer
 	{
 		/**
 		 * L'item associé

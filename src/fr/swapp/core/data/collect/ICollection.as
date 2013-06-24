@@ -6,7 +6,7 @@ package fr.swapp.core.data.collect
 	public interface ICollection 
 	{
 		/**
-		 * Récupérer le nombre d'élément
+		 * Total elements in data array.
 		 */
 		function get length ():uint;
 	}	

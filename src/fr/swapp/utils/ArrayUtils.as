@@ -58,7 +58,7 @@
 			
 			// Vérifier que l'index est correct par rapport à la taille
 			// Sinon, on déclenche une erreur
-			if (pIndex <= total || total)
+			if (pIndex <= total)
 			{
 				// Boucler avec une itération de plus
 				for (var i:int = 0; i < total + 1; i++) 
