@@ -72,7 +72,7 @@ package fr.swapp.graphic.text
 				updateAutoSize();
 				
 				// Invalider le placement
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		
@@ -96,7 +96,7 @@ package fr.swapp.graphic.text
 				updateAutoSize();
 				
 				// Invalider le placement
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		
@@ -122,7 +122,7 @@ package fr.swapp.graphic.text
 				_textField.text = value;
 				
 				// Invalider le placement
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		
@@ -175,7 +175,7 @@ package fr.swapp.graphic.text
 				_textField.embedFonts = value;
 				
 				// Invalider le placement
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		
@@ -284,7 +284,7 @@ package fr.swapp.graphic.text
 		override public function flatten (pMatrixScale:Number = NaN, pMatrix:Matrix = null):SComponent
 		{
 			// Invalider la position
-			invalidatePosition();
+			_positionInvalidated = true;
 			
 			// Appliquer le cacheAsBitmap
 			_textField.cacheAsBitmap = true;
@@ -318,7 +318,7 @@ package fr.swapp.graphic.text
 			setCacheAsBitmapOnTextFieldMatrix(null);
 			
 			// Invalider la position
-			invalidatePosition();
+			_positionInvalidated = true;
 			
 			// Méthode chaînable
 			return this;
@@ -382,7 +382,7 @@ package fr.swapp.graphic.text
 				_textField.text = pValue;
 				
 				// Invalider le placement
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 			
 			// Méthode chaînable
@@ -402,7 +402,7 @@ package fr.swapp.graphic.text
 				_textField.appendText(pValue);
 				
 				// Invalider le placement
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 			
 			// Méthode chaînable
@@ -422,7 +422,7 @@ package fr.swapp.graphic.text
 				_textField.htmlText = pValue;
 				
 				// Invalider le placement
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 			
 			// Méthode chaînable

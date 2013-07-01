@@ -44,8 +44,21 @@ package fr.swapp.graphic.document
 				// Si on a un appController de dispo
 				if (_appViewController != null)
 				{
+					// Le nom de la commande
+					var commandName:String;
+					
+					// Convertir la commande Android en string
+					if (event.keyCode == Keyboard.BACK)
+					{
+						commandName = "back";
+					}
+					else if (event.keyCode == Keyboard.MENU)
+					{
+						commandName = "menu";
+					}
+					
 					// Appeler le handler sur l'appController et récupérer l'annulation
-					cancelDefault = _appViewController.handleNativeInput(event.keyCode);
+					cancelDefault = _appViewController.externalCommand(commandName);
 				}
 				
 				// Si on doit annuler le comportement par défaut de la plateforme

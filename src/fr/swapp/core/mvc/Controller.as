@@ -101,8 +101,17 @@ package fr.swapp.core.mvc
 		 */
 		public function Controller ()
 		{
+			construct();
+		}
+		
+		/**
+		 * Sub constructor
+		 */
+		protected function construct ():void
+		{
 			
 		}
+		
 		
 		/**
 		 * Dispatcher un signal par rapport à l'interface IEngine.

@@ -15,7 +15,7 @@
 	<id>fr.swapp.swapptesting</id>
 	
 	<!-- Version de l'appli (en 3 parties obligatoirement), dernière partie incrémentée automatiquement  -->
-	<versionNumber>1.2.15</versionNumber>
+	<versionNumber>1.2.17</versionNumber>
 	
 	<!-- Nom de fichier a l'export -->
 	<filename>Swapp</filename>

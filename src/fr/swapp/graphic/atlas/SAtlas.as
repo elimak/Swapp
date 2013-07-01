@@ -67,7 +67,7 @@ package fr.swapp.graphic.atlas
 		 */
 		public function SAtlas (pBitmapData:BitmapData, pAtlasXML:XML, pDensity:Number = 1)
 		{
-			// Rendre complètement compatible avec les atlas générés par texturePacker (offsets, etc)
+			// TODO: Rendre compatible avec les atlas générés par texturePacker (offsets, rotation)
 			
 			// Vérifier que les valeurs ne soient pas nulles
 			if (pBitmapData == null || pAtlasXML == null)
@@ -126,6 +126,34 @@ package fr.swapp.graphic.atlas
 		}
 		
 		/**
+		 * Get an atlas sequence for animation.
+		 * @param	pSequenceName : The base name of the sequence. If you have a sequence starting with "Animation001", juste enter "Animation", and this method will get you all atlases begining with "Animation".
+		 * @return Atlases sequence from name.
+		 */
+		public function getAtlasSequence (pSequenceName:String):Vector.<SAtlasItem>
+		{
+			// Le tableau temporaire pour pouvoir faire du sortOn
+			var tempOut:Array = [];
+			
+			// Parcourir les noms des atlasItem
+			for (var i:String in _items)
+			{
+				// Si ce nom correspond à la sequence
+				if (i.indexOf(pSequenceName) == 0)
+				{
+					// On l'ajoute à la liste
+					tempOut.push(_items[i]);
+				}
+			}
+			
+			// Trier la liste par nom
+			tempOut.sortOn("name");
+			
+			// Retourner la liste sous forme de vector d'atlasItem
+			return Vector.<SAtlasItem>(tempOut);
+		}
+		
+		/**
 		 * Get all availables textures names
 		 */
 		public function getNames ():Array
@@ -138,8 +166,10 @@ package fr.swapp.graphic.atlas
 		 */
 		public function dispose ():void
 		{
-			// TODO : Atlas dispose
+			// Disposer le bitmapData
+			_bitmapData.dispose();
 			
+			// Signaler la destruction
 			_onDisposed.dispatch();
 			_onDisposed.removeAll();
 			_onDisposed = null;

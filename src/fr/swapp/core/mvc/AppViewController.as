@@ -7,7 +7,7 @@ package fr.swapp.core.mvc
 	/**
 	 * @author ZoulouX
 	 */
-	public class AppViewController extends ViewController
+	public class AppViewController extends ViewController implements IAppViewController
 	{
 		/**
 		 * Application dependences manager
@@ -52,11 +52,11 @@ package fr.swapp.core.mvc
 		}
 		
 		/**
-		 * Handle native input from Document.
-		 * @param	pCode : This is the native input code. On android, Keyboard.BACK and Keyboard.MENU are sended.
-		 * @return : Return true to cancel native behavior.
+		 * Handle external command Document.
+		 * @param	pCommand : Command name. On android, "back" and "menu" are sended.
+		 * @return : Return true to cancel default behavior.
 		 */
-		public function handleNativeInput (pCode:uint):Boolean
+		public function externalCommand (pCommand:String):Boolean
 		{
 			return false;
 		}

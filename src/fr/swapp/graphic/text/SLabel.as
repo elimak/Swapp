@@ -314,7 +314,7 @@ package fr.swapp.graphic.text
 				_textFormatInvalidated = true;
 				
 				// Invalider la position
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		

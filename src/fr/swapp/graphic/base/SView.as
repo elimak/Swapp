@@ -1,9 +1,7 @@
 package fr.swapp.graphic.base
 {
-	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.events.Event;
-	import flash.utils.getQualifiedClassName;
 	import fr.swapp.core.central.Central;
 	import fr.swapp.core.dependences.DependencesManager;
 	import fr.swapp.core.mvc.IView;
@@ -17,7 +15,7 @@ package fr.swapp.graphic.base
 	/**
 	 * @author ZoulouX
 	 */
-	public class SView extends SComponent implements IView
+	public class SView extends SBaseView implements IView
 	{
 		/**
 		 * Style data
@@ -69,7 +67,7 @@ package fr.swapp.graphic.base
 		/**
 		 * Set style data class. Will be automatically added at init.
 		 */
-		protected function setStyle (pStyleDataClass:Class, pWithClass:Class = null):void
+		protected function setStyleData (pStyleDataClass:Class, pWithClass:Class = null):void
 		{
 			// Si on n'a pas déjà un style
 			if (_styleData == null)
@@ -88,6 +86,12 @@ package fr.swapp.graphic.base
 				
 				// Enregistrer l'instance
 				_styleData = DependencesManager.getInstance().instanciate(pStyleDataClass) as IStyleData;
+				
+				// Lui passer le nom de la classe de base
+				_styleData.baseClassName = _styleName;
+				
+				// Activer la prise en compte du style
+				_styleData.init();
 			}
 		}
 		
@@ -99,7 +103,7 @@ package fr.swapp.graphic.base
 			// Appliquer le style si disponible
 			if (_styleData != null)
 			{
-				SWrapper.getInstance(stage).styleCentral.addStyleData(_styleData);
+				SWrapper.getInstance().styleCentral.addStyleData(_styleData);
 			}
 			
 			// Relayer

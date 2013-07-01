@@ -6,7 +6,6 @@ package fr.swapp.graphic.base
 	import flash.display.JointStyle;
 	import flash.display.LineScaleMode;
 	import flash.geom.Matrix;
-	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import fr.swapp.graphic.atlas.SAtlasItem;
 	import fr.swapp.graphic.errors.GraphicalError;
@@ -160,6 +159,16 @@ package fr.swapp.graphic.base
 		 */
 		protected var _wireFrames						:int							= -1;
 		
+		/**
+		 * Pivot point X position
+		 */
+		protected var _pivotX							:Number							= 0;
+		
+		/**
+		 * Pivot point Y position
+		 */
+		protected var _pivotY							:Number							= 0;
+		
 		
 		/**
 		 * Le bitmapData pour le fond (null pour utiliser la couleur de fond)
@@ -174,10 +183,10 @@ package fr.swapp.graphic.base
 				_bitmapData = value;
 				
 				// Rendre la position invalide
-				invalidatePosition();
+				_positionInvalidated = true;
 				
 				// Rendre le dessin invalide
-				invalidateDraw();
+				_drawInvalidated = true;;
 			}
 		}
 		
@@ -209,10 +218,10 @@ package fr.swapp.graphic.base
 				}
 				
 				// Rendre la position invalide
-				invalidatePosition();
+				_positionInvalidated = true;
 				
 				// Rendre le dessin invalide
-				invalidateDraw();
+				_drawInvalidated = true;;
 			}
 		}
 		
@@ -229,7 +238,7 @@ package fr.swapp.graphic.base
 				_backgroundColor1 = value;
 				
 				// Rendre le dessin invalide
-				invalidateDraw();
+				_drawInvalidated = true;;
 			}
 		}
 		
@@ -246,7 +255,7 @@ package fr.swapp.graphic.base
 				_backgroundColor2 = value;
 				
 				// Rendre le dessin invalide
-				invalidateDraw();
+				_drawInvalidated = true;;
 			}
 		}
 		
@@ -263,7 +272,7 @@ package fr.swapp.graphic.base
 				_backgroundAlpha1 = value;
 				
 				// Rendre le dessin invalide
-				invalidateDraw();
+				_drawInvalidated = true;;
 			}
 		}
 		
@@ -280,7 +289,7 @@ package fr.swapp.graphic.base
 				_backgroundAlpha2 = value;
 				
 				// Rendre le dessin invalide
-				invalidateDraw();
+				_drawInvalidated = true;;
 			}
 		}
 		
@@ -298,7 +307,7 @@ package fr.swapp.graphic.base
 				_backgroundType = value;
 				
 				// Invalider le dessin
-				invalidateDraw();
+				_drawInvalidated = true;;
 			}
 		}
 		
@@ -315,7 +324,7 @@ package fr.swapp.graphic.base
 				_borderSize = value;
 				
 				// Rendre le dessin invalide
-				invalidateDraw();
+				_drawInvalidated = true;;
 			}
 		}
 		
@@ -332,7 +341,7 @@ package fr.swapp.graphic.base
 				_borderColor = value;
 				
 				// Rendre le dessin invalide
-				invalidateDraw();
+				_drawInvalidated = true;;
 			}
 		}
 		
@@ -349,7 +358,7 @@ package fr.swapp.graphic.base
 				_borderAlpha = value;
 				
 				// Rendre le dessin invalide
-				invalidateDraw();
+				_drawInvalidated = true;;
 			}
 		}
 		
@@ -367,7 +376,7 @@ package fr.swapp.graphic.base
 				_topLeftRadius = value;
 				
 				// Rendre le dessin invalide
-				invalidateDraw();
+				_drawInvalidated = true;;
 			}
 		}
 		
@@ -384,7 +393,7 @@ package fr.swapp.graphic.base
 				_topRightRadius = value;
 				
 				// Rendre le dessin invalide
-				invalidateDraw();
+				_drawInvalidated = true;;
 			}
 		}
 		
@@ -401,7 +410,7 @@ package fr.swapp.graphic.base
 				_bottomRightRadius = value;
 				
 				// Rendre le dessin invalide
-				invalidateDraw();
+				_drawInvalidated = true;;
 			}
 		}
 		
@@ -418,7 +427,7 @@ package fr.swapp.graphic.base
 				_bottomLeftRadius = value;
 				
 				// Rendre le dessin invalide
-				invalidateDraw();
+				_drawInvalidated = true;;
 			}
 		}
 		
@@ -436,7 +445,7 @@ package fr.swapp.graphic.base
 				_smoothing = value;
 				
 				// Rendre le dessin invalide
-				invalidateDraw();
+				_drawInvalidated = true;;
 			}
 		}
 		
@@ -453,7 +462,7 @@ package fr.swapp.graphic.base
 				_allowOverflow = value;
 				
 				// Rendre le dessin invalide
-				invalidateDraw();
+				_drawInvalidated = true;;
 			}
 		}
 		
@@ -470,10 +479,10 @@ package fr.swapp.graphic.base
 				_density = value;
 				
 				// Rendre la position invalide
-				invalidatePosition();
+				_positionInvalidated = true;
 				
 				// Rendre le dessin invalide
-				invalidateDraw();
+				_drawInvalidated = true;;
 			}
 		}
 		
@@ -498,7 +507,7 @@ package fr.swapp.graphic.base
 				_bitmapHorizontalOffset = value;
 				
 				// Rendre le dessin invalide
-				invalidateDraw();
+				_drawInvalidated = true;;
 			}
 		}
 		
@@ -523,7 +532,7 @@ package fr.swapp.graphic.base
 				_bitmapVerticalOffset = value;
 				
 				// Rendre le dessin invalide
-				invalidateDraw();
+				_drawInvalidated = true;;
 			}
 		}
 		
@@ -581,7 +590,7 @@ package fr.swapp.graphic.base
 				_frameOffset = value;
 				
 				// Besoin de rafraichir l'image
-				invalidateDraw();
+				_drawInvalidated = true;;
 			}
 		}
 		
@@ -598,23 +607,104 @@ package fr.swapp.graphic.base
 				_wireFrames = value;
 				
 				// Besoin de rafraichir l'image
-				invalidateDraw();
+				_drawInvalidated = true;;
 			}
+		}
+		
+		/**
+		 * Pivot point X poisition
+		 */
+		public function get pivotX ():Number { return _pivotX; }
+		public function set pivotX (value:Number):void
+		{
+			// Si c'est différent
+			if (value != _pivotX)
+			{
+				// Enregistrer la valeur
+				_pivotX = value;
+				
+				// Appliquer l'offset
+				super.horizontalOffset = _horizontalOffset + _pivotX;
+				
+				// Besoin de rafraichir l'image
+				_drawInvalidated = true;;
+			}
+		}
+		
+		/**
+		 * Pivot point Y poisition
+		 */
+		public function get pivotY ():Number { return _pivotY; }
+		public function set pivotY (value:Number):void
+		{
+			// Si c'est différent
+			if (value != _pivotY)
+			{
+				// Enregistrer la valeur
+				_pivotY = value;
+				
+				// Appliquer l'offset
+				super.horizontalOffset = _horizontalOffset + _pivotY;
+				
+				// Besoin de rafraichir l'image
+				_drawInvalidated = true;;
+			}
+		}
+		
+		/**
+		 * Horizontal offset from the flow (0 to ignore)
+		 */
+		override public function get horizontalOffset ():Number { return _horizontalOffset - _pivotX; }
+		override public function set horizontalOffset (value:Number):void 
+		{
+			// Relayer en ajoutant la valeur du pivot de manière transparent
+			super.horizontalOffset = value + _pivotX;
+		}
+		
+		/**
+		 * Vertical offset from the flow (0 to ignore)
+		 */
+		override public function get verticalOffset ():Number { return _verticalOffset - _pivotY; }
+		override public function set verticalOffset (value:Number):void 
+		{
+			// Relayer en ajoutant la valeur du pivot de manière transparent
+			super.horizontalOffset = value + _pivotY;
 		}
 		
 		
 		/**
-		 * Constructor
-		 * Set texture to draw. If pBitmapData is null, it will be ignored.
+		 * Constructor.
+		 * Set texture to draw. If pSource is null, it will be ignored.
+		 * pSource can be BitmapData or SAtlasItem. Please see corresponding documentations (for SGraphic.atlas and SGraphic.image methods).
 		 * Set renderMode to specify how the texture will fit in this component.
-		 * Set density for retina images for exemple.
-		 * @param	pBitmapData : Texture to be drawn. Null to ignore.
+		 * @param	pSource : Texture to be drawn. Null to ignore.
 		 * @param	pRenderMode : RenderMode from SRenderMode to fit texture in this component.
-		 * @param	pDensity : Density of the texture.
+		 * @param	pDensity : Pixels density of the texture. Default is 1.
+		 * @param	pAutoSetLimitSize : Automatically set min and max size to respect scale9-3 ratios. (only for atlas)
 		 */
-		public function SGraphic (pBitmapData:BitmapData = null, pRenderMode:String = null, pDensity:Number = 1)
+		public function SGraphic (pSource:Object = null, pRenderMode:String = null, pDensity:Number = 1, pAutoSetLimitSize:Boolean = false)
 		{
-			image(pBitmapData, pRenderMode, pDensity);
+			// Vérifier si on a une source
+			if (pSource != null)
+			{
+				// Si c'est un bitmap
+				if (pSource is BitmapData)
+				{
+					image(pSource as BitmapData, pRenderMode, pDensity);
+				}
+				
+				// Si c'est un atlas
+				else if (pSource is SAtlasItem)
+				{
+					atlas(pSource as SAtlasItem, pRenderMode, pDensity, pAutoSetLimitSize);
+				}
+				
+				else
+				{
+					// On nous a passé une mauvaise source
+					throw new GraphicalError("SGraphic.construct", "Bad source format. (accepted formats are BitmapData and SAtlasItem.)");
+				}
+			}
 		}
 		
 		
@@ -679,7 +769,7 @@ package fr.swapp.graphic.base
 			_backgroundType = pBackgroundType;
 			
 			// Invalider le dessin
-			invalidateDraw();
+			_drawInvalidated = true;;
 			
 			// Méthode chaînable
 			return this;
@@ -700,7 +790,7 @@ package fr.swapp.graphic.base
 			_borderAlpha = pBorderAlpha;
 			
 			// Rendre le dessin invalide
-			invalidateDraw();
+			_drawInvalidated = true;;
 			
 			// Méthode chaînable
 			return this;
@@ -730,7 +820,30 @@ package fr.swapp.graphic.base
 			_bottomLeftRadius 	= pBottomLeftRadius;
 			
 			// Rendre le dessin invalide
-			invalidateDraw();
+			_drawInvalidated = true;;
+			
+			// Méthode chaînable
+			return this;
+		}
+		
+		/**
+		 * Pivot point
+		 * @param	pPivotX : X position of the pivot point.
+		 * @param	pPivotY : Y position of the pivot point.
+		 * @return this
+		 */
+		public function pivot (pPivotX:Number = 0, pPivotY:Number = 0):SGraphic
+		{
+			// Enregistrer les valeurs
+			_pivotX = pPivotX;
+			_pivotY = pPivotY;
+			
+			// Appliquer les offsets
+			super.horizontalOffset = _horizontalOffset + _pivotX;
+			super.verticalOffset = _verticalOffset + _pivotY;
+			
+			// Rendre le dessin invalide
+			_drawInvalidated = true;;
 			
 			// Méthode chaînable
 			return this;
@@ -746,12 +859,16 @@ package fr.swapp.graphic.base
 		 * - AUTO_SCALE_RENDER
 		 * @param	pAtlasItem : AtlasItem to show. Set to null to disable Atlas rendering.
 		 * @param	pRenderMode : Render mode to use if AtlasItem is provided, not all available with atlas mode. Default is AUTO_SIZE.
+		 * @param	pDensity : Pixels density of the texture. Default is 1.
 		 * @param	pAutoSetLimitSize : Automatically set min and max size to respect scale9-3 ratios.
 		 */
-		public function atlas (pAtlasItem:SAtlasItem, pRenderMode:String = "autoSize", pAutoSetLimitSize:Boolean = false):SGraphic
+		public function atlas (pAtlasItem:SAtlasItem, pRenderMode:String = "autoSize", pDensity:Number = 1, pAutoSetLimitSize:Boolean = false):SGraphic
 		{
 			// Enregistrer l'item
 			_atlasItem = pAtlasItem;
+			
+			// Enregistrer la densité
+			_density = pDensity;
 			
 			// Si on a un atlas
 			if (_atlasItem != null)
@@ -850,7 +967,7 @@ package fr.swapp.graphic.base
 			}
 			
 			// Invalider le dessin
-			invalidateDraw();
+			_drawInvalidated = true;;
 		}
 		
 		/**
@@ -1014,22 +1131,13 @@ package fr.swapp.graphic.base
 			}
 			
 			// Invalider le dessin
-			invalidateDraw();
+			_drawInvalidated = true;;
 		}
 		
 		
 		/******************************************
 						  Phases
 		 ******************************************/
-		
-		/**
-		 * Invalider le dessin
-		 */
-		public function invalidateDraw ():void
-		{
-			// Invalider le dessin
-			_drawInvalidated = true;
-		}
 		
 		/**
 		 * Replacer le composant
@@ -1058,7 +1166,7 @@ package fr.swapp.graphic.base
 			updateFlow();
 			
 			// Actualiser le dessin
-			invalidateDraw();
+			_drawInvalidated = true;;
 		}
 		
 		/**
@@ -1082,7 +1190,7 @@ package fr.swapp.graphic.base
 		
 		
 		/******************************************
-						   Dessin
+						   Drawing
 		 ******************************************/
 		
 		/**
@@ -1100,7 +1208,7 @@ package fr.swapp.graphic.base
 				if (_borderSize > 0 && _wireFrames < 0)
 				{
 					// On dessine le contour
-					graphics.lineStyle(_borderSize, _borderColor, _borderAlpha, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.MITER);
+					graphics.lineStyle(_borderSize, _borderColor, _borderAlpha, _snapToPixels, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.MITER);
 				}
 				
 				// Si on a un bitmapData
@@ -1129,8 +1237,8 @@ package fr.swapp.graphic.base
 						{
 							// Avec bords arrondis
 							graphics.drawRoundRectComplex(
-								0,
-								0,
+								- _pivotX,
+								- _pivotY,
 								_localWidth,
 								_localHeight,
 								_topLeftRadius, _topRightRadius,
@@ -1141,8 +1249,8 @@ package fr.swapp.graphic.base
 						{
 							// Sans bords arrondis
 							graphics.drawRect(
-								0,
-								0,
+								- _pivotX,
+								- _pivotY,
 								_localWidth,
 								_localHeight
 							);
@@ -1276,8 +1384,8 @@ package fr.swapp.graphic.base
 								
 								// Tracer le bloc
 								graphics.drawRect(
-									hPositions[cx],
-									vPositions[cy],
+									hPositions[cx] - _pivotX,
+									vPositions[cy] - _pivotY,
 									hPositions[cx + 1] - hPositions[cx],
 									vPositions[cy + 1] - vPositions[cy]
 								);
@@ -1328,8 +1436,8 @@ package fr.swapp.graphic.base
 				{
 					// Avec bords arrondis
 					graphics.drawRoundRectComplex(
-						_xDrawDecay,
-						_yDrawDecay,
+						_xDrawDecay - _pivotX,
+						_yDrawDecay - _pivotY,
 						_localWidth - _xDrawDecay * 2,
 						_localHeight - _yDrawDecay * 2,
 						_topLeftRadius, _topRightRadius,
@@ -1340,8 +1448,8 @@ package fr.swapp.graphic.base
 				{
 					// Sans bords arrondis
 					graphics.drawRect(
-						_xDrawDecay,
-						_yDrawDecay,
+						_xDrawDecay - _pivotX,
+						_yDrawDecay - _pivotY,
 						_localWidth - _xDrawDecay * 2,
 						_localHeight - _yDrawDecay * 2
 					);
@@ -1379,7 +1487,7 @@ package fr.swapp.graphic.base
 						GradientType.LINEAR,
 						[_backgroundColor1, _backgroundColor2],
 						[_backgroundAlpha1, _backgroundAlpha2],
-						[0, 255],
+						[0, 0xFF],
 						gradientMatrix
 					);
 				}

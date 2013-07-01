@@ -393,8 +393,8 @@ package fr.swapp.graphic.base
 				{
 					// On déclanche une erreur
 					throw new GraphicalError("SWrapper.popAspectRatio", "Can't delete last aspect ratio. Please pop only pushed aspect ratios.");
-					return null;
 				}
+				return null;
 			}
 			else
 			{

@@ -310,7 +310,7 @@ package fr.swapp.graphic.base
 				_localWidth = value;
 				
 				// Invalider la position
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		
@@ -327,7 +327,7 @@ package fr.swapp.graphic.base
 				_localHeight = value;
 				
 				// Invalider la position
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		
@@ -344,7 +344,7 @@ package fr.swapp.graphic.base
 				_minWidth = value;
 				
 				// Invalider la position
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		
@@ -361,7 +361,7 @@ package fr.swapp.graphic.base
 				_minHeight = value;
 				
 				// Invalider la position
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		
@@ -378,7 +378,7 @@ package fr.swapp.graphic.base
 				_maxWidth = value;
 				
 				// Invalider la position
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		
@@ -395,7 +395,7 @@ package fr.swapp.graphic.base
 				_maxHeight = value;
 				
 				// Invalider la position
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		
@@ -412,7 +412,7 @@ package fr.swapp.graphic.base
 				_top = value;
 				
 				// Invalider la position
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		
@@ -429,7 +429,7 @@ package fr.swapp.graphic.base
 				_right = value;
 				
 				// Invalider la position
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		
@@ -446,7 +446,7 @@ package fr.swapp.graphic.base
 				_bottom = value;
 				
 				// Invalider la position
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		
@@ -463,7 +463,7 @@ package fr.swapp.graphic.base
 				_left = value;
 				
 				// Invalider la position
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		
@@ -480,7 +480,7 @@ package fr.swapp.graphic.base
 				_horizontalCenter = value;
 				
 				// Invalider la position
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		
@@ -497,7 +497,7 @@ package fr.swapp.graphic.base
 				_verticalCenter = value;
 				
 				// Invalider la position
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		
@@ -514,14 +514,17 @@ package fr.swapp.graphic.base
 				// Enregistrer la nouvelle valeur
 				_horizontalOffset = value;
 				
+				// Invalider la position
+				_positionInvalidated = true;
+				
 				// Placer
-				x = _horizontalOffset + _leftMargin;
+				//x = _horizontalOffset + _leftMargin;
 				
 				// Signaler
-				replaced();
+				//replaced();
 				
 				// Dispatcher
-				_onReplaced.dispatch();
+				//_onReplaced.dispatch();
 			}
 		}
 		
@@ -538,14 +541,17 @@ package fr.swapp.graphic.base
 				// Enregistrer la nouvelle valeur
 				_verticalOffset = value;
 				
+				// Invalider la position
+				_positionInvalidated = true;
+				
 				// Placer
-				y = _verticalOffset + _topMargin;
+				//y = _verticalOffset + _topMargin;
 				
 				// Signaler
-				replaced();
+				//replaced();
 				
 				// Dispatcher
-				_onReplaced.dispatch();
+				//_onReplaced.dispatch();
 			}
 		}
 		
@@ -562,7 +568,7 @@ package fr.swapp.graphic.base
 				_topMargin = value;
 				
 				// Invalider la position
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		
@@ -579,7 +585,7 @@ package fr.swapp.graphic.base
 				_rightMargin = value;
 				
 				// Invalider la position
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		
@@ -596,7 +602,7 @@ package fr.swapp.graphic.base
 				_bottomMargin = value;
 				
 				// Invalider la position
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		
@@ -613,7 +619,7 @@ package fr.swapp.graphic.base
 				_leftMargin = value;
 				
 				// Invalider la position
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		
@@ -630,7 +636,7 @@ package fr.swapp.graphic.base
 				_clipContent = value;
 				
 				// Invalider la position
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 		}
 		
@@ -668,7 +674,7 @@ package fr.swapp.graphic.base
 				_backgroundGraphic = new SGraphic();
 				
 				// Et on le place
-				_backgroundGraphic.place(0, 0, 0, 0).into(this, "background", 0);
+				_backgroundGraphic.place(0, 0, 0, 0).into(this, 0, "background");
 			}
 			
 			// Retourner le fond
@@ -693,7 +699,7 @@ package fr.swapp.graphic.base
 					_backgroundGraphic = value;
 					
 					// Et on le place
-					_backgroundGraphic.place(0, 0, 0, 0).into(this, "background", 0);
+					_backgroundGraphic.place(0, 0, 0, 0).into(this, 0, "background");
 				}
 			}
 		}
@@ -714,7 +720,7 @@ package fr.swapp.graphic.base
 				super.visible = value;
 				
 				// Invalider la position
-				invalidatePosition();
+				_positionInvalidated = true;
 				
 				// Dispatcher le changement
 				if (_onVisibilityChanged != null)
@@ -736,7 +742,7 @@ package fr.swapp.graphic.base
 				_styleName = value;
 				
 				// Et on invalide le style
-				invalidateStyle();
+				_styleInvalidated = true;
 			}
 		}
 		
@@ -754,7 +760,7 @@ package fr.swapp.graphic.base
 				_styleEnabled = value;
 				
 				// Et on invalide le style
-				invalidateStyle();
+				_styleInvalidated = true;
 			}
 		}
 		
@@ -1033,7 +1039,7 @@ package fr.swapp.graphic.base
 			// Invalider la position si besoin
 			if (changed)
 			{
-				invalidatePosition();
+				_positionInvalidated = true;
 			}
 			
 			// Méthode chaînable
@@ -1058,7 +1064,7 @@ package fr.swapp.graphic.base
 			_left = pLeft;
 			
 			// Invalider la position
-			invalidatePosition();
+			_positionInvalidated = true;
 			
 			// Méthode chaînable
 			return this;
@@ -1087,7 +1093,7 @@ package fr.swapp.graphic.base
 				_localHeight = pHeight;
 			
 			// Invalider la position
-			invalidatePosition();
+			_positionInvalidated = true;
 			
 			// Méthode chaînable
 			return this;
@@ -1142,7 +1148,7 @@ package fr.swapp.graphic.base
 				_minHeight = Math.max(0, pMinHeight);
 			
 			// Invalider la position
-			invalidatePosition();
+			_positionInvalidated = true;
 			
 			// Méthode chaînable
 			return this;
@@ -1166,7 +1172,7 @@ package fr.swapp.graphic.base
 				_maxHeight = Math.max(0, pMaxHeight);
 			
 			// Invalider la position
-			invalidatePosition();
+			_positionInvalidated = true;
 			
 			// Méthode chaînable
 			return this;
@@ -1189,7 +1195,7 @@ package fr.swapp.graphic.base
 			_leftMargin = pLeftMargin;
 			
 			// Invalider la position
-			invalidatePosition();
+			_positionInvalidated = true;
 			
 			// Méthode chaînable
 			return this;
@@ -1209,7 +1215,7 @@ package fr.swapp.graphic.base
 			_verticalCenter = pVerticalCenter;
 			
 			// Invalider la position
-			invalidatePosition();
+			_positionInvalidated = true;
 			
 			// Méthode chaînable
 			return this;
@@ -1272,7 +1278,7 @@ package fr.swapp.graphic.base
 		public function flatten (pMatrixScale:Number = NaN, pMatrix:Matrix = null):SComponent
 		{
 			// Invalider la position
-			invalidatePosition();
+			_positionInvalidated = true;
 			
 			// Appliquer le cacheAsBitmap
 			cacheAsBitmap = true;
@@ -1306,7 +1312,7 @@ package fr.swapp.graphic.base
 			setCacheAsBitmapMatrix(null);
 			
 			// Invalider la position
-			invalidatePosition();
+			_positionInvalidated = true;
 			
 			// Méthode chaînable
 			return this;
@@ -1355,29 +1361,11 @@ package fr.swapp.graphic.base
 		public function forceRender ():void
 		{
 			// Invalider les styles et la position
-			invalidatePosition();
-			invalidateStyle();
+			_positionInvalidated = true;
+			_styleInvalidated = true;
 			
 			// Activer la phase de rendu
 			renderPhase();
-		}
-		
-		/**
-		 * Invalidate position
-		 */
-		public function invalidatePosition ():void
-		{
-			// On invalide la position
-			_positionInvalidated = true;
-		}
-		
-		/**
-		 * Invalidate style
-		 */
-		public function invalidateStyle ():void
-		{
-			// On invalide le style
-			_styleInvalidated = true;
 		}
 		
 		/**
@@ -1590,6 +1578,14 @@ package fr.swapp.graphic.base
 		/******************************************
 						    Style
 		 ******************************************/
+		
+		/**
+		 * Invalidation style
+		 */
+		public function invalidateStyle ():void
+		{
+			_styleInvalidated = true;
+		}
 		
 		/**
 		 * Update style (if style is enabled)

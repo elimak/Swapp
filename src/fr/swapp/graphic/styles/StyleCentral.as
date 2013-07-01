@@ -73,16 +73,13 @@ package fr.swapp.graphic.styles
 			// TODO : Peut être faire un mode strict (Qui throw des error au lieu de log)
 			
 			// TODO : Voir si on peut pas intégrer les states? (Pratique pour le bouton)
-			// TODO : Voir si on peut pas intégrer le name du DisplayObject?
 			
 			// TODO : Faire un sélécteur de DisplayObject style jQuery grâce aux algos déjà fait. Voir si le code peut être mutialisé.
 			// TODO : Peut être qu'il faut composer l'outil de ciblage au styleCentral (SQuery.getInstance(stage) ? SWrapper.getInstance(stage).query ?)
-			// TODO : Il faudra simplifier l'accès au stageWrapper car dans les controlleurs (par exemple) on n'a pas accès à stage.
 			// TODO : Trouver un moyen de charger des stylesSheets à la volée (par exemple, une vue ajoute du style)
 			// TODO : Ou alors faire une méthode addStyle() et faire plusieurs addStyles(MyViewStyle) et autres addStyle(MainUIStyle)
 			
 			// TODO : Trouver un moyen d'intégrer des animations (bien intégrer tween max pour faire des transitions entre 2 états)
-			// TODO : Trouver un moyen de ciblage direct avec le sélécteur ">".
 			// TODO : Ajouter la possibilité d'avoir plusieurs classes par éléments. Ce problème peut régler au problème des states \o/ (la classe bouton ajoute une classe additionnelle pour chaque état)
 		}
 		

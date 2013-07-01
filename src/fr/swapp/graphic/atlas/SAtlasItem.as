@@ -127,5 +127,13 @@ package fr.swapp.graphic.atlas
 			// Retourner l'image découpée
 			return out;
 		}
+		
+		/**
+		 * String representation
+		 */
+		public function toString ():String
+		{
+			return "SAtlasItem {" + _name + ", " + _x + ", " + _y + ", " + _width + ", " + _height + "}";
+		}
 	}
 }

@@ -9,7 +9,7 @@ package fr.swapp.graphic.document
 	import fr.swapp.core.log.ExternalInterfaceLogger;
 	import fr.swapp.core.log.Log;
 	import fr.swapp.core.log.TraceLogger;
-	import fr.swapp.core.mvc.AppViewController;
+	import fr.swapp.core.mvc.IAppViewController;
 	import fr.swapp.graphic.base.SWrapper;
 	import fr.swapp.graphic.tools.Stats;
 	import fr.swapp.input.dispatcher.InputDispatcher;
@@ -41,7 +41,7 @@ package fr.swapp.graphic.document
 		/**
 		 * AppViewController
 		 */
-		protected var _appViewController		:AppViewController;
+		protected var _appViewController		:IAppViewController;
 		
 		
 		/**
@@ -62,7 +62,7 @@ package fr.swapp.graphic.document
 		/**
 		 * AppViewController
 		 */
-		public function get appViewController ():AppViewController { return _appViewController; }
+		public function get appViewController ():IAppViewController { return _appViewController; }
 		
 		
 		/**
@@ -235,6 +235,17 @@ package fr.swapp.graphic.document
 		}
 		
 		/**
+		 * Enable locale manager and set current locale.
+		 * @param	pLangs : Object with lang code in key, and locale file in value. First association is the default language.
+		 * @param	pCurrentLocale : If not setted, automatic detection will select the right language. If the right language can't be found, the first in the lang list will be selected.
+		 */
+		protected function enableLocale (pLangs:Object, pCurrentLocale:String = null):void
+		{
+			// TODO : Implémenter la classe locale selon cette interface.
+			throw new Error("EnableLocale not implemented yet.");
+		}
+		
+		/**
 		 * Enable stats counter
 		 */
 		public function enableStats ():void
@@ -269,21 +280,24 @@ package fr.swapp.graphic.document
 		
 		/**
 		 * Setup AppViewController and start AppViewController.
-		 * SWrapper will be used if initialised. Else, stage will be provided.
+		 * SWrapper root will be used if initialised. Else, stage will be provided.
 		 * Call this method only in the "ready" method.
 		 */
 		protected function setupAppViewController (pAppViewControllerClass:Class, pDefaultAction:IAction = null):void
 		{
-			// Vérifier que la classe soit bien un appViewController
-			if (!(pAppViewControllerClass is AppViewController))
+			// Créer l'instance
+			var appViewControllerInstance:Object = new pAppViewControllerClass();
+			
+			// Vérifier que la classe soit bien un IAppViewController
+			if (!(appViewControllerInstance is IAppViewController))
 			{
 				// Déclancher une erreur
-				throw new SwappError("SFlashDocument.setupAppViewController", "The pAppViewControllerClass parameter in setupAppViewController have to be an AppViewController based class.");
+				throw new SwappError("SFlashDocument.setupAppViewController", "The pAppViewControllerClass parameter in setupAppViewController have to be an IAppViewController based class.");
 			}
 			else
 			{
-				// Créer l'AppController
-				_appViewController = new pAppViewControllerClass();
+				// Cibler l'instance
+				_appViewController = appViewControllerInstance as IAppViewController;
 				
 				// Donner un container au controller (wrapper si disponible sinon stage)
 				_appViewController.container = (_wrapper != null ? _wrapper.root : stage);
