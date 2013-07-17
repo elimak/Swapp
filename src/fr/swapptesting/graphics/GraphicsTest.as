@@ -3,6 +3,7 @@ package fr.swapptesting.graphics
 	import flash.display.StageAspectRatio;
 	import flash.events.Event;
 	import flash.events.TouchEvent;
+	import flash.utils.getTimer;
 	import fr.swapp.core.data.config.Config;
 	import fr.swapp.graphic.animation.SAtlasAnimation;
 	import fr.swapp.graphic.atlas.SAtlas;
@@ -72,6 +73,8 @@ package fr.swapptesting.graphics
 			if (_graphic1 != null)
 			{
 				_graphic1.rotation += 5;
+				
+				_graphic1.scale((Math.sin(getTimer() / 1000) + 2));
 			}
 		}
 		

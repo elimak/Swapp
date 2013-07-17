@@ -17,6 +17,6 @@ package fr.swapp.core.mvc
 		 * @param	pCommand : Command name. On android, "back" and "menu" are sended.
 		 * @return : Return true to cancel default behavior.
 		 */
-		function externalCommand (pCommand:String):Boolean;
+		function externalCommand (pCommand:String, pParameters:Object):Boolean;
 	}
 }

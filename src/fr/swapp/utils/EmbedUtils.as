@@ -28,5 +28,17 @@ package fr.swapp.utils
 			// Retourner l'XML
 			return new XML(ba.readUTFBytes(ba.length));
 		}
+		
+		/**
+		 * Get JSON from embedded class
+		 */
+		public static function getJSON (pEmbeddedClass):Object
+		{
+			// Créer le byteArray depuis la class embed
+			var ba:ByteArray = (new pEmbeddedClass as ByteArray);
+			
+			// Retourner l'XML
+			return JSON.parse(ba.readUTFBytes(ba.length));
+		}
 	}
 }

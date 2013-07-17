@@ -1,6 +1,8 @@
 ﻿package fr.swapp.utils 
 {
 	import flash.utils.ByteArray;
+	import fr.swapp.core.errors.SwappError;
+	import fr.swapp.core.log.Log;
 	
 	/**
 	 * Classe utilitaire sur la gestion des objets.
@@ -71,6 +73,45 @@
 			
 			// Retourner l'objet AMF décodé, donc cloné
 			return(cloner.readObject());
+		}
+		
+		/**
+		 * Get object value from complex path
+		 * @param	pObject : The object to search in
+		 * @param	pPath : The path dot syntaxed like "firstLevel.myProperty.value"
+		 * @param	pStrict : If strict, can throw errors. Else, it will show warnings in console. Default is strict.
+		 * @return The targetted object by the path from pObject.
+		 */
+		public static function getPath (pObject:Object, pPath:String, pStrict:Boolean = true):Object
+		{
+			// Séparer le chemin sur les points
+			var splittedPath:Array = pPath.split(".");
+			
+			// Le scope actuel
+			var currentScope:Object = pObject;
+			
+			// Parcourir chaque partie du chemin
+			for each (var pathPart:String in splittedPath)
+			{
+				// Si cette partie du chemin existe dans le scope actuel
+				if (pathPart in currentScope)
+				{
+					// On avance d'un niveau
+					currentScope = currentScope[pathPart];
+				}
+				else
+				{
+					// Afficher l'erreur
+					var error:SwappError = new SwappError("ObjectUtils.getPath", "Part " + pathPart + " not found with patch " + pPath);
+					if (pStrict) throw error else error.log();
+					
+					// Retourner null
+					return null;
+				}
+			}
+			
+			// Retourner le scope courrant
+			return currentScope;
 		}
 	}
 }

@@ -11,6 +11,7 @@ package fr.swapp.graphic.base
 	import fr.swapp.core.roles.IIndexable;
 	import fr.swapp.core.roles.IInitializable;
 	import fr.swapp.graphic.styles.IStylable;
+	import fr.swapp.utils.ArrayUtils;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -1001,8 +1002,53 @@ package fr.swapp.graphic.base
 		
 		
 		/******************************************
-					  Méthodes ouvertes
+					    Exposed API
 		 ******************************************/
+		
+		
+		/**
+		 * Rotate component
+		 * @param	pRotation : Rotation between 0 and 360 degrees
+		 * @return this
+		 */
+		public function rotate (pRotation:Number):SComponent
+		{
+			// Si on a une valeur pour le scale horizontal
+			if (pRotation >= 0 || pRotation < 0)
+			{
+				// On applique la valeur
+				rotation = pRotation;
+			}
+			
+			// Méthode chaînable
+			return this;
+		}
+		
+		/**
+		 * Scale component
+		 * @param	pScaleX : Horizontal scale, 1 is the default scale, NaN to ignore.
+		 * @param	pScaleY : Verical scale, 1 is the default scale, NaN to ignore.
+		 * @return this
+		 */
+		public function scale (pScaleX:Number = NaN, pScaleY:Number = NaN):SComponent
+		{
+			// Si on a une valeur pour le scale horizontal
+			if (pScaleX >= 0 || pScaleX < 0)
+			{
+				// On applique la valeur
+				scaleX = pScaleX;
+			}
+			
+			// Si on a une valeur pour le scale vertical
+			if (pScaleY >= 0 || pScaleY < 0)
+			{
+				// On applique la valeur
+				scaleY = pScaleY;
+			}
+			
+			// Méthode chaînable
+			return this;
+		}
 		
 		/**
 		 * Set the size of this component.
@@ -1332,19 +1378,96 @@ package fr.swapp.graphic.base
 			return this;
 		}
 		
+		
+		/******************************************
+						   Styles
+		 ******************************************/
+		
 		/**
 		 * Specify a styleName to apply.
 		 * If styles are disabled, styles will be enabled automatically.
+		 * @param	pStyleName : Specify all classes without the first dot and space separated.
 		 * @return this
 		 */
 		public function style (pStyleName:String):SComponent
 		{
-			// Appliquer le style
-			styleName = pStyleName;
-			
 			// Si les styles sont désactivés, on les active
 			if (!_styleEnabled)
 				_styleEnabled = true;
+				
+			// Appliquer le style
+			styleName = pStyleName;
+			
+			// Chaînable
+			return this;
+		}
+		
+		/**
+		 * Check if a class is in the styleName.
+		 * @param	pStyleClass : Name of the style class to check. Specify all classes without the first dot.
+		 */
+		public function hasStyleClass (pStyleClass:String):Boolean
+		{
+			return (
+				// Si on n'a pas de style
+				(_styleName == null || _styleName == "")
+				
+				// Il n'y a pas de classe
+				? false
+				
+				// Sinon on regarde si la classe est dans le styleName
+				: ArrayUtils.contains(_styleName.split(" "), pStyleClass)
+			);
+		}
+		
+		/**
+		 * Add a style class to the styleName.
+		 * @param	pStyleClass : Name of the style class to add. Specify all classes without the first dot and space separated.
+		 * @return this
+		 */
+		public function addStyleClass (pStyleClass:String):SComponent
+		{
+			// Si ce style n'y est pas déjà
+			if (!hasStyleClass(pStyleClass))
+			{
+				// Ajouter le style, ajouter un espace s'il y a déjà des styles
+				styleName = (_styleName != null && _styleName.length > 0 ? _styleName + " " : "") + pStyleClass;
+			}
+			
+			// Chaînable
+			return this;
+		}
+		
+		/**
+		 * Remove a style class from the styleName
+		 * @param	pStyleClass : Name of the style class to remove. Specify all classes without the first dot.
+		 * @return this
+		 */
+		public function removeStyleClass (pStyleClass:String):SComponent
+		{
+			// Si on a un style
+			if (_styleName != null && _styleName != "")
+			{
+				// Séparer chaque classe du styleName
+				var classNames:Array = _styleName.split(" ");
+				
+				// Le tableau des classes sans celle à supprimer
+				var newStyleNames:Array = [];
+				
+				// Parcourir les classes du styleName
+				for each (var className:String in classNames)
+				{
+					// Si c'est différent de celle que l'on doit supprimer
+					if (className != pStyleClass)
+					{
+						// Ajouter la classe dans le nouveau tableau
+						newStyleNames.push(className);
+					}
+				}
+				
+				// Concaténer les classes en séparants avec des espaces et appliquer sur le styleName
+				styleName = newStyleNames.join(" ");
+			}
 			
 			// Chaînable
 			return this;

@@ -32,28 +32,30 @@ package fr.swapptesting.global.app
 						// Les boutons
 						leftButton: {
 							top: 6,
-							left: 5,
+							left: 7,
 							width: 100
 						},
 						rightButton: {
 							top: 6,
-							right: 5,
+							right: 7,
 							width: 100
 						},
 						
 						// Le titre
 						title: {
 							// Placer
-							left: 40,
-							right: 40,
-							top: 5,
+							left: 170,
+							right: 170,
+							top: 7,
+							bottom: 2,
 							
 							// La type
 							align: "center",
 							color: 0x000000,
-							fontSize: 15,
+							fontSize: 20,
 							font: "Arial",
-							fontRender: [true, true]
+							bold: true
+							//fontRender: [true, true]
 						}
 					},
 					
@@ -64,10 +66,33 @@ package fr.swapptesting.global.app
 				},
 				
 				// Les boutons de la barre de titre
-				"# .button" : {
-					background: [0X88C4FF, 1, SBackgroundType.VERTICAL_GRADIENT, 0X409FFF, 1],
+				"# SButton" : {
 					height: 30,
-					radius: [4]
+					backgroundGraphic: {
+						radius: [4],
+						background: [0xFF7777, 1, SBackgroundType.VERTICAL_GRADIENT, 0XFF3333, 1]
+					}
+				},
+				
+				// Les boutons de la barre de titre
+				"# .normal" : {
+					backgroundGraphic: {
+						background: [0xFF7777, 1, SBackgroundType.VERTICAL_GRADIENT, 0XFF3333, 1]
+					}
+				},
+				
+				// Les boutons de la barre de titre
+				"# .pressed" : {
+					backgroundGraphic: {
+						background: [0XFF2B2B, 1, SBackgroundType.VERTICAL_GRADIENT, 0XCC0000, 1]
+					}
+				},
+				
+				// Les boutons de la barre de titre
+				"# .disabled" : {
+					backgroundGraphic: {
+						background: [0XC3C3C3, 1, SBackgroundType.VERTICAL_GRADIENT, 0X8A8A8A, 1]
+					}
 				}
 			});
 		}

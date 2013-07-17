@@ -113,11 +113,6 @@ package fr.swapp.graphic.base
 		protected var _onDisposed						:Signal;
 		
 		/**
-		 * Total resize event fired to get the real size
-		 */
-		protected var _resizeFired						:uint						= 0;
-		
-		/**
 		 * If we are on air runtime
 		 */
 		protected var _isAirRuntime						:Boolean;
@@ -341,12 +336,40 @@ package fr.swapp.graphic.base
 		 */
 		protected function stageResizedHandler (event:Event = null):void
 		{
-			_resizeFired ++;
-			
-			Log.notice("stageResizedHandler", _ready, _resizeFired, _stage.stageWidth, _stage.stageHeight);
+			Log.notice("stageResizedHandler", _ready, _stage.stageWidth, _stage.stageHeight);
 			
 			// Appliquer les dimensions
 			updateRootSizeWithRatioAndMinSizes();
+			
+			// Appliquer les classes helper sur le root
+			updateHelperStyleOnRoot();
+		}
+		
+		/**
+		 * Update helper style added depending the device on the root component
+		 */
+		protected function updateHelperStyleOnRoot ():void
+		{
+			// Si on n'a pas de style sur le root
+			if (_root.styleName == null)
+			{
+				// On ajoute les infos sur l'environnement
+				_root.style(EnvUtils.getPlatformType() + " " + EnvUtils.getDeviceSize() + " " + EnvUtils.getDeviceType());
+			}
+			
+			// Récupérer la valeur de l'orientation
+			var currentOrientation	:String = (_root.width > _root.height ? "landscape" : "portrait");
+			var otherOrientation	:String = (currentOrientation == "landscape" ? "portrait" : "landscape");
+			
+			// Si le root n'a pas déjà cette orientation d'affectée
+			if (!_root.hasStyleClass(currentOrientation))
+			{
+				// Supprimer l'ancienne orientation
+				_root.removeStyleClass(otherOrientation);
+				
+				// Ajouter la nouvelle orientation
+				_root.addStyleClass(currentOrientation);
+			}
 		}
 		
 		/**

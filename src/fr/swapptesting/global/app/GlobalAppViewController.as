@@ -27,7 +27,7 @@ package fr.swapptesting.global.app
 		/**
 		 * External command
 		 */
-		override public function externalCommand (pCommand:String):Boolean
+		override public function externalCommand (pCommand:String, pParameters:Object):Boolean
 		{
 			Log.warning("External command from GlobalAppViewController " + pCommand);
 			

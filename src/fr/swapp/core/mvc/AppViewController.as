@@ -54,9 +54,10 @@ package fr.swapp.core.mvc
 		/**
 		 * Handle external command Document.
 		 * @param	pCommand : Command name. On android, "back" and "menu" are sended.
+		 * @param	pParameters : Command associated parameters. Can be messy, debug to know the structure.
 		 * @return : Return true to cancel default behavior.
 		 */
-		public function externalCommand (pCommand:String):Boolean
+		public function externalCommand (pCommand:String, pParameters:Object):Boolean
 		{
 			return false;
 		}

@@ -2,9 +2,11 @@ package fr.swapp.graphic.document
 {
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.system.Capabilities;
 	import fr.swapp.core.actions.Action;
 	import fr.swapp.core.actions.IAction;
 	import fr.swapp.core.data.config.Config;
+	import fr.swapp.core.data.locale.Locale;
 	import fr.swapp.core.errors.SwappError;
 	import fr.swapp.core.log.ExternalInterfaceLogger;
 	import fr.swapp.core.log.Log;
@@ -236,13 +238,33 @@ package fr.swapp.graphic.document
 		
 		/**
 		 * Enable locale manager and set current locale.
+		 * (Please use ISO 639-1 langCodes)
 		 * @param	pLangs : Object with lang code in key, and locale file in value. First association is the default language.
+		 * @param	pDefaultLocale : Default language is current locale is not found. Default is "en".
 		 * @param	pCurrentLocale : If not setted, automatic detection will select the right language. If the right language can't be found, the first in the lang list will be selected.
 		 */
-		protected function enableLocale (pLangs:Object, pCurrentLocale:String = null):void
+		protected function enableLocale (pLangs:Object, pDefaultLocale:String = "en", pCurrentLocale:String = null):void
 		{
 			// TODO : Implémenter la classe locale selon cette interface.
-			throw new Error("EnableLocale not implemented yet.");
+			//throw new Error("EnableLocale not implemented yet.");
+			
+			// Définir les données des langues
+			Locale.getInstance().setLocaleData(pLangs);
+			
+			// Si on a une langue par défaut
+			Locale.getInstance().defaultLocaleLangCode = pDefaultLocale;
+			
+			// Si on a une langue à définir
+			if (pCurrentLocale != null && pCurrentLocale != "")
+			{
+				// Appliquer la locale
+				Locale.getInstance().currentLocale = pCurrentLocale;
+			}
+			else
+			{
+				// Essayer d'appliquer la locale par défaut
+				Locale.getInstance().currentLocale = Capabilities.language;
+			}
 		}
 		
 		/**

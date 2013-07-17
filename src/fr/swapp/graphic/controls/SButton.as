@@ -3,17 +3,21 @@ package fr.swapp.graphic.controls
 	import flash.display.DisplayObject;
 	import flash.events.MouseEvent;
 	import fr.swapp.graphic.base.SComponent;
-	import fr.swapp.touch.delegate.ITouchTapDelegate;
+	import fr.swapp.input.delegate.IInputSingleDelegate;
 	import org.osflash.signals.Signal;
 	
 	/**
 	 * @author ZoulouX
 	 */
-	public class SButton extends SComponent implements ITouchTapDelegate
+	public class SButton extends SComponent implements IInputSingleDelegate
 	{
+		/**
+		 * Accepted interaction modes
+		 */
 		public static const MOUSE_INTERACTION				:String 	= "mouseInteraction";
 		public static const MULTITOUCH_INTERACTION			:String 	= "multitouchInteraction";
 		public static const MONOTOUCH_INTERACTION			:String 	= "monotouchInteraction";
+		
 		
 		/**
 		 * Current button state (see SButtonStates)
@@ -34,11 +38,6 @@ package fr.swapp.graphic.controls
 		 * Button interaction mode (see statics)
 		 */
 		protected var _interactionMode			:String;
-		
-		/**
-		 * Styles associated to states
-		 */
-		protected var _stateStyles				:Object;
 		
 		/**
 		 * Current rollOver state
@@ -72,20 +71,11 @@ package fr.swapp.graphic.controls
 		 */
 		public function get interactionMode ():String { return _interactionMode; }
 		
-		/**
-		 * Styles associated to states
-		 */
-		public function get stateStyles ():Object { return _stateStyles; }
-		public function set stateStyles (value:Object):void
-		{
-			_stateStyles = value;
-		}
-		
 		
 		/**
 		 * Constructor.
 		 */
-		public function SButton (pInteractionMode:String = "monotouchInteraction")
+		public function SButton (pTapHandler:Function = null, pInteractionMode:String = "monotouchInteraction")
 		{
 			// Enregistrer le multitouch
 			_interactionMode = pInteractionMode;
@@ -99,6 +89,13 @@ package fr.swapp.graphic.controls
 			
 			// Initialiser les handlers
 			initHandlers();
+			
+			// Si on a un handler au tap
+			if (pTapHandler != null)
+			{
+				// On ajoute l'écoute
+				_onTap.add(pTapHandler);
+			}
 		}
 		
 		/**
@@ -130,6 +127,12 @@ package fr.swapp.graphic.controls
 				
 				// Enregistrer la valeur
 				_state = value;
+				
+				// Virer la classe de l'ancien state
+				removeStyleClass(oldState);
+				
+				// Et ajouter la nouvelle
+				addStyleClass(value);
 				
 				// Signaler le changement en interne
 				stateChangedHandler(oldState, value);
@@ -185,9 +188,20 @@ package fr.swapp.graphic.controls
 		}
 		
 		/**
-		 * Component tapped
+		 * Before tap is dispatched
 		 */
-		public function touchTapHandler (pTarget:DisplayObject, pIsPrimary:Boolean):void
+		protected function beforeTap ():void
+		{
+			
+		}
+		
+		/**
+		 * Single tap or clic.
+		 * @param	pInputType : The input type (see InputTypes)
+		 * @param	pTarget : The target.
+		 * @param	pIsPrimaryInput : If this is the only and primary input used.
+		 */
+		public function inputSingleHandler (pInputType:uint, pTarget:DisplayObject, pIsPrimaryInput:Boolean):void
 		{
 			if (
 				// Si l'interaction est activée
@@ -195,7 +209,7 @@ package fr.swapp.graphic.controls
 				&&
 				(
 					// Si on est en monotouch et que c'est le seul point
-					(_interactionMode == MONOTOUCH_INTERACTION && pIsPrimary)
+					(_interactionMode == MONOTOUCH_INTERACTION && pIsPrimaryInput)
 					||
 					// Ou si on est en multitouch
 					_interactionMode == MULTITOUCH_INTERACTION
@@ -211,17 +225,12 @@ package fr.swapp.graphic.controls
 		}
 		
 		/**
-		 * Before tap is dispatched
+		 * Input added on the target.
+		 * @param	pInputType : The input type (see InputTypes)
+		 * @param	pTarget : The target.
+		 * @param	pIsPrimaryInput : If this is the only and primary input used.
 		 */
-		protected function beforeTap ():void
-		{
-			
-		}
-		
-		/**
-		 * Component is touch pressed
-		 */
-		public function touchPressHandler (pTarget:DisplayObject):void
+		public function inputPressHandler (pInputType:uint, pTarget:DisplayObject, pIsPrimaryInput:Boolean):void
 		{
 			// Enregistrer
 			_pressed = true;
@@ -231,9 +240,12 @@ package fr.swapp.graphic.controls
 		}
 		
 		/**
-		 * Component is touch released
+		 * Input removed from the target.
+		 * @param	pInputType : The input type (see InputTypes)
+		 * @param	pTarget : The target.
+		 * @param	pIsPrimaryInput : If this is the only and primary input used.
 		 */
-		public function touchReleaseHandler (pTarget:DisplayObject):void
+		public function inputReleaseHandler (pInputType:uint, pTarget:DisplayObject, pIsPrimaryInput:Boolean):void
 		{
 			// Enregistrer
 			_pressed = false;
@@ -241,16 +253,6 @@ package fr.swapp.graphic.controls
 			// Actualiser
 			updateStateFromProperties();
 		}
-		
-		/**
-		 * Component double tapped
-		 */
-		public function touchDoubleTapHandler (pTarget:DisplayObject, pTimeOffset:int):void {}
-		
-		/**
-		 * Component single tapped
-		 */
-		public function touchSingleTapHandler (pTarget:DisplayObject):void { }
 		
 		/**
 		 * Update the current state following interaction properties
@@ -281,17 +283,6 @@ package fr.swapp.graphic.controls
 				internalSetState(SButtonStates.NORMAL);
 			}
 		}
-		
-		/**
-		 * Set styles for each Button state
-		 */
-		/*
-		public function statesStyles (pNormalStyle:Object, pHoverStyle:Object, pPressedStyle:Object, pDisabledStyle:Object):void
-		{
-			// TODO : State styles. Possibilité de surchargé du style au changement de stage
-			// TODO : Transition entre les changements de style (propriété / delay / duration / easing ?)
-		}
-		*/
 		
 		/**
 		 * State has changed
@@ -326,6 +317,10 @@ package fr.swapp.graphic.controls
 		 */
 		override public function dispose ():void
 		{
+			// Virer les listeners du onTap
+			_onTap.removeAll();
+			_onTap = null;
+			
 			// Si on était en interaction mouse
 			if (!_interactionMode == MOUSE_INTERACTION)
 			{

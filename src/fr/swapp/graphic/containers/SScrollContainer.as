@@ -1,4 +1,4 @@
-package fr.swapp.graphic.lists
+package fr.swapp.graphic.containers
 {
 	import com.greensock.easing.Strong;
 	import com.greensock.TweenMax;

@@ -1,5 +1,6 @@
 package fr.swapp.core.errors 
 {
+	import fr.swapp.core.log.Log;
 	import fr.swapp.utils.ClassUtils;
 	
 	/**
@@ -18,6 +19,14 @@ package fr.swapp.core.errors
 		{
 			// Afficher l'erreur
 			super("# " + ClassUtils.getClassNameFromInstance(this) + " in " + pMethod + " : " + pMessage + "\n" + getStackTrace(), pId);
+		}
+		
+		/**
+		 * Log error without throwing it
+		 */
+		public function log (pWarningLevel:Boolean = true):void
+		{
+			pWarningLevel ? Log.warning(this.message) : Log.error(this.message);
 		}
 	}
 }

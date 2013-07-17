@@ -11,6 +11,14 @@ package fr.swapptesting.global
 	public class GlobalTestDocument extends SAirDocument
 	{
 		/**
+		 * Locales
+		 */
+		[Embed(source="../../../../lib/locale/en.xml", mimeType="application/octet-stream")]
+		public static const ENLocale:Class;
+		[Embed(source="../../../../lib/locale/fr.xml", mimeType="application/octet-stream")]
+		public static const FRLocale:Class;
+		
+		/**
 		 * Constructor
 		 */
 		public function GlobalTestDocument () { }
@@ -22,6 +30,12 @@ package fr.swapptesting.global
 		{
 			// Enable logger
 			enableLogger();
+			
+			// Enable locale
+			enableLocale({
+				"en" : ENLocale,
+				"fr" : FRLocale
+			});
 			
 			// Enable config
 			enableConfig(Config.DEBUG_ENVIRONMENT, {

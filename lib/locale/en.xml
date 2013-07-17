@@ -1,0 +1,5 @@
+<root>
+	<home>
+		<greetings><![CDATA[Hello {{user}}]]></greetings>
+	</home>
+</root>

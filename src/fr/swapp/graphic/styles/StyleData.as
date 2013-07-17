@@ -84,23 +84,22 @@ package fr.swapp.graphic.styles
 			var newSelector:String
 			
 			// Les nouvelles données
-			var newData:Object = {};
+			var newData:Object = { };
+			
+			// Le sélécteur qui va être splitté sur le #
+			var splittedSelector:Array;
 			
 			// Parcourir les données
 			for (var i:String in pData)
 			{
 				// Si on a un dièze
-				if (i.indexOf("#") == 0)
+				if (i.indexOf("#") != -1 && _baseClassName != null && _baseClassName != "")
 				{
-					// On le remplace par le nom
-					newSelector = i.substr(1, i.length - 1);
+					// Splitter sur le # pour avoir le séparateur en 2 parties
+					splittedSelector = i.split("#", 2);
 					
-					// Si on a une classe de base
-					if (_baseClassName != null && _baseClassName != "")
-					{
-						// Le nouveau sélécteur
-						newSelector = "." + _baseClassName + newSelector;
-					}
+					// Remplacer la partie du dièze par le nouveau sélécteur
+					newSelector = splittedSelector[0] + "." + _baseClassName + splittedSelector[1];
 					
 					// Ajouter les données sur ce nouveau sélécteur
 					newData[newSelector] = pData[i];

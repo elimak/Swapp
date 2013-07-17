@@ -218,13 +218,15 @@ package fr.swapp.graphic.styles
 			
 			// Si la signature est invalide, on ne va pas plus loin
 			if (pSignature == null || pSignature.length == 0)
+			{
 				return validSelectors;
+			}
 			
 			// Récupérer la clé de la signature
 			var signatureKey:String = pSignature[pSignature.length == 1 ? 0 : pSignature.length - 1];
 			
 			// Les éléments de signature
-			var signatureKeyParts:Array = [signatureKey];
+			var signatureKeyParts:Array = [];
 			
 			// L'index de séparation entre la classe et le style
 			var dotIndex:int = signatureKey.indexOf(".");
@@ -234,9 +236,30 @@ package fr.swapp.graphic.styles
 			{
 				// Ajouter la classe et le nom du style
 				signatureKeyParts[1] = signatureKey.substring(0, dotIndex);
-				signatureKeyParts[2] = signatureKey.substring(dotIndex, signatureKey.length);
+				
+				// Splitter les classes
+				var signatureKeyStyleNameParts:Array = signatureKey.substring(dotIndex + 1, signatureKey.length).split(" ");
+				
+				// Compter le nombre d'éléments dans le styleName
+				var f:int = signatureKeyStyleNameParts.length;
+				
+				// Parcourir les classes du styleName
+				while (f -- >= 0)
+				{
+					// Ajouter chaque classe à la recherche
+					signatureKeyParts[f] = "." + signatureKeyStyleNameParts[f];
+					//signatureKeyParts[f * 2] = "." + signatureKeyStyleNameParts[f];
+					//signatureKeyParts[f * 2 - 1] = signatureKey.substring(0, dotIndex) + "." + signatureKeyStyleNameParts[f];
+				}
+				
+				// Ajouter le nom de la classe aux éléments clé de signature
+				signatureKeyParts.push(signatureKey.substring(0, dotIndex));
 			}
-			
+			else
+			{
+				// Ajouter la clé de signature complète
+				signatureKeyParts.push(signatureKey);
+			}
 			
 			// La partie de la clé de la signature en cours de traitement
 			var currentSignatureKeyPart:String;
@@ -250,6 +273,7 @@ package fr.swapp.graphic.styles
 			// Les variables d'itération (i pour le selecteur, j pour la signature)
 			var i:int;
 			var j:int;
+			var k:int;
 			
 			// Si l'élément d'un sélécteur à été trouvé dans la signature
 			var selectorElementfound:Boolean;
@@ -260,9 +284,11 @@ package fr.swapp.graphic.styles
 			// Les parties du sélécteur en cours
 			var currentSelectorSplit:Array;
 			
+			var currentSelectorStyleNameSplit:Array
+			
 			// Parcourir les éléments de la signature
 			var h:int = signatureKeyParts.length;
-			while (--h >= 0)
+			while (-- h >= 0)
 			{
 				// Cibler la partie du sélécteur
 				currentSignatureKeyPart = signatureKeyParts[h];
@@ -290,7 +316,7 @@ package fr.swapp.graphic.styles
 							selectorElementfound = false;
 							
 							// Parcourir les éléments de la signature
-							while (j-- > 0)
+							while (j -- > 0)
 							{
 								// Si cet élément du selecteur est dans la signature
 								if (pSignature[j] == selector[i])
@@ -301,7 +327,7 @@ package fr.swapp.graphic.styles
 								}
 								
 								// Si notre sélécteur est en plusieurs parties
-								else if (pSignature[j].indexOf(".") != 0)
+								else if (pSignature[j].indexOf(".") > 0)
 								{
 									// Récupérer la position du point
 									dotIndex = selector[i].indexOf(".");
@@ -309,14 +335,53 @@ package fr.swapp.graphic.styles
 									// On coupe l'élément de la signature en deux
 									currentSelectorSplit = pSignature[j].split(".");
 									
-									if (
-											// Si c'est un style (point au début)
+									// Ancien système
+									// A noter que le 	-> else if (pSignature[j].indexOf(".") > 0)
+									// Etait			-> else if (pSignature[j].indexOf(".") != 0)
+									// -> POURQUOI ?
+									/*if (
 											(dotIndex == 0 && selector[i] == "." + currentSelectorSplit[1])
 											||
-											
-											// Si c'est une classe (pas de point)
 											(dotIndex == -1 && selector[i] == currentSelectorSplit[0])
 										)
+									{
+										// Alors on a trouvé
+										selectorElementfound = true;
+										break;
+									}*/
+									
+									// Si on est sur un style
+									if (dotIndex == 0)
+									{
+										// On coupe le styleName sur les espaces
+										currentSelectorStyleNameSplit = currentSelectorSplit[1].split(" ");
+										
+										// Mesurer le tableau
+										k = currentSelectorStyleNameSplit.length;
+										
+										// Parcourir les classes du sélécteur styleName
+										while (k -- >= 0)
+										{
+											// Si la classe de ce styleName correspond
+											if (selector[i] == "." + currentSelectorStyleNameSplit[k])
+											{
+												// Alors on a trouvé
+												selectorElementfound = true;
+												break;
+											}
+										}
+										
+										// Si on a trouvé le sélécteur
+										if (selectorElementfound)
+										{
+											// Alors on skip aussi la boucle de ce niveau
+											break;
+										}
+									}
+									
+									// Si c'est une classe et pas un styleName (pas de point)
+									// Et que la classe correspond
+									else if (dotIndex == -1 && selector[i] == currentSelectorSplit[0])
 									{
 										// Alors on a trouvé
 										selectorElementfound = true;
@@ -455,9 +520,15 @@ package fr.swapp.graphic.styles
 				
 				// On ajoute le parent à notre liste de parents
 				if (parent.styleName != null && parent.styleName != "")
+				{
+					// Ajouter la classe du parent ainsi que le style
 					parentsStylesList.push(parentClassName + "." + parent.styleName);
+				}
 				else
+				{
+					// Ajouter juste la classe du parent
 					parentsStylesList.push(parentClassName);
+				}
 				
 				// On remonte d'un niveau
 				parent = (parent.parentStylable as IStylable);

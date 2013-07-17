@@ -1,7 +1,8 @@
-package fr.swapp.graphic.base 
+package fr.swapp.graphic.containers 
 {
 	import flash.display.DisplayObject;
 	import flash.events.Event;
+	import fr.swapp.graphic.base.SComponent;
 	import fr.swapp.graphic.errors.GraphicalError;
 	
 	/**

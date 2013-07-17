@@ -16,6 +16,7 @@
 		public static var tabletSizeDelimitation		:Number				= 6.5;
 		public static var desktopSizeDelimitation		:Number				= 13;
 		
+		
 		/**
 		 * Bases DPIs (only for desktop and iOS).
 		 * iPad mini is excluded from DPI resizing (it will use iPad 1,2 definition)
@@ -46,8 +47,8 @@
 		 * High level devices.
 		 * Available for "like" API.
 		 */
-		public static const DESKTOP_DEVICE				:String				= "desktopPlatform";
-		public static const MOBILE_DEVICE				:String				= "mobilePlatform";
+		public static const DESKTOP_DEVICE				:String				= "desktopDevice";
+		public static const MOBILE_DEVICE				:String				= "mobileDevice";
 		
 		/**
 		 * All possibles device sizes.

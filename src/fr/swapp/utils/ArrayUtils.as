@@ -162,13 +162,13 @@
 		/**
 		 * Récupérer les clés d'un tableau
 		 */
-		public static function getKeys (pArray:Array):Array
+		public static function getKeys (pObject:Object):Array
 		{
 			// Créer le tableau de sortie
 			var out:Array = [];
 			
 			// Parcourir les tableau d'entrée par clé
-			for (var i:* in pArray)
+			for (var i:* in pObject)
 			{
 				// Ajouter chaque clé au tableau de sortie
 				out.push(i);

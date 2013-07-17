@@ -4,7 +4,7 @@ package fr.swapp.graphic.navigation
 	import fr.swapp.core.mvc.IViewController;
 	import fr.swapp.core.navigation.Bootstrap;
 	import fr.swapp.core.navigation.IBootstrap;
-	import fr.swapp.graphic.base.SContainer;
+	import fr.swapp.graphic.containers.SContainer;
 	
 	/**
 	 * @author ZoulouX
