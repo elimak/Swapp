@@ -80,6 +80,22 @@ package fr.swapp.graphic.controls
 			// Enregistrer le multitouch
 			_interactionMode = pInteractionMode;
 			
+			// Si on a un handler au tap
+			if (pTapHandler != null)
+			{
+				// On ajoute l'écoute
+				_onTap.add(pTapHandler);
+			}
+			
+			// Le sous-constructeur
+			construct();
+		}
+		
+		/**
+		 * Sub-constructor
+		 */
+		protected function construct ():void
+		{
 			// Désactiver l'interaction sur les childs
 			mouseChildren = false;
 			
@@ -89,13 +105,6 @@ package fr.swapp.graphic.controls
 			
 			// Initialiser les handlers
 			initHandlers();
-			
-			// Si on a un handler au tap
-			if (pTapHandler != null)
-			{
-				// On ajoute l'écoute
-				_onTap.add(pTapHandler);
-			}
 		}
 		
 		/**
@@ -300,10 +309,10 @@ package fr.swapp.graphic.controls
 		 * Will change button state to DISABLE or NORMAL.
 		 * @return this
 		 */
-		override public function interactive (pValue:Boolean):SComponent
+		override public function interactive (pInputEnabled:Boolean, pHitAreaEnabled:Boolean = true):SComponent
 		{
-			// Activer / désactiver les mouseEvents
-			mouseEnabled = pValue;
+			// Relayer
+			super.interactive(pInputEnabled, pHitAreaEnabled);
 			
 			// Actualiser l'état selon les properties
 			updateStateFromProperties();

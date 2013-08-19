@@ -21,10 +21,5 @@ package fr.swapp.core.actions
 		 * Action params
 		 */
 		function get params ():Object;
-		
-		/**
-		 * Action container
-		 */
-		function get container ():DisplayObjectContainer;
 	}
 }

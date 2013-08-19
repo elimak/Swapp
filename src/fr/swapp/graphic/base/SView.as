@@ -4,9 +4,11 @@ package fr.swapp.graphic.base
 	import flash.events.Event;
 	import fr.swapp.core.central.Central;
 	import fr.swapp.core.dependences.DependencesManager;
+	import fr.swapp.core.errors.SwappError;
 	import fr.swapp.core.mvc.IView;
 	import fr.swapp.core.navigation.IBootstrap;
 	import fr.swapp.graphic.navigation.SNavigationStack;
+	import fr.swapp.graphic.navigation.STitleBar;
 	import fr.swapp.graphic.styles.IStyleData;
 	import fr.swapp.utils.ClassUtils;
 	import fr.swapp.utils.DisplayObjectUtils;
@@ -34,7 +36,7 @@ package fr.swapp.graphic.base
 		public function get displayObject ():DisplayObjectContainer { return this; }
 		
 		/**
-		 * Get the first SNavigationStack recursively to the stage.
+		 * Get the first parent SNavigationStack recursively to the stage.
 		 */
 		public function get navigationStack ():SNavigationStack
 		{
@@ -43,7 +45,7 @@ package fr.swapp.graphic.base
 		}
 		
 		/**
-		 * Get the first bootstrap recursively to the stage.
+		 * Get the first parent bootstrap recursively to the stage.
 		 */
 		public function get bootstrap ():IBootstrap
 		{
@@ -53,6 +55,21 @@ package fr.swapp.graphic.base
 			// Retourner le bootstrap si on en a trouvé une sinon on retourne null
 			return (ns != null ? ns.bootstrap : null);
 		}
+		
+		/**
+		 * Get the first parent STitleBar recursively to the stage.
+		 */
+		/*
+		public function get parentTitleBar ():STitleBar
+		{
+			// Récupérer la navigationStack la plus proche
+			var ns:SNavigationStack = navigationStack;
+			
+			throw new SwappError("SView.parentTitleBar", "not implemented yet");
+			
+			return null;
+		}
+		*/
 		
 		
 		/**
@@ -66,6 +83,9 @@ package fr.swapp.graphic.base
 		
 		/**
 		 * Set style data class. Will be automatically added at init.
+		 * Note : Please processComponents before using setStyleData. Also, please use before or since init.
+		 * @param	pStyleDataClass : The StyleData class to use with this view.
+		 * @param	pWithClass : The className to use. If this view extend an abstract, you can target the super view class to compose the style.
 		 */
 		protected function setStyleData (pStyleDataClass:Class, pWithClass:Class = null):void
 		{

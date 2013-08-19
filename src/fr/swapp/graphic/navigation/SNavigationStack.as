@@ -24,10 +24,13 @@ package fr.swapp.graphic.navigation
 		
 		/**
 		 * Constructor
-		 * @param	pBootstrap : Le bootstrap associé
+		 * @param	pBootstrap : Associated bootstrap. If null, a new bootstrap will be created.
 		 */
 		public function SNavigationStack (pBootstrap:IBootstrap = null)
 		{
+			// Activer les styles
+			_styleEnabled = true;
+			
 			// Enregistrer le bootstrap ou en créer un nouveau
 			_bootstrap = (pBootstrap == null ? new Bootstrap() : pBootstrap);
 			
@@ -53,6 +56,9 @@ package fr.swapp.graphic.navigation
 		{
 			// Ne plus écouter le bootstrap
 			_bootstrap.onViewControllerChanged.remove(bootstrapViewControllerChangedHandler);
+			
+			// Virer le container
+			_bootstrap.container = null;
 			
 			// Disposer le bootstrap
 			_bootstrap.dispose();

@@ -18,6 +18,6 @@ package fr.swapp.core.mvc
 		/**
 		 * Get the first bootstrap recursively to the stage.
 		 */
-		function get bootstrap ():IBootstrap
+		function get bootstrap ():IBootstrap;
 	}
 }

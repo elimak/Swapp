@@ -465,7 +465,7 @@ package fr.swapp.input.dispatcher
 				for each (var touchDragDelegate:IInputDragDelegate in _draggables[touchId])
 				{
 					// Dispatcher un unlock
-					touchDragDelegate.inputDragLock(InputTypes.TOUCH_INPUT, _targets[touchId]);
+					touchDragDelegate.inputDragUnlock(InputTypes.TOUCH_INPUT, _targets[touchId]);
 				}
 				
 				// Supprimer les delegates de ce point qui n'existe plus

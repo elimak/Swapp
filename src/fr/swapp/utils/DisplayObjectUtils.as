@@ -223,6 +223,53 @@
 			return parent;
 		}
 		
+		/**
+		 * Get child displayObject from complex path.
+		 * @param	pContainer : The DisplayObjectContainer to search a child in
+		 * @param	pPath : The path dot syntaxed like "firstLevel.myMovieClip.sprite"
+		 * @return The targetted child by the path from pContainer.
+		 */
+		public static function getChildWithPath (pContainer:DisplayObjectContainer, pPath:String, pStrict:Boolean = true):DisplayObject
+		{
+			// Séparer le chemin sur les points
+			var splittedPath:Array = pPath.split(".");
+			
+			// Le scope actuel
+			var currentScope:DisplayObjectContainer = pContainer;
+			var child:DisplayObject;
+			
+			// Parcourir chaque partie du chemin
+			for each (var pathPart:String in splittedPath)
+			{
+				// Si cette partie du chemin existe dans le scope actuel
+				if (pathPart in currentScope && currentScope[pathPart] is DisplayObject)
+				{
+					// On avance d'un niveau
+					currentScope = currentScope[pathPart];
+				}
+				else
+				{
+					// Essayer de cibler l'enfant par son nom
+					child = currentScope.getChildByName(pathPart);
+					
+					// S'il n'est pas null
+					if (child != null && child is DisplayObjectContainer)
+					{
+						// On le cible
+						currentScope = child as DisplayObjectContainer;
+					}
+					else
+					{
+						// Pas trouvé
+						return null;
+					}
+				}
+			}
+			
+			// Retourner le scope courrant
+			return currentScope as DisplayObject;
+		}
+		
 		
 		
 		/**

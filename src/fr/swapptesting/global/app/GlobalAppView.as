@@ -13,6 +13,9 @@ package fr.swapptesting.global.app
 	 */
 	public class GlobalAppView extends SView
 	{
+		public var $TitleBarLeftButton:SButton;
+		public var $TitleBarRightButton:SButton;
+		
 		/**
 		 * Constructor
 		 */
@@ -43,14 +46,11 @@ package fr.swapptesting.global.app
 		
 		protected function buttonTappedHandler (pTarget:SButton):void
 		{
-			trace("TAP", pTarget);
+			trace("TAP", pTarget, pTarget == $TitleBarLeftButton, pTarget == $TitleBarRightButton);
 			
 			
-			// Créer le helper de ciblage de clip
-			// A voir si on le limite juste à setupComponents
-			// Ou si on le met dans DisplayObjectUtils
-			// (peut etre les 2)
-			// Faudrait aussi qu'on puisse remonter facilement à un NavigationStack parent / titleBar parent rapidement
+			// Faudrait aussi qu'on puisse remonter facilement à un titleBar parent rapidement
+			// Ou alors, faudrait avoir un objet de configuration et le navigationStack parent, intègre au moment de change sur le bootstrap
 			
 			// Faire les animations dans les styles
 			// Faire la classe date à la momentum.js

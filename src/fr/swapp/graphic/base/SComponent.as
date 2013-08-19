@@ -22,6 +22,12 @@ package fr.swapp.graphic.base
 	public class SComponent extends Sprite implements IIndexable, IDataContainer, IStylable, IInitializable, IDisposable
 	{
 		/**
+		 * Global void sprite for disabled hitAreas
+		 */
+		public static const VOID_HITAREA_SPRITE		:Sprite						= new Sprite();
+		
+		
+		/**
 		 * Object index
 		 */
 		protected var _index						:int;
@@ -1131,11 +1137,11 @@ package fr.swapp.graphic.base
 			_top = pTop;
 			
 			// Si la valeur existe, on l'enregistre
-			if (_localWidth >= 0)
+			if (pWidth >= 0)
 				_localWidth = pWidth;
 			
 			// Si la valeur existe, on l'enregistre
-			if (_localHeight >= 0)
+			if (pHeight >= 0)
 				_localHeight = pHeight;
 			
 			// Invalider la position
@@ -1368,11 +1374,14 @@ package fr.swapp.graphic.base
 		 * Specify if the component is interactive.
 		 * @return this
 		 */
-		public function interactive (pValue:Boolean):SComponent
+		public function interactive (pInputEnabled:Boolean, pHitAreaEnabled:Boolean = true):SComponent
 		{
-			// Appliquer
-			mouseEnabled = pValue;
-			mouseChildren = pValue;
+			// Appliquer la	prise en charge de l'input
+			mouseEnabled = pInputEnabled;
+			mouseChildren = pInputEnabled;
+			
+			// Appliquer la prise en charge de la zone d'input
+			hitArea = (pHitAreaEnabled ? null : VOID_HITAREA_SPRITE);
 			
 			// Méthode chaînable
 			return this;

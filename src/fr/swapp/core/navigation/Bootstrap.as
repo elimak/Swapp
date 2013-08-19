@@ -311,11 +311,14 @@ package fr.swapp.core.navigation
 		{
 			// Supprimer les signaux
 			_onActionRequested.removeAll();
+			_onActionRequested = null;
+			
 			_onViewControllerChanged.removeAll();
+			_onViewControllerChanged = null;
 			
 			// Supprimer les références
-			_onActionRequested = null;
-			_onViewControllerChanged = null;
+			_container = null;
+			_currentViewController = null;
 			_dependencesManager = null;
 			
 			// Signaler et supprimer

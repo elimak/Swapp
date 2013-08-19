@@ -65,10 +65,7 @@ package fr.swapp.core.mvc
 		/**
 		 * Construction
 		 */
-		public function ViewController ()
-		{
-			
-		}
+		public function ViewController () { }
 		
 		
 		/**
