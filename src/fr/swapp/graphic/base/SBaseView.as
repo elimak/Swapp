@@ -34,6 +34,9 @@ package fr.swapp.graphic.base
 			// Lancer le sous-constructeur
 			construct();
 			
+			// Rendu des composants abstract
+			beforeBuildInterface();
+			
 			// Construire l'interface
 			buildInterface();
 		}
@@ -42,6 +45,16 @@ package fr.swapp.graphic.base
 		 * Sub-constructor
 		 */
 		protected function construct ():void
+		{
+			
+		}
+		
+		/**
+		 * Abstract interface builder.
+		 * Called just before buildInterface.
+		 * Don't forget to call the super.
+		 */
+		protected function beforeBuildInterface ():void
 		{
 			
 		}

@@ -5,6 +5,7 @@ package fr.swapp.core.navigation
 	import fr.swapp.core.actions.IActionable;
 	import fr.swapp.core.dependences.DependencesManager;
 	import fr.swapp.core.dependences.IDependencesManager;
+	import fr.swapp.core.log.Log;
 	import fr.swapp.core.mvc.IController;
 	import fr.swapp.core.mvc.IViewController;
 	import fr.swapp.core.roles.IDisposable;
@@ -155,7 +156,7 @@ package fr.swapp.core.navigation
 		 */
 		public function requestAction (pAction:IAction):void
 		{
-			trace("BOOTSTRAP REQUEST ACTION ", pAction);
+			Log.core("Bootstrap.requestAction", [pAction.name]);
 			
 			// TODO : Trouver un moyen d'appeler plusieurs fois la même webview (même action) mais faire des push view quand même
 			// TODO : Par exemple si on a une arborescence de fichiers / dossier à parcourir

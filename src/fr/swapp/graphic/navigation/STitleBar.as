@@ -86,9 +86,9 @@ package fr.swapp.graphic.navigation
 		public function setComponents (pLeftComponent:SComponent, pMiddleComponent:SComponent, pRightComponent:SComponent, pTransition:ITransition = null):void
 		{
 			// Replacer les 3 composants
-			replaceComponent("_leftComponent", pComponent, pTransition);
-			replaceComponent("_middleComponent", pComponent, pTransition);
-			replaceComponent("_rightComponent", pComponent, pTransition);
+			replaceComponent("_leftComponent", pLeftComponent, pTransition);
+			replaceComponent("_middleComponent", pMiddleComponent, pTransition);
+			replaceComponent("_rightComponent", pRightComponent, pTransition);
 		}
 		
 		/**
