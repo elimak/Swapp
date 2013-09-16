@@ -69,7 +69,7 @@ package fr.swapp.graphic.document
 		
 		/**
 		 * Constructeur
-		 */
+		 */ 
 		public function SFlashDocument ()
 		{
 			// TODO : Faire un helper pour les paramètres (flashVars) et les InvokeEvent. Cette classe doit faire passerelle vers l'extérieur.

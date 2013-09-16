@@ -4,8 +4,7 @@ package fr.swapp.graphic.lists
 	import flash.display.DisplayObject;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
-	import fr.swapp.touch.dispatcher.TouchDirections;
-	import fr.swapp.touch.dispatcher.TouchDispatcher;
+	import fr.swapp.input.dispatcher.InputDirections;
 	//import fr.swapp.touch.emulator.TouchEmulator;
 	import org.osflash.signals.Signal;
 	
@@ -94,7 +93,7 @@ package fr.swapp.graphic.lists
 		/**
 		 * Vérouillage du déplacement
 		 */
-		override public function touchDragLock (pTarget:DisplayObject):void
+		override public function inputDragLock (pInputType:uint, pTarget:DisplayObject):void
 		{
 			if (!_allowScroll)
 				return;
@@ -121,7 +120,7 @@ package fr.swapp.graphic.lists
 		/**
 		 * Dévérouillage du déplacement
 		 */
-		override public function touchDragUnlock (pTarget:DisplayObject):void
+		override public function inputDragUnlock (pInputType:uint, pTarget:DisplayObject):void
 		{
 			if (!_allowScroll)
 				return;
@@ -133,7 +132,7 @@ package fr.swapp.graphic.lists
 		/**
 		 * Déplacement
 		 */
-		override public function touchDragging (pTarget:DisplayObject, pDirection:String, pXDelta:Number, pYDelta:Number):Boolean
+		override public function inputDragging (pInputType:uint, pTarget:DisplayObject, pDirection:String, pXDelta:Number, pYDelta:Number):Boolean
 		{
 			if (!_allowScroll)
 				return false;
@@ -142,7 +141,7 @@ package fr.swapp.graphic.lists
 			if (
 					pDirection == _dragDirection
 					||
-					(pDirection == TouchDirections.UNKNOW_DIRECTION && _dragAllowUnknownDirection)
+					(pDirection == InputDirections.UNKNOW_DIRECTION && _dragAllowUnknownDirection)
 					||
 					_dragAllowOppositeDirection
 				)
