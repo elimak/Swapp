@@ -1,4 +1,4 @@
-package fr.swapp.graphic.base
+package fr.swapp.graphic.views
 {
 	import flash.display.DisplayObjectContainer;
 	import flash.events.Event;
@@ -7,6 +7,7 @@ package fr.swapp.graphic.base
 	import fr.swapp.core.errors.SwappError;
 	import fr.swapp.core.mvc.IView;
 	import fr.swapp.core.navigation.IBootstrap;
+	import fr.swapp.graphic.base.SWrapper;
 	import fr.swapp.graphic.navigation.SNavigationStack;
 	import fr.swapp.graphic.navigation.STitleBar;
 	import fr.swapp.graphic.styles.IStyleData;
@@ -75,10 +76,7 @@ package fr.swapp.graphic.base
 		/**
 		 * Constructor
 		 */
-		public function SView ()
-		{
-			
-		}
+		public function SView () { }
 		
 		
 		/**
@@ -135,6 +133,8 @@ package fr.swapp.graphic.base
 		 */
 		protected function setEvents (pEvents:Object):void
 		{
+			// Initialiser l'objet event
+			// Obligé de faire ça à cause du bug de la double construction
 			_events = (_events == null ? { } : _events);
 			
 			// Virer les anciens events

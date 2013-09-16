@@ -8,6 +8,7 @@
 	import flash.geom.Matrix;
 	import flash.geom.PerspectiveProjection;
 	import flash.geom.Point;
+	import flash.media.Video;
 	
 	/**
 	 * Classe utilitaire de gestion des DisplayObjects.
@@ -146,6 +147,16 @@
 			// Si le DO à un parent
 			if (pDisplayObject.parent != null)
 				pDisplayObject.parent.setChildIndex(pDisplayObject, Math.max(0, pDisplayObject.parent.getChildIndex(pDisplayObject) - 1));
+		}
+		
+		/**
+		 * Passer à un plan en particulier
+		 */
+		public static function bringTo (pDisplayObject:DisplayObject, pAt:int):void
+		{
+			// Si le DO à un parent
+			if (pDisplayObject.parent != null)
+				pDisplayObject.parent.setChildIndex(pDisplayObject, Math.max(0, Math.min(pAt, pDisplayObject.parent.numChildren)));
 		}
 		
 		
@@ -371,6 +382,70 @@
 			{
 				// On lance directement
 				waitTick();
+			}
+		}
+		
+		/**
+		 * Redimentionner une composant par rapport à son parent.
+		 * @param	pDisplayObject : Le displayObject à redimentionner
+		 * @param	pLetterBox : Le displayObject ne laissera pas de marge si true, le displayObject sera affiché en entier si false
+		 * @param	pCenter : Center le displayObject dans son parent
+		 */
+		public static function insideParent (pDisplayObject:Video, pLetterBox:Boolean = false, pCenter:Boolean = true):void
+		{
+			// Cibler le parent
+			var parent:DisplayObjectContainer = pDisplayObject.parent;
+			
+			// Si on a un parent
+			if (parent != null)
+			{
+				// Calculer les ratios
+				var parentRatio:Number = parent.width / parent.height;
+				var childRatio:Number = pDisplayObject.width / pDisplayObject.height;
+				
+				if (
+						// Si le parent a un ratio > au ratio du child en letterBox
+						(parentRatio > childRatio && pLetterBox)
+						||
+						// Ou l'inverse
+						(parentRatio < childRatio && !pLetterBox)
+					)
+				{
+					pDisplayObject.width = parent.width;
+					pDisplayObject.height = parent.width / childRatio;
+				}
+				
+				else if (
+						// Si le parent a un ratio < au ratio du child en letterBox
+						(parentRatio < childRatio && pLetterBox)
+						||
+						// Ou l'inverse
+						(parentRatio > childRatio && !pLetterBox)
+					)
+				{
+					pDisplayObject.height = parent.height;
+					pDisplayObject.width = parent.height * childRatio;
+				}
+				
+				// Les 2 displayObjects ont le même ratio
+				else
+				{
+					// On applique
+					pDisplayObject.width = parent.width;
+					pDisplayObject.height = parent.height;
+				}
+				
+				// Si on doit centrer le child
+				if (pCenter)
+				{
+					pDisplayObject.x = (parent.width - pDisplayObject.width) / 2;
+					pDisplayObject.y = (parent.height - pDisplayObject.height) / 2;
+				}
+			}
+			else
+			{
+				// Déclancher une erreur, on a besoin du parent
+				throw new SwappUtilsError("DiplayObjectUtils.insideParent", "pDisplayObject.parent can't be null to set the size.");
 			}
 		}
 	}

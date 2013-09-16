@@ -6,7 +6,7 @@ package fr.swapp.graphic.lists
 	import flash.display.DisplayObject;
 	import flash.geom.Point;
 	import fr.swapp.graphic.base.SComponent;
-	import fr.swapp.touch.dispatcher.TouchDirections;
+	import fr.swapp.input.dispatcher.InputDirections;
 	import org.osflash.signals.Signal;
 	
 	/**
@@ -154,7 +154,7 @@ package fr.swapp.graphic.lists
 		/**
 		 * Vérouillage du déplacement
 		 */
-		override public function touchDragLock (pTarget:DisplayObject):void
+		override public function inputDragLock (pInputType:uint, pTarget:DisplayObject):void
 		{
 			// On stoppe la tween en cours
 			if (_currentScrollTween != null)
@@ -173,7 +173,7 @@ package fr.swapp.graphic.lists
 		/**
 		 * Dévérouillage du déplacement
 		 */
-		override public function touchDragUnlock (pTarget:DisplayObject):void
+		override public function inputDragUnlock (pInputType:uint, pTarget:DisplayObject):void
 		{
 			// Le drag est dévérouillé
 			_dragLocked = false;
@@ -188,13 +188,13 @@ package fr.swapp.graphic.lists
 		/**
 		 * Déplacement
 		 */
-		override public function touchDragging (pTarget:DisplayObject, pDirection:String, pXDelta:Number, pYDelta:Number):Boolean
+		override public function inputDragging (pInputType:uint, pTarget:DisplayObject, pDirection:String, pXDelta:Number, pYDelta:Number):Boolean
 		{
 			// Vérifier la direction du drag
 			if (
 					pDirection == _dragDirection
 					||
-					(pDirection == TouchDirections.UNKNOW_DIRECTION && _dragAllowUnknownDirection)
+					(pDirection == InputDirections.UNKNOW_DIRECTION && _dragAllowUnknownDirection)
 					||
 					_dragAllowOppositeDirection
 				)

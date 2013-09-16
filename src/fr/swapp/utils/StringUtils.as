@@ -781,6 +781,18 @@
 			var s:String = pSource;
 			return s.replace(pattern1, "").replace(pattern2, "-").toLowerCase();
 		}
+		/**
+		*   Replace a string's "master string"-- the string it was built from-- with a single
+		*   character to save memory.
+		*   @param str String to clean
+		*   @return The input string, but with a master string only one character larger than it
+		*   @author JacksonDunstan.com/articles/2260
+		*/
+		public static function cleanMasterString (str:String):String
+		{
+			return ("_" + str).substr(1);
+		}
+		
 		
 		/* **************************************************************** */
 		/*	These are helper methods used by some of the above methods.		*/

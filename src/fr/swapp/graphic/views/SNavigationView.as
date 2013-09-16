@@ -1,6 +1,7 @@
-package fr.swapp.graphic.base
+package fr.swapp.graphic.views
 {
-	import fr.swapp.graphic.base.SView;
+	import fr.swapp.core.actions.Action;
+	import fr.swapp.core.mvc.IViewController;
 	import fr.swapp.graphic.navigation.SNavigationStack;
 	
 	/**
@@ -35,8 +36,19 @@ package fr.swapp.graphic.base
 			_navigationStack = new SNavigationStack();
 			_navigationStack.into(this);
 			
+			// Ecouter les changements de page
+			_navigationStack.bootstrap.onViewControllerChanged.add(navigationStackViewControllerChangedHandler);
+			
 			// Relayer
 			super.beforeBuildInterface();
+		}
+		
+		/**
+		 * When view controller is changed
+		 */
+		protected function navigationStackViewControllerChangedHandler (pAction:Action, pOldController:IViewController, pNewController:IViewController):void
+		{
+			
 		}
 	}
 }

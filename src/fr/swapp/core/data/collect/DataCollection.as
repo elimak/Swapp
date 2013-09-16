@@ -57,17 +57,17 @@
 			// Vérifier si c'est différent
 			if (pValue != _dataType)
 			{
-				// Si on n'a pas de données
-				if (_data.length == 0)
+				// Si on a déjà des données
+				if (_data.length > 0)
 				{
 					// On déclanche une erreur car la collection doit être vide pour changer le type
 					throw new SwappError("DataCollection.dataType", "DataCollection have to be empty when changing dataType.");
 				}
-				else if (!(pValue is IDataItem) && pValue != IDataItem)
+				/*else if (!(pValue is IDataItem) && pValue != IDataItem)
 				{
 					// Le type n'est pas IDataItem
 					throw new SwappError("DataCollection.dataType", "DataType have to be a class that implements IDataItem.");
-				}
+				}*/
 				else
 				{
 					// Enregistrer le type
@@ -148,21 +148,24 @@
 		/**
 		 * Check an item type before add.
 		 */
-		protected function checkDataItem (pDataItem:IDataItem):void
+		protected function checkDataItem (pDataItem:IDataItem):Boolean
 		{
 			// Vérifier si l'item est null
 			if (_dataType == null)
 			{
 				// Signaler le problème
 				throw new SwappError("DataCollection.forceDataItemType", "DataItem can't be null.");
+				return false;
 			}
 			
 			// Vérifier si l'item à le bon type
-			else (!(pDataItem is _dataType))
+			else if (!(pDataItem is _dataType))
 			{
-				// Signaler le pronlème
+				// Signaler le problème
 				throw new SwappError("DataCollection.forceDataItemType", "DataItem must implement " + ClassUtils.getClassName(_dataType) + " (forced by DataCollection.dataType).");
+				return false;
 			}
+			return true;
 		}
 		
 		/**
@@ -171,7 +174,7 @@
 		protected function dispatchChange ():void
 		{
 			if (!_locked)
-				_onChange.dispatch();
+				_onChange.dispatch(this);
 			else
 				_needDispatchUpdate = true;
 		}
@@ -437,7 +440,7 @@
 			if (_needDispatchUpdate)
 			{
 				// On redispatch
-				_onChange.dispatch();
+				_onChange.dispatch(this);
 				
 				// Plus de changement a signaler
 				_needDispatchUpdate = false;

@@ -1208,7 +1208,8 @@ package fr.swapp.graphic.base
 				if (_borderSize > 0 && _wireFrames < 0)
 				{
 					// On dessine le contour
-					graphics.lineStyle(_borderSize, _borderColor, _borderAlpha, _snapToPixels, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.MITER);
+					//graphics.lineStyle(_borderSize, _borderColor, _borderAlpha, _snapToPixels, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.MITER);
+					graphics.lineStyle(_borderSize, _borderColor, _borderAlpha, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.MITER);
 				}
 				
 				// Si on a un bitmapData

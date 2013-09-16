@@ -10,6 +10,7 @@ package fr.swapp.graphic.base
 	import fr.swapp.core.roles.IDisposable;
 	import fr.swapp.core.roles.IIndexable;
 	import fr.swapp.core.roles.IInitializable;
+	import fr.swapp.graphic.errors.GraphicalError;
 	import fr.swapp.graphic.styles.IStylable;
 	import fr.swapp.utils.ArrayUtils;
 	import org.osflash.signals.ISignal;
@@ -1303,6 +1304,32 @@ package fr.swapp.graphic.base
 			
 			// Méthode chaînable
 			return this;
+		}
+		
+		/**
+		 * Control depth of the component. Need to have a parent component.
+		 * @param	pAt : Which level (optionnal, -1 to place on front, 0 to place behind)
+		 */
+		public function depth (pAt:int = -1):void
+		{
+			// Si on a un parent
+			if (parent != null)
+			{
+				// Définir l'index depuis le parent
+				parent.setChildIndex(
+					this,
+					pAt == -1 ? parent.numChildren - 1 : Math.max(0,
+						Math.min(
+							pAt, parent.numChildren
+						)
+					)
+				);
+			}
+			else
+			{
+				// Déclancher l'erreur
+				throw new GraphicalError("SComponent.depth", "Can't set depth of a non attached component. Use into before depth.");
+			}
 		}
 		
 		/**

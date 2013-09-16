@@ -14,11 +14,6 @@
 	public interface IDataCollection extends ICollection, IChangeable, ILockable
 	{
 		/**
-		 * When data change
-		 */
-		function get onChange ():ISignal;
-		
-		/**
 		 * Forced data type for all stored items.
 		 * Have to be a class that implements IDataItem.
 		 * Default is IDataItem.

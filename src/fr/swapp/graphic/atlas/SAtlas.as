@@ -13,6 +13,35 @@ package fr.swapp.graphic.atlas
 	public class SAtlas implements IDisposable
 	{
 		/**
+		 * Create an atlas from a BitmapData without XML and with rectangle placed elements
+		 * @param	pBitmapData : The sprite BitmapData
+		 * @param	pWidth : Blocs width
+		 * @param	pHeight : Blocs height
+		 * @param	pTotalFrames : Total elements in the sprite
+		 * @return : Valid SAtlas without XML
+		 */
+		public static function createAtlasFromRectangleSprite (pBitmapData:BitmapData, pWidth:Number, pHeight:Number, pTotalFrames:uint):SAtlas
+		{
+			// La représentation string de l'XML dynamique
+			var xmlString:String = '<?xml version="1.0" encoding="UTF-8"?><TextureAtlas imagePath="">';
+			
+			// Calculer le nombre d'éléments en largeur
+			var totalWidthElements:uint = Math.floor(pBitmapData.width / pWidth);
+			
+			// Parcourir les frames à ajouter
+			for (var i:uint = 0; i < pTotalFrames; i++)
+			{
+				xmlString += '<SubTexture name="frame-' + i + '" x="' + ((pWidth * i) % totalWidthElements) + '" y="' + Math.floor(pHeight * (pWidth * i) / pBitmapData.width) + '" width="' + pWidth + '" height="' + pHeight + '"/>';
+			}
+			
+			// Fermer la balise
+			xmlString += "</TextureAtlas>";
+			
+			// Créer l'Atlas avec l'XML dynamique et le retourner
+			return new SAtlas(pBitmapData, new XML(xmlString));
+		}
+		
+		/**
 		 * BitmapData containg all textures
 		 */
 		protected var _bitmapData			:BitmapData;

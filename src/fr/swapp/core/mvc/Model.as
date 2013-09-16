@@ -17,6 +17,11 @@ package fr.swapp.core.mvc
 		{
 			// TODO : Model de base plus élaboré
 			// TODO : Model avec un service associé (pour faire un AModel basé sur cette classe pour chaque projet)
+			construct();
+		}
+		protected function construct ():void
+		{
+			
 		}
 		
 		public function dispose ():void

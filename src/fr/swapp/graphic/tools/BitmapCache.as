@@ -319,7 +319,7 @@ package fr.swapp.graphic.tools
 		public function dispose ():void
 		{
 			// Parcourir le tableau
-			for (var i:uint = 0, total = _bitmaps.length; i < total; i++)
+			for (var i:uint = 0, total:uint = _bitmaps.length; i < total; i++)
 			{
 				// Dispose ce bitmapData
 				(_bitmaps as BitmapData).dispose();

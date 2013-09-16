@@ -1,7 +1,9 @@
-package fr.swapp.graphic.base
+package fr.swapp.graphic.views
 {
 	import flash.display.DisplayObject;
 	import flash.utils.getQualifiedClassName;
+	import fr.swapp.core.log.Log;
+	import fr.swapp.graphic.base.SComponent;
 	import fr.swapp.graphic.errors.GraphicalError;
 	import fr.swapp.utils.DisplayObjectUtils;
 	import fr.swapp.utils.StringUtils;
@@ -70,13 +72,13 @@ package fr.swapp.graphic.base
 		
 		/**
 		 * Setup components list. Will be added in order, key is used to store reference in this instance.
-		 * Add a property "type" in a dynamic object to create a component with a specific type.
+		 * Add a property "_" in a dynamic object to create a component with a specific type or instance.
 		 * @param	pComponents : The component list (key is the name of the component, value is the component instance)
 		 */
 		protected function setupComponents (pComponents:Object):void
 		{
 			// On lance la gestion de composants récursive
-			processComponents(this, pComponents, "$");
+			processComponents(this, pComponents);
 		}
 		
 		/**
@@ -84,7 +86,7 @@ package fr.swapp.graphic.base
 		 * @param	pParent : Component parent.
 		 * @param	pComponents : The component list (key is the name of the component, value is the component instance)
 		 */
-		protected function processComponents (pParent:SComponent, pComponents:Object, pCurrentName:String = ""):void
+		protected function processComponents (pParent:SComponent, pComponents:Object):void
 		{
 			// L'index des composants
 			var index:uint;
@@ -100,12 +102,12 @@ package fr.swapp.graphic.base
 				// Cibler la valeur
 				value = pComponents[i];
 				
-				// Créer le nom complet de ce composant (avec les parents)
-				currentName = pCurrentName + StringUtils.capitalize(i);
+				// Le nom du composant
+				currentName = i;
 				
-				// Si on est sur la propriété type
+				// Si on est sur la propriété _
 				// Ou si on est sur un truc null
-				if (i == "type" || value == null)
+				if (i == "_" || value == null)
 				{
 					// On l'ignore et passe au suivant
 					continue;
@@ -121,15 +123,19 @@ package fr.swapp.graphic.base
 				// Sinon si c'est un object dynamique
 				else if (getQualifiedClassName(value) == "Object")
 				{
-					// Si on a une propriété type
-					if ("type" in value)
+					// Si on a une propriété _
+					if ("_" in value)
 					{
-						// Si le type est bien une classe
-						if (value["type"] is Class)
+						// Si le _ est bien une instance de SComponent
+						if (value["_"] is SComponent)
 						{
-							// Créer un composant de ce type
-							value = new value["type"];
-							
+							// Cibler l'instance
+							value = value["_"];
+						}
+						
+						// Vérifier si c'est une classe de SComponent
+						else if (value["_"] is Class)
+						{
 							// Vérifier que l'objet créé soit bien un composant
 							if (value is SComponent)
 							{
@@ -139,16 +145,18 @@ package fr.swapp.graphic.base
 							else
 							{
 								// On signale le problème
-								throw new GraphicalError("SBaseView.processComponents", "Bad 'type' in component list. All components have to extends SComponent.");
+								throw new GraphicalError("SBaseView.processComponents", "Bad _ type in component list. All components have to extends SComponent.");
 								
 								// Et on arrête le massacre
 								break;
 							}
 						}
+						
+						// On ne sait pas ce que c'est
 						else
 						{
 							// On signale le problème
-							throw new GraphicalError("SBaseView.processComponents", "Bad use of the 'type' property. Use this property only to describe component type to create.");
+							throw new GraphicalError("SBaseView.processComponents", "Bad use of the _ type property. Use this property only to describe component type to create.");
 							
 							// Et on arrête le massacre
 							break;
@@ -161,42 +169,41 @@ package fr.swapp.graphic.base
 					}
 					
 					// Parcourir les composants récursif
-					processComponents(component, pComponents[i], currentName);
+					processComponents(component, pComponents[i]);
 				}
 				
 				// Sinon c'est rien de bon
 				else
 				{
 					// On signale le problème
-					throw new GraphicalError("SBaseView.processComponents", "Bad component in components list. All components have to extends SComponent.");
+					throw new GraphicalError("SBaseView.processComponents", "Bad component " + i + " in components list. All components have to extends SComponent.");
 					
 					// Et on arrête le massacre
 					break;
 				}
-				
-				// Si une propriété du parent possède le nom du composant
-				/*
-				if (i in pParent)
-				{
-					// On les associes
-					pParent[i] = component;
-				}
-				*/
 				
 				// Activer les styles sur ce component
 				component.styleEnabled = true;
 				
 				// Si on a un nom
 				// Et que la variable existe
-				trace("TRYING NAME", currentName, currentName != "", currentName in this);
+				//trace("TRYING NAME", currentName, currentName != "", currentName in this);
 				
-				if (currentName != null && currentName != "" && currentName in this)
+				// Vérifier si la première lettre du nom est un dollar
+				if (currentName != null && currentName != "" && currentName.charAt(0) == "$")
 				{
-					this[currentName] = component;
+					// Essayer d'ajouter la propriété à la vue
+					if (currentName in this)
+					{
+						this[currentName] = component;
+					}
+					
+					// Virer le dollar avant la définition du nom du composant
+					currentName = currentName.substr(1, currentName.length - 1);
 				}
 				
-				// Ajouter le composant en haut avec son nom
-				component.into(pParent, -1, i);
+				// Ajouter le composant en bas avec son nom
+				component.into(pParent, 0, currentName);
 			}
 		}
 	}

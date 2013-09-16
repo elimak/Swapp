@@ -28,8 +28,6 @@ package fr.swapp.graphic.controls
 		}
 		
 		
-		
-		
 		/**
 		 * Constructor
 		 */

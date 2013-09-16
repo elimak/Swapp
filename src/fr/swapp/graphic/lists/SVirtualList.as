@@ -6,15 +6,15 @@ package fr.swapp.graphic.lists
 	import flash.utils.Dictionary;
 	import fr.swapp.core.pool.ObjectPool;
 	import fr.swapp.graphic.base.SComponent;
-	import fr.swapp.graphic.base.SContainer;
+	import fr.swapp.graphic.containers.SContainer;
 	import fr.swapp.graphic.errors.GraphicalError;
-	import fr.swapp.touch.delegate.ITouchDragDelegate;
+	import fr.swapp.input.delegate.IInputDragDelegate;
 	import org.osflash.signals.Signal;
 	
 	/**
 	 * @author ZoulouX
 	 */
-	public class SVirtualList extends SContainer implements ITouchDragDelegate
+	public class SVirtualList extends SContainer implements IInputDragDelegate
 	{
 		/**
 		 * L'orientation horizontale
@@ -497,7 +497,7 @@ package fr.swapp.graphic.lists
 		/**
 		 * Vérouillage du déplacement
 		 */
-		public function touchDragLock (pTarget:DisplayObject):void
+		public function inputDragLock (pInputType:uint, pTarget:DisplayObject):void
 		{
 			
 		}
@@ -505,7 +505,7 @@ package fr.swapp.graphic.lists
 		/**
 		 * Dévérouillage du déplacement
 		 */
-		public function touchDragUnlock (pTarget:DisplayObject):void
+		public function inputDragUnlock (pInputType:uint, pTarget:DisplayObject):void
 		{
 			
 		}
@@ -513,7 +513,7 @@ package fr.swapp.graphic.lists
 		/**
 		 * Déplacement
 		 */
-		public function touchDragging (pTarget:DisplayObject, pDirection:String, pXDelta:Number, pYDelta:Number):Boolean
+		public function inputDragging (pInputType:uint, pTarget:DisplayObject, pDirection:String, pXDelta:Number, pYDelta:Number):Boolean
 		{
 			return false;
 		}
